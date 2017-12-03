@@ -10,7 +10,7 @@
 #include "../asset/TextureAsset.h"
 #include "../asset/FontAsset.h"
 
-class IntroGameMode : public IGameMode, public IKeyboardEventListener {
+class IntroGameMode : public IGameMode, public IKeyboardEventListener, public ILoadTask {
 public:
     explicit IntroGameMode(std::shared_ptr<IGame> game);
 
@@ -26,6 +26,10 @@ public:
     void onKeyDown(const SDL_Event *event) override;
     void onKeyUp(const SDL_Event *event) override;
     void onKeyPressed(const SDL_Event *event) override;
+
+    bool load(IGame &game) override;
+
+    bool prepare(IGame &game) override;
 
 private:
     bool initialized = false;

@@ -32,9 +32,10 @@ void Game::run() {
     // init renderer
     renderer->init(1280, 720);
 
-    assetLoader->clear();
     defaultFont = std::make_shared<FontAsset>("font9x14.png", 9, 14);
-    assetLoader->add(defaultFont);
+    getAssetLoader()->addLoadTask(this);
+
+    //assetLoader->add(defaultFont);
     assetLoader->loadBlocking();
 
     if(!modes.empty())
@@ -233,6 +234,19 @@ void Game::initFpsTimer() {
 
 std::shared_ptr<ISystem> Game::getSystem() {
     return system;
+}
+
+bool Game::load(IGame &game) {
+    defaultFont->load(game);
+    return true;
+}
+
+bool Game::prepare(IGame &game) {
+    defaultFont->prepare(game);
+    getRenderer()->getTextureManager().buildTextures();
+    getRenderer()->getTextureManager().uploadTextures();
+    getRenderer()->getQuadRenderer().buildBuffers();
+    return true;
 }
 
 

@@ -19,6 +19,13 @@ public:
 
 };
 
+struct LoadTask {
+    LoadTask(std::function<void(IGame*)> const &load, std::function<void(IGame*)> const &prepare);
+    std::function<void(IGame*)> const& load;
+    std::function<void(IGame*)> const& prepare;
+    bool isPrepared = false;
+};
+
 class AssetLoader : public IAssetLoader {
 public:
     AssetLoader();
@@ -27,14 +34,9 @@ public:
     void update() override;
     void setGame(std::shared_ptr<IGame> game) override;
     double getProgress() override;
-    void clear() override;
-    void add(std::shared_ptr<IAsset> asset) override;
-    void remove(std::shared_ptr<IAsset> asset) override;
     void load() override;
     void loadBlocking() override;
-
-
-    void addLoadTask(std::function<void(std::shared_ptr<IGame>)> const &load, std::function<void(std::shared_ptr<IGame>)> const &prepare) override;
+    //void addLoadTask(std::function<void(IGame*)> const &load, std::function<void(IGame*)> const &prepare) override;
 
     SDL_Thread *thread;
     SDL_mutex *prepareLock;
@@ -44,11 +46,11 @@ public:
     bool hasNewJob = false;
     bool shouldQuit = false;
     bool loading = false;
-    IAsset* prepareAsset = nullptr;
+    LoadTask* prepareTask = nullptr;
     double progress = 0;
     std::shared_ptr<IGame> game;
-    std::list<std::shared_ptr<IAsset>> assets;
-    bool shouldUploadTextures = false;
+    //std::list<std::shared_ptr<IAsset>> assets;
+    std::list<std::unique_ptr<LoadTask>> loadTasks;
 
 private:
 };

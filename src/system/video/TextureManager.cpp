@@ -33,7 +33,7 @@ void TextureManager::buildTextures() {
             }
         }
         auto all_fit = atlas->build();
-        atlas->debug();
+        //atlas->debug();
         if(!all_fit) { // all fit, stop building atlases
             // mark the ones that didn't fit as CREATED so they will be added to next atlas instead
             for(auto id : atlas->getUnfittedIds())

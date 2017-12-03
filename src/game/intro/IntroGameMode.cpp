@@ -24,46 +24,24 @@ bool IntroGameMode::isInit() {
 bool IntroGameMode::init() {
     SDL_Log("IntroGameMode::init");
     initialized = true;
+    /*
+    game->getAssetLoader()->addLoadTask([this](std::shared_ptr<IGame> g){
 
-    game->getAssetLoader()->clear();
-
-
-    game->getAssetLoader()->addLoadTask([](std::shared_ptr<IGame> g){
-        g->getAssetLoader();
-    }, [](std::shared_ptr<IGame> g) {
+    }, [this](std::shared_ptr<IGame> g) {
 
     });
-
-    texture1 = std::make_shared<TextureAsset>("test.png");
-    game->getAssetLoader()->add(texture1);
-    texture2 = std::make_shared<TextureAsset>("test2.png");
-    game->getAssetLoader()->add(texture2);
-    texture3 = std::make_shared<TextureAsset>("test2.png");
-    game->getAssetLoader()->add(texture3);
-    texture4 = std::make_shared<TextureAsset>("checker.png");
-    game->getAssetLoader()->add(texture4);
-    texture5 = std::make_shared<TextureAsset>("font9x14.png");
-    game->getAssetLoader()->add(texture5);
-    texture6 = std::make_shared<TextureAsset>("bedstead12x20.png");
-    game->getAssetLoader()->add(texture6);
+     */
 
 
     textures.push_back(std::make_shared<TextureAsset>("bacon1.png"));
-    game->getAssetLoader()->add(textures.back());
     textures.push_back(std::make_shared<TextureAsset>("bacon2.png"));
-    game->getAssetLoader()->add(textures.back());
     textures.push_back(std::make_shared<TextureAsset>("bacon3.png"));
-    game->getAssetLoader()->add(textures.back());
     textures.push_back(std::make_shared<TextureAsset>("bacon4.png"));
-    game->getAssetLoader()->add(textures.back());
 
     font1 = std::make_shared<FontAsset>("font9x14.png", 9, 14);
-    game->getAssetLoader()->add(font1);
-
     font2 = std::make_shared<FontAsset>("bedstead12x20.png", 12, 20);
-    game->getAssetLoader()->add(font2);
 
-
+    game->getAssetLoader()->addLoadTask(this);
     game->getAssetLoader()->load();
 
     time_t t;
@@ -71,6 +49,31 @@ bool IntroGameMode::init() {
 
 
     return true;
+}
+
+bool IntroGameMode::load(IGame &game) {
+    SDL_Log("IntroGameMode::load");
+    for(auto const& tex : textures)
+    {
+        tex->load(game);
+    }
+    font1->load(game);
+    font2->load(game);
+    return false;
+}
+
+bool IntroGameMode::prepare(IGame &game) {
+    SDL_Log("IntroGameMode::prepare");
+    for(auto const& tex : textures)
+    {
+        tex->prepare(game);
+    }
+    font1->prepare(game);
+    font2->prepare(game);
+    game.getRenderer()->getTextureManager().buildTextures();
+    game.getRenderer()->getTextureManager().uploadTextures();
+    game.getRenderer()->getQuadRenderer().buildBuffers();
+    return false;
 }
 
 void IntroGameMode::shutdown() {
@@ -97,13 +100,6 @@ void IntroGameMode::update() {
 }
 
 void IntroGameMode::fixedUpdate() {
-
-    game->getRenderer()->getQuadRenderer().drawTexturedQuad(texture1->getHandle(), 0, 0, 1280, 360, 0);
-    game->getRenderer()->getQuadRenderer().drawTexturedQuad(texture2->getHandle(), 0, 360, 1280, 720, 0);
-    game->getRenderer()->getQuadRenderer().drawTexturedQuad(texture4->getHandle(), 100, 100, 300, 240, 1);
-    //game->getRenderer()->getQuadRenderer().drawTexturedQuad(texture6->getHandle(), 600, 100, 1280, 540, 1);
-    game->getRenderer()->getQuadRenderer().drawTexturedQuad(texture6->getHandle(), 600, 100, 792, 420, 2);
-
     game->getRenderer()->renderText(font1, 50, 50, 2, "The quick brown fox jumps over the lazy dog");
     game->getRenderer()->renderText(font2, 50, 680, 2, "4 different types of bacon 10000 times each second");
 
@@ -119,7 +115,6 @@ void IntroGameMode::fixedUpdate() {
         if(index > 3)
             index = 0;
     }
-
 }
 
 static double decelerate(double input)
@@ -202,4 +197,5 @@ void IntroGameMode::onKeyUp(const SDL_Event *event) {
 void IntroGameMode::onKeyPressed(const SDL_Event *event) {
 
 }
+
 

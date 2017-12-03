@@ -51,11 +51,11 @@ bool TextureAtlas::build() {
             uv_rect.top = remapFloat(0, (float) height, 0, 1, (float) node->rect.top);
             uv_rect.bottom = remapFloat(0, (float) height, 0, 1, (float) node->rect.bottom+1);
             textures.push_back(std::unique_ptr<AtlasTexture>(new AtlasTexture(pb->getName(), node->rect, uv_rect, idMap[pb])));
-            SDL_Log("Fitted image %s size: %dx%d in atlas", pb->getName().c_str(), pb->getWidth(), pb->getHeight());
+            //SDL_Log("Fitted image %s size: %dx%d in atlas", pb->getName().c_str(), pb->getWidth(), pb->getHeight());
         }
         else
         {
-            SDL_Log("Could not fit image %s size: %dx%d", pb->getName().c_str(), pb->getWidth(), pb->getHeight());
+            //SDL_Log("Could not fit image %s size: %dx%d", pb->getName().c_str(), pb->getWidth(), pb->getHeight());
             unfittedIds.push_back(idMap[pb]);
         }
     }

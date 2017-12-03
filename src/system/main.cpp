@@ -1,7 +1,9 @@
 #include <iostream>
 #include <SDL.h>
+#include <chrono>
 #include "../game/Game.h"
 #include "Factory.h"
+#include "mingw.thread.h"
 
 /*
 #ifdef __cplusplus
@@ -13,6 +15,38 @@ extern "C"
 #ifdef main
 # undef main
 #endif /* main */
+
+/*
+int main(int argc, char *argv[]) {
+    auto assetLoader = Factory::createAssetLoader();
+
+    assetLoader->addLoadTask([](IGame* g){
+        SDL_Log("LoadTask1 blocking load");
+    }, [](IGame* g) {
+        SDL_Log("LoadTask1 blocking prepare");
+    });
+    assetLoader->loadBlocking();
+
+
+
+    assetLoader->addLoadTask([](IGame* g){
+        SDL_Log("LoadTask load");
+    }, [](IGame* g) {
+        SDL_Log("LoadTask prepare");
+    });
+
+    assetLoader->load();
+    //std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    SDL_Log("mtefw loading = %d", assetLoader->isLoading());
+    while(assetLoader->isLoading())
+    {
+        SDL_Log("mt loop");
+        assetLoader->update();
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+}
+ */
 
 int main(int argc, char *argv[]) {
     SDL_Log("Initializing...\n");
