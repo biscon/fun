@@ -2,18 +2,18 @@
 // Created by bison on 21-11-2017.
 //
 
-#ifndef GAME_QUADRENDERER_H
-#define GAME_QUADRENDERER_H
+#ifndef GAME_CUBERENDERER_H
+#define GAME_CUBERENDERER_H
 
-#include "IndexedMesh.h"
 #include "OGLTexture.h"
 #include "Shader.h"
+#include "Mesh.h"
 
-class QuadRenderer {
+class CubeRenderer {
 public:
-    explicit QuadRenderer(std::shared_ptr<TextureAtlas> textureAtlas);
+    explicit CubeRenderer(std::shared_ptr<TextureAtlas> textureAtlas);
 
-    void drawTexturedQuad(int32_t handle, float left, float top, float right, float bottom, int32_t layer);
+
     void render(float screenWidth, float screenHeight);
     void startFrame();
     void buildBuffers();
@@ -25,11 +25,11 @@ public:
 private:
     void setupBufferAttributes();
     std::unique_ptr<Shader> shader = nullptr;
-    std::unique_ptr<IndexedMesh> mesh = nullptr;
+    std::unique_ptr<Mesh> mesh = nullptr;
     std::shared_ptr<TextureAtlas> textureAtlas;
 
     uint32_t vertexCount = 0;
 };
 
 
-#endif //GAME_QUADRENDERER_H
+#endif

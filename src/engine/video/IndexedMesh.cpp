@@ -4,9 +4,9 @@
 
 #include <cstring>
 #include <SDL_log.h>
-#include "RenderMesh.h"
+#include "IndexedMesh.h"
 
-RenderMesh::RenderMesh() {
+IndexedMesh::IndexedMesh(MeshUpdateType) : type(type) {
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
     glGenBuffers(1, &vbo);
@@ -33,23 +33,28 @@ RenderMesh::RenderMesh() {
      */
 }
 
-RenderMesh::~RenderMesh() {
+IndexedMesh::~IndexedMesh() {
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &ebo);
     glDeleteVertexArrays(1, &vao);
 }
 
-void RenderMesh::upload() {
+void IndexedMesh::upload() {
     //SDL_Log("Uploading %d vertices and %d elements", vertices.size(), elements.size());
+    GLenum t = GL_STATIC_DRAW;
+    if(type == MeshUpdateType::DYNAMIC)
+        t = GL_DYNAMIC_DRAW;
+    if(type == MeshUpdateType::STREAMING)
+        t = GL_STREAM_DRAW;
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STREAM_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], t);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements.size() * sizeof(GLuint), &elements[0], GL_STREAM_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements.size() * sizeof(GLuint), &elements[0], t);
 }
 
-void RenderMesh::addTexturedQuad(float left, float top, float right, float bottom, UVRect& uvRect)
+void IndexedMesh::addTexturedQuad(float left, float top, float right, float bottom, UVRect& uvRect)
 {
     vertices.insert(vertices.end(), {
             left, top, 1.0f, 1.0f, 1.0f, 1.0f, uvRect.left, uvRect.top,
@@ -62,21 +67,19 @@ void RenderMesh::addTexturedQuad(float left, float top, float right, float botto
             off, off + 1, off + 2,
             off + 2, off + 3, off
     });
-    int i = 10 +5;
-
 }
 
-void RenderMesh::clear() {
+void IndexedMesh::clear() {
     vertices.clear();
     elements.clear();
 }
 
-void RenderMesh::bindVAO() {
+void IndexedMesh::bindVAO() {
     //SDL_Log("Binding vertex array %d", vao);
     glBindVertexArray(vao);
 }
 
-void RenderMesh::bindVBO() {
+void IndexedMesh::bindVBO() {
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 }
 

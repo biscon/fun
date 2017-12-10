@@ -2,18 +2,20 @@
 // Created by bison on 19-11-2017.
 //
 
-#ifndef GAME_QUADBUFFER_H
-#define GAME_QUADBUFFER_H
+#ifndef GAME_INDEXEDMESH_H
+#define GAME_INDEXEDMESH_H
 
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <vector>
 #include "TextureAtlas.h"
+#include "MeshUpdateType.h"
 
-class RenderMesh {
+
+class IndexedMesh {
 public:
-    RenderMesh();
-    virtual ~RenderMesh();
+    IndexedMesh(MeshUpdateType updateType);
+    virtual ~IndexedMesh();
     void upload();
     void bindVAO();
     void bindVBO();
@@ -25,6 +27,7 @@ public:
     GLuint ebo;
     std::vector<float> vertices;
     std::vector<GLuint> elements;
+    MeshUpdateType type;
 
 private:
 };

@@ -2,7 +2,7 @@
 // Created by bison on 21-11-2017.
 //
 
-#include "QuadRenderer.h"
+#include "CubeRenderer.h"
 #include "shaders.h"
 
 #define GLEW_STATIC
@@ -12,27 +12,13 @@
 #include <gtc/type_ptr.hpp>
 #include <SDL_log.h>
 
-QuadRenderer::QuadRenderer(std::shared_ptr<TextureAtlas> textureAtlas) : textureAtlas(textureAtlas) {
-    shader = std::unique_ptr<Shader>(new Shader(vertexSource2D, fragmentSource2D, nullptr));
+CubeRenderer::CubeRenderer(std::shared_ptr<TextureAtlas> textureAtlas) : textureAtlas(textureAtlas) {
+    shader = std::unique_ptr<Shader>(new Shader(vertexSource3D, fragmentSource3D, nullptr));
     shader->use();
+
 }
 
-void QuadRenderer::render(float screenWidth, float screenHeight) {
-    // upload meshes
-    bool did_upload = false;
-    if(!mesh->vertices.empty())
-    {
-        mesh->upload();
-        did_upload = true;
-    }
-
-    if(!did_upload) // nothing to render
-    {
-        return;
-    }
-
-    vertexCount = mesh->vertices.size();
-    //SDL_Log("Performing render");
+void CubeRenderer::render(float screenWidth, float screenHeight) {
     // use shader
     shader->use();
     // bind vao
@@ -40,7 +26,6 @@ void QuadRenderer::render(float screenWidth, float screenHeight) {
 
     // bind texture
     textureAtlas->bind();
-
 
     // set uniforms
 
@@ -50,43 +35,38 @@ void QuadRenderer::render(float screenWidth, float screenHeight) {
     shader->setMat4("model", model);
 
     // view matrix -----------------------------------------------------------------------------------------------------
-    glm::mat4 view = glm::mat4();
-    //view = glm::translate(view, glm::vec3(640.0f, 310.0f, .0f));
-    /*
+    //glm::mat4 view = glm::mat4();
     glm::mat4 view = glm::lookAt(
             glm::vec3(1.0f, 1.0f, 1.0f),
             glm::vec3(0.0f, 0.0f, 0.0f),
             glm::vec3(0.0f, 0.0f, 1.0f)
     );
-    */
     shader->setMat4("view", view);
 
     // projection matrix -----------------------------------------------------------------------------------------------
-    //glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float) screenWidth / (float) screenHeight, 1.0f, 10.0f);
-    glm::mat4 proj = glm::ortho(0.0f, screenWidth, screenHeight, 0.0f);
+    glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float) screenWidth / (float) screenHeight, 1.0f, 10.0f);
     shader->setMat4("proj", proj);
     // render
-    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->elements.size()), GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(mesh->vertices.size()));
+    //glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->elements.size()), GL_UNSIGNED_INT, 0);
 }
 
-void QuadRenderer::startFrame() {
+void CubeRenderer::startFrame() {
     mesh->clear();
 }
 
-void QuadRenderer::drawTexturedQuad(int32_t handle, float left, float top, float right, float bottom, int32_t layer) {
-    mesh->addTexturedQuad(left, top, right, bottom, textureAtlas->getUVRect(handle));
-}
 
-void QuadRenderer::buildBuffers() {
-    SDL_Log("Building buffer for atlas");
-    mesh = std::unique_ptr<IndexedMesh>(new IndexedMesh(MeshUpdateType::STREAMING));
+void CubeRenderer::buildBuffers() {
+    SDL_Log("Building cube mesh");
+    mesh = std::unique_ptr<Mesh>(new Mesh(MeshUpdateType::STATIC));
     mesh->bindVAO();
     mesh->bindVBO();
+    mesh->generateTexturedCube();
+    mesh->upload();
     setupBufferAttributes();
 }
 
-void QuadRenderer::setupBufferAttributes() {
-    //glUseProgram(shaderProgram);
+void CubeRenderer::setupBufferAttributes() {
     GLenum err;
     while ((err = glGetError()) != GL_NO_ERROR) {
         SDL_Log("setup OpenGL error: %d", err);
@@ -95,21 +75,23 @@ void QuadRenderer::setupBufferAttributes() {
     GLint posAttrib = glGetAttribLocation(shader->getShaderId(), "position");
     if(posAttrib < 0)
         SDL_Log("position attribute not found");
-    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), 0);
+    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), 0);
     glEnableVertexAttribArray(posAttrib);
 
     // setup color
+    /*
     GLint colAttrib = glGetAttribLocation(shader->getShaderId(), "color");
     glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(2*sizeof(float)));
     glEnableVertexAttribArray(colAttrib);
     if(colAttrib < 0)
         SDL_Log("color attribute not found");
+    */
 
     // setup texcoords
     GLint texAttrib = glGetAttribLocation(shader->getShaderId(), "texcoord");
     if(texAttrib < 0)
         SDL_Log("texcoord attribute not found");
-    glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(6*sizeof(float)));
+    glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)(3*sizeof(float)));
     glEnableVertexAttribArray(texAttrib);
 }
 

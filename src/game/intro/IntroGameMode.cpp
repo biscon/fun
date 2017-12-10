@@ -38,6 +38,8 @@ bool IntroGameMode::init() {
     textureAtlas = std::make_shared<TextureAtlas>(2048, 2048);
     quadRenderer = std::unique_ptr<QuadRenderer>(new QuadRenderer(textureAtlas));
 
+    cubeRenderer = std::unique_ptr<CubeRenderer>(new CubeRenderer(textureAtlas));
+
     game->getAssetLoader()->addLoadTask(this);
     game->getAssetLoader()->load();
 
@@ -55,22 +57,15 @@ bool IntroGameMode::load(IGame &game) {
     textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("bacon3.png")));
     textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("bacon4.png")));
     textureAtlas->build();
-    /*
-    font1->load(game);
-    font2->load(game);
-     */
-    return false;
+    return true;
 }
 
 bool IntroGameMode::prepare(IGame &game) {
     SDL_Log("IntroGameMode::prepare");
     textureAtlas->upload();
     quadRenderer->buildBuffers();
-    /*
-    font1->prepare(game);
-    font2->prepare(game);
-    */
-    return false;
+    cubeRenderer->buildBuffers();
+    return true;
 }
 
 void IntroGameMode::shutdown() {

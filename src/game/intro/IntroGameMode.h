@@ -11,6 +11,7 @@
 #include <engine/asset/FontAsset.h>
 #include <engine/video/QuadRenderer.h>
 #include <engine/video/FontRenderer.h>
+#include <engine/video/CubeRenderer.h>
 
 class IntroGameMode : public IGameMode, public IKeyboardEventListener, public ILoadTask {
 public:
@@ -43,6 +44,7 @@ private:
 
     std::unique_ptr<FontRenderer> fontRenderer;
     std::unique_ptr<QuadRenderer> quadRenderer;
+    std::unique_ptr<CubeRenderer> cubeRenderer;
     std::shared_ptr<TextureAtlas> textureAtlas;
 
     bool movingUp = false, movingDown = false, movingRight = false, movingLeft = false, zoomingIn = false, zoomingOut = false;
