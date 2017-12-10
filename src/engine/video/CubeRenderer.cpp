@@ -18,7 +18,8 @@ CubeRenderer::CubeRenderer(std::shared_ptr<TextureAtlas> textureAtlas) : texture
 
 }
 
-void CubeRenderer::render(float screenWidth, float screenHeight) {
+void CubeRenderer::render(float screenWidth, float screenHeight, double time) {
+    glEnable(GL_DEPTH_TEST);
     // use shader
     shader->use();
     // bind vao
@@ -32,12 +33,14 @@ void CubeRenderer::render(float screenWidth, float screenHeight) {
     // model matrix ----------------------------------------------------------------------------------------------------
     glm::mat4 model = glm::mat4();
     //model = glm::scale(model, glm::vec3(.5f, .5f, .5f));
+    //model = glm::rotate(model, )
+    model = glm::rotate(model, (float)(time) * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
     shader->setMat4("model", model);
 
     // view matrix -----------------------------------------------------------------------------------------------------
     //glm::mat4 view = glm::mat4();
     glm::mat4 view = glm::lookAt(
-            glm::vec3(1.0f, 1.0f, 1.0f),
+            glm::vec3(1.0f, 1.0f, 2.0f),
             glm::vec3(0.0f, 0.0f, 0.0f),
             glm::vec3(0.0f, 0.0f, 1.0f)
     );
@@ -49,19 +52,15 @@ void CubeRenderer::render(float screenWidth, float screenHeight) {
     // render
     glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(mesh->vertices.size()));
     //glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->elements.size()), GL_UNSIGNED_INT, 0);
+    glDisable(GL_DEPTH_TEST);
 }
-
-void CubeRenderer::startFrame() {
-    mesh->clear();
-}
-
 
 void CubeRenderer::buildBuffers() {
     SDL_Log("Building cube mesh");
     mesh = std::unique_ptr<Mesh>(new Mesh(MeshUpdateType::STATIC));
     mesh->bindVAO();
     mesh->bindVBO();
-    mesh->generateTexturedCube();
+    mesh->generateTexturedCube(textureAtlas->getUVRect(3));
     mesh->upload();
     setupBufferAttributes();
 }

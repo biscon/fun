@@ -106,9 +106,11 @@ void IntroGameMode::fixedUpdate() {
             index = 0;
     }
     quadRenderer->render(1280, 720);
+    cubeRenderer->render(1280, 720, game->getTime());
+
 
     fontRenderer->startFrame();
-    fontRenderer->renderText(font1, 50, 50, 2, "The quick brown fox jumps over the lazy dog");
+    fontRenderer->renderText(font2, 50, 50, 2, "Behold amazing spinning bacon cube!!");
     fontRenderer->renderText(font2, 50, 680, 2, "4 different types of bacon 10000 times each second");
     fontRenderer->render(1280, 720);
 }

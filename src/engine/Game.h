@@ -37,6 +37,7 @@ public:
     std::shared_ptr<IInput> getInput() override;
     std::shared_ptr<IAssetLoader> getAssetLoader() override;
     std::shared_ptr<ISystem> getSystem() override;
+    double getTime() override;
 
 private:
     std::shared_ptr<IRenderer> renderer;
@@ -57,6 +58,7 @@ private:
     void fixedUpdate();
     void update();
     void initFpsTimer();
+    uint64 initTimeStamp = 0;
 };
 
 

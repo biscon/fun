@@ -49,50 +49,50 @@ void Mesh::upload() {
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], t);
 }
 
-void Mesh::generateTexturedCube()
+void Mesh::generateTexturedCube(UVRect& r)
 {
     vertices.insert(vertices.end(), {
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-            0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f,  r.left, r.bottom,
+            0.5f, -0.5f, -0.5f,  r.right, r.bottom,
+            0.5f,  0.5f, -0.5f,  r.right, r.top,
+            0.5f,  0.5f, -0.5f,  r.right, r.top,
+            -0.5f,  0.5f, -0.5f, r.left, r.top,
+            -0.5f, -0.5f, -0.5f, r.left, r.bottom,
 
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,  r.left, r.bottom,
+            0.5f, -0.5f,  0.5f,  r.right, r.bottom,
+            0.5f,  0.5f,  0.5f,  r.right, r.top,
+            0.5f,  0.5f,  0.5f,  r.right, r.top,
+            -0.5f,  0.5f,  0.5f,  r.left, r.top,
+            -0.5f, -0.5f,  0.5f,  r.left, r.bottom,
 
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  r.right, r.bottom,
+            -0.5f,  0.5f, -0.5f,  r.right, r.top,
+            -0.5f, -0.5f, -0.5f,  r.left, r.top,
+            -0.5f, -0.5f, -0.5f,  r.left, r.top,
+            -0.5f, -0.5f,  0.5f,  r.left, r.bottom,
+            -0.5f,  0.5f,  0.5f,  r.right, r.bottom,
 
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            0.5f,  0.5f,  0.5f,  r.right, r.bottom,
+            0.5f,  0.5f, -0.5f,  r.right, r.top,
+            0.5f, -0.5f, -0.5f,  r.left, r.top,
+            0.5f, -0.5f, -0.5f,  r.left, r.top,
+            0.5f, -0.5f,  0.5f,  r.left, r.bottom,
+            0.5f,  0.5f,  0.5f,  r.right, r.bottom,
 
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  r.left, r.top,
+            0.5f, -0.5f, -0.5f,  r.right, r.top,
+            0.5f, -0.5f,  0.5f,  r.right, r.bottom,
+            0.5f, -0.5f,  0.5f,  r.right, r.bottom,
+            -0.5f, -0.5f,  0.5f,  r.left, r.bottom,
+            -0.5f, -0.5f, -0.5f,  r.left, r.top,
 
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+            -0.5f,  0.5f, -0.5f,  r.left, r.top,
+            0.5f,  0.5f, -0.5f,  r.right, r.top,
+            0.5f,  0.5f,  0.5f,  r.right, r.bottom,
+            0.5f,  0.5f,  0.5f,  r.right, r.bottom,
+            -0.5f,  0.5f,  0.5f,  r.left, r.bottom,
+            -0.5f,  0.5f, -0.5f,  r.left, r.top
     });
 }
 

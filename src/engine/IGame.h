@@ -30,5 +30,6 @@ public:
     virtual std::shared_ptr<IInput> getInput()=0;
     virtual std::shared_ptr<IAssetLoader> getAssetLoader()=0;
     virtual std::shared_ptr<ISystem> getSystem()=0;
+    virtual double getTime()=0;
 };
 #endif //CRPG_IGAME_H

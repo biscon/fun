@@ -48,6 +48,8 @@ void Game::run() {
         modeStack.push(mode);
     }
 
+    initTimeStamp = system->getPerformanceCounter();
+
     while(!shouldQuit)
     {
         update();
@@ -105,13 +107,14 @@ void Game::fixedUpdate() {
         memset(fpsStr, 0, sizeof(fpsStr));
         double fps = fpsCounter->getFps();
         auto vertex_count = 0;
+        auto elapsed_time = getTime();
         if(fps > 1000)
         {
-            sprintf(fpsStr, "RENDERER FPS: %.0f GAME FPS: >1000 VERTS: %d TEXQUADS: %d", fixedFpsCounter->getFps(), vertex_count, vertex_count/4);
+            sprintf(fpsStr, "RENDERER FPS: %.0f GAME FPS: >1000 TIME: %.2f", fixedFpsCounter->getFps(), elapsed_time);
         }
         else
         {
-            sprintf(fpsStr, "RENDERER FPS: %.0f GAME FPS: %.0f VERTS: %d TEXQUADS: %d", fixedFpsCounter->getFps(), fps, vertex_count, vertex_count/4);
+            sprintf(fpsStr, "RENDERER FPS: %.0f GAME FPS: %.0f TIME: %.2f", fixedFpsCounter->getFps(), fps, elapsed_time);
         }
         defaultFontRenderer->renderText(defaultFont, 0, 0, 3, std::string(fpsStr));
         defaultFontRenderer->render(1280, 720);
@@ -237,5 +240,9 @@ void Game::initFpsTimer() {
 
 std::shared_ptr<ISystem> Game::getSystem() {
     return system;
+}
+
+double Game::getTime() {
+    return ((double) (system->getPerformanceCounter() - initTimeStamp)) / (double) system->getPerformanceFreq();
 }
 

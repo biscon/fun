@@ -14,8 +14,7 @@ public:
     explicit CubeRenderer(std::shared_ptr<TextureAtlas> textureAtlas);
 
 
-    void render(float screenWidth, float screenHeight);
-    void startFrame();
+    void render(float screenWidth, float screenHeight, double time);
     void buildBuffers();
 
     uint32_t getVertexCount() const {
