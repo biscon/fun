@@ -20,7 +20,7 @@
 #include "FPSCounter.h"
 #include "video/FontRenderer.h"
 
-class Game : public IGame, public IQuitEventListener, public IKeyboardEventListener, public ILoadTask {
+class Game : public IGame, public IQuitEventListener, public IKeyboardEventListener {
 public:
     explicit Game(std::shared_ptr<IRenderer> renderer, std::shared_ptr<IInput> input, std::shared_ptr<IAssetLoader> loader, std::shared_ptr<ISystem> system);
     void run() override;
@@ -37,10 +37,6 @@ public:
     std::shared_ptr<IInput> getInput() override;
     std::shared_ptr<IAssetLoader> getAssetLoader() override;
     std::shared_ptr<ISystem> getSystem() override;
-
-    bool load(IGame &game) override;
-
-    bool prepare(IGame &game) override;
 
 private:
     std::shared_ptr<IRenderer> renderer;

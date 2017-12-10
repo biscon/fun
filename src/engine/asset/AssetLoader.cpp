@@ -78,19 +78,17 @@ void AssetLoader::loadAsync()
 {
     SDL_Log("AssetLoaderThread: Loading asynchronously...");
     for (auto &loadTask : loadTasks) {
-        SDL_Log("about to crash");
         loadTask->load(*game.get());
-        SDL_Log("crashed");
         prepareTask = loadTask;
         // wait for mainthread to prepare
-        SDL_Log("Waiting for mainthread to prepare");
+        //SDL_Log("Waiting for mainthread to prepare");
         while(prepareTask != nullptr)
         {
-            SDL_Log("waiting");
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            //std::this_thread::yield();
+            //SDL_Log("waiting");
+            //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::this_thread::yield();
         }
-        SDL_Log("Preparation done");
+        //SDL_Log("Preparation done");
     }
     SDL_Log("AssetLoaderThread: Done executing %d load tasks", loadTasks.size());
     loadTasks.clear();

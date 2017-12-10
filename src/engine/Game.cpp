@@ -35,7 +35,6 @@ void Game::run() {
     defaultFontRenderer = std::make_shared<FontRenderer>();
     defaultFont = defaultFontRenderer->addFont("font9x14.png", 9, 14);
     getAssetLoader()->addLoadTask(defaultFontRenderer.get());
-    getAssetLoader()->addLoadTask(this);
 
     //assetLoader->add(defaultFont);
     assetLoader->loadBlocking();
@@ -239,15 +238,4 @@ void Game::initFpsTimer() {
 std::shared_ptr<ISystem> Game::getSystem() {
     return system;
 }
-
-bool Game::load(IGame &game) {
-
-    return true;
-}
-
-bool Game::prepare(IGame &game) {
-
-    return true;
-}
-
 
