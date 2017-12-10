@@ -7,7 +7,6 @@
 #include <utility>
 #include <ctime>
 #include "IntroGameMode.h"
-#include "../util/string_util.h"
 
 IntroGameMode::IntroGameMode(std::shared_ptr<IGame> game) : IGameMode(std::move(game)) {
 
@@ -31,15 +30,13 @@ bool IntroGameMode::init() {
 
     });
      */
+    fontRenderer = std::unique_ptr<FontRenderer>(new FontRenderer());
+    font1 = fontRenderer->addFont("font9x14.png", 9, 14);
+    font2 = fontRenderer->addFont("bedstead12x20.png", 12, 20);
+    game->getAssetLoader()->addLoadTask(fontRenderer.get());
 
-
-    textures.push_back(std::make_shared<TextureAsset>("bacon1.png"));
-    textures.push_back(std::make_shared<TextureAsset>("bacon2.png"));
-    textures.push_back(std::make_shared<TextureAsset>("bacon3.png"));
-    textures.push_back(std::make_shared<TextureAsset>("bacon4.png"));
-
-    font1 = std::make_shared<FontAsset>("font9x14.png", 9, 14);
-    font2 = std::make_shared<FontAsset>("bedstead12x20.png", 12, 20);
+    textureAtlas = std::make_shared<TextureAtlas>(2048, 2048);
+    quadRenderer = std::unique_ptr<QuadRenderer>(new QuadRenderer(textureAtlas));
 
     game->getAssetLoader()->addLoadTask(this);
     game->getAssetLoader()->load();
@@ -53,26 +50,26 @@ bool IntroGameMode::init() {
 
 bool IntroGameMode::load(IGame &game) {
     SDL_Log("IntroGameMode::load");
-    for(auto const& tex : textures)
-    {
-        tex->load(game);
-    }
+    textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("bacon1.png")));
+    textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("bacon2.png")));
+    textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("bacon3.png")));
+    textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("bacon4.png")));
+    textureAtlas->build();
+    /*
     font1->load(game);
     font2->load(game);
+     */
     return false;
 }
 
 bool IntroGameMode::prepare(IGame &game) {
     SDL_Log("IntroGameMode::prepare");
-    for(auto const& tex : textures)
-    {
-        tex->prepare(game);
-    }
+    textureAtlas->upload();
+    quadRenderer->buildBuffers();
+    /*
     font1->prepare(game);
     font2->prepare(game);
-    game.getRenderer()->getTextureManager().buildTextures();
-    game.getRenderer()->getTextureManager().uploadTextures();
-    game.getRenderer()->getQuadRenderer().buildBuffers();
+    */
     return false;
 }
 
@@ -100,9 +97,7 @@ void IntroGameMode::update() {
 }
 
 void IntroGameMode::fixedUpdate() {
-    game->getRenderer()->renderText(font1, 50, 50, 2, "The quick brown fox jumps over the lazy dog");
-    game->getRenderer()->renderText(font2, 50, 680, 2, "4 different types of bacon 10000 times each second");
-
+    quadRenderer->startFrame();
     int index = 0;
     for(int i = 0; i < 10000; i++) {
         int x = (rand() % 1280)+1;
@@ -110,11 +105,17 @@ void IntroGameMode::fixedUpdate() {
         int w = (rand() % 300)+1;
         int h = (rand() % 300)+1;
 
-        game->getRenderer()->getQuadRenderer().drawTexturedQuad(textures.at(index)->getHandle(), x, y, x+w, y+h, 0);
+        quadRenderer->drawTexturedQuad(textures.at(index), x, y, x+w, y+h, 0);
         index++;
         if(index > 3)
             index = 0;
     }
+    quadRenderer->render(1280, 720);
+
+    fontRenderer->startFrame();
+    fontRenderer->renderText(font1, 50, 50, 2, "The quick brown fox jumps over the lazy dog");
+    fontRenderer->renderText(font2, 50, 680, 2, "4 different types of bacon 10000 times each second");
+    fontRenderer->render(1280, 720);
 }
 
 static double decelerate(double input)

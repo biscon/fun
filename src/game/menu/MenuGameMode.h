@@ -6,7 +6,7 @@
 #define CRPG_MENUGAMEMODE_H
 
 
-#include "../IGameMode.h"
+#include "../../engine/IGameMode.h"
 
 class MenuGameMode : public IGameMode {
 public:

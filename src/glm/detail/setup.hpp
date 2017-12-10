@@ -652,11 +652,11 @@
 #endif//GLM_MESSAGES
 
 ///////////////////////////////////////////////////////////////////////////////////
-// Coordinate system, define GLM_FORCE_LEFT_HANDED before including GLM
-// to use left handed coordinate system by default.
+// Coordinate engine, define GLM_FORCE_LEFT_HANDED before including GLM
+// to use left handed coordinate engine by default.
 
 #ifdef GLM_LEFT_HANDED // Legacy 0.9.8 development
-#	error Define GLM_FORCE_LEFT_HANDED instead of GLM_LEFT_HANDED left handed coordinate system by default.
+#	error Define GLM_FORCE_LEFT_HANDED instead of GLM_LEFT_HANDED left handed coordinate engine by default.
 #endif
 
 #define GLM_LEFT_HANDED				0x00000001	// For DirectX, Metal, Vulkan
@@ -671,9 +671,9 @@
 #if GLM_MESSAGES == GLM_MESSAGES_ENABLED && !defined(GLM_MESSAGE_HANDED_DISPLAYED)
 #	define GLM_MESSAGE_HANDED_DISPLAYED
 #	if GLM_COORDINATE_SYSTEM == GLM_LEFT_HANDED
-#		pragma message("GLM: Coordinate system: left handed")
+#		pragma message("GLM: Coordinate engine: left handed")
 #	else
-#		pragma message("GLM: Coordinate system: right handed")
+#		pragma message("GLM: Coordinate engine: right handed")
 #	endif
 #endif//GLM_MESSAGES
 

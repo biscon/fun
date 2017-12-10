@@ -195,7 +195,7 @@ IF(NOT SDL2_BUILDING_LIBRARY)
     ENDIF(NOT ${SDL2_INCLUDE_DIR} MATCHES ".framework")
 ENDIF(NOT SDL2_BUILDING_LIBRARY)
 
-# SDL2 may require threads on your system.
+# SDL2 may require threads on your engine.
 # The Apple build may not need an explicit flag because one of the
 # frameworks may already provide it.
 # But for non-OSX systems, I will use the CMake Threads package.

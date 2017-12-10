@@ -6,9 +6,11 @@
 #define CRPG_INTROGAMEMODE_H
 
 #include <list>
-#include "../IGameMode.h"
-#include "../asset/TextureAsset.h"
-#include "../asset/FontAsset.h"
+#include <vector>
+#include <engine/IGameMode.h>
+#include <engine/asset/FontAsset.h>
+#include <engine/video/QuadRenderer.h>
+#include <engine/video/FontRenderer.h>
 
 class IntroGameMode : public IGameMode, public IKeyboardEventListener, public ILoadTask {
 public:
@@ -34,16 +36,14 @@ public:
 private:
     bool initialized = false;
     std::string name = "IntroGameMode";
-    std::shared_ptr<TextureAsset> texture1;
-    std::shared_ptr<TextureAsset> texture2;
-    std::shared_ptr<TextureAsset> texture3;
-    std::shared_ptr<TextureAsset> texture4;
-    std::shared_ptr<TextureAsset> texture5;
-    std::shared_ptr<TextureAsset> texture6;
-    std::shared_ptr<FontAsset> font1;
-    std::shared_ptr<FontAsset> font2;
+    int32_t font1;
+    int32_t font2;
 
-    std::vector<std::shared_ptr<TextureAsset>> textures;
+    std::vector<int32_t> textures;
+
+    std::unique_ptr<FontRenderer> fontRenderer;
+    std::unique_ptr<QuadRenderer> quadRenderer;
+    std::shared_ptr<TextureAtlas> textureAtlas;
 
     bool movingUp = false, movingDown = false, movingRight = false, movingLeft = false, zoomingIn = false, zoomingOut = false;
 };

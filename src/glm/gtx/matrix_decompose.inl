@@ -118,7 +118,7 @@ namespace detail
 		Skew.x /= Scale.z;
 
 		// At this point, the matrix (in rows[]) is orthonormal.
-		// Check for a coordinate system flip.  If the determinant
+		// Check for a coordinate engine flip.  If the determinant
 		// is -1, then negate the matrix and the scaling factors.
 		Pdum3 = cross(Row[1], Row[2]); // v3Cross(row[1], row[2], Pdum3);
 		if(dot(Row[0], Pdum3) < 0)
