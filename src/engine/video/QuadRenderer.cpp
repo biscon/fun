@@ -13,24 +13,8 @@
 #include <SDL_log.h>
 
 QuadRenderer::QuadRenderer(std::shared_ptr<TextureAtlas> textureAtlas) : textureAtlas(textureAtlas) {
-    fragmentShader = std::unique_ptr<Shader>(new Shader(fragmentSource, GL_FRAGMENT_SHADER));
-    fragmentShader->compile();
-
-    vertexShader = std::unique_ptr<Shader>(new Shader(vertexSource, GL_VERTEX_SHADER));
-    vertexShader->compile();
-
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader->getShaderId());
-    glAttachShader(shaderProgram, fragmentShader->getShaderId());
-    glBindFragDataLocation(shaderProgram, 0, "outColor");
-    glLinkProgram(shaderProgram);
-    glUseProgram(shaderProgram);
-    SDL_Log("Build and bound shader program");
-    GLenum err;
-    while ((err = glGetError()) != GL_NO_ERROR) {
-        SDL_Log("OpenGL error: %d", err);
-    }
-
+    shader = std::unique_ptr<Shader>(new Shader(vertexSource, fragmentSource, nullptr));
+    shader->use();
 }
 
 void QuadRenderer::render(float screenWidth, float screenHeight) {
@@ -50,18 +34,22 @@ void QuadRenderer::render(float screenWidth, float screenHeight) {
     vertexCount = mesh->vertices.size();
     //SDL_Log("Performing render");
     // use shader
-    glUseProgram(shaderProgram);
+    shader->use();
     // bind vao
     mesh->bindVAO();
 
     // bind texture
     textureAtlas->bind();
 
+
+    // set uniforms
+
+    // model matrix ----------------------------------------------------------------------------------------------------
     glm::mat4 model = glm::mat4();
     //model = glm::scale(model, glm::vec3(.5f, .5f, .5f));
-    GLint uniModel = glGetUniformLocation(shaderProgram, "model");
-    glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
+    shader->setMat4("model", model);
 
+    // view matrix -----------------------------------------------------------------------------------------------------
     glm::mat4 view = glm::mat4();
     //view = glm::translate(view, glm::vec3(640.0f, 310.0f, .0f));
     /*
@@ -71,13 +59,13 @@ void QuadRenderer::render(float screenWidth, float screenHeight) {
             glm::vec3(0.0f, 0.0f, 1.0f)
     );
     */
-    GLint uniView = glGetUniformLocation(shaderProgram, "view");
-    glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+    shader->setMat4("view", view);
 
+    // projection matrix -----------------------------------------------------------------------------------------------
     //glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float) screenWidth / (float) screenHeight, 1.0f, 10.0f);
     glm::mat4 proj = glm::ortho(0.0f, screenWidth, screenHeight, 0.0f);
-    GLint uniProj = glGetUniformLocation(shaderProgram, "proj");
-    glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
+    shader->setMat4("proj", proj);
+    // render
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh->elements.size()), GL_UNSIGNED_INT, 0);
 }
 
@@ -104,21 +92,21 @@ void QuadRenderer::setupBufferAttributes() {
         SDL_Log("setup OpenGL error: %d", err);
     }
     // setup position
-    GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
+    GLint posAttrib = glGetAttribLocation(shader->getShaderId(), "position");
     if(posAttrib < 0)
         SDL_Log("position attribute not found");
     glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 7*sizeof(float), 0);
     glEnableVertexAttribArray(posAttrib);
 
     // setup color
-    GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
+    GLint colAttrib = glGetAttribLocation(shader->getShaderId(), "color");
     glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 7*sizeof(float), (void*)(2*sizeof(float)));
     glEnableVertexAttribArray(colAttrib);
     if(colAttrib < 0)
         SDL_Log("color attribute not found");
 
     // setup texcoords
-    GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
+    GLint texAttrib = glGetAttribLocation(shader->getShaderId(), "texcoord");
     if(texAttrib < 0)
         SDL_Log("texcoord attribute not found");
     glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 7*sizeof(float), (void*)(5*sizeof(float)));

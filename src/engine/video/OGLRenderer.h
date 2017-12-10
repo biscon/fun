@@ -8,7 +8,6 @@
 
 #include <SDL.h>
 #include "IRenderer.h"
-#include "Shader.h"
 #include "RenderMesh.h"
 #include "OGLTexture.h"
 #include "QuadRenderer.h"

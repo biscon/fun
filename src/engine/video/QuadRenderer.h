@@ -5,9 +5,9 @@
 #ifndef GAME_QUADRENDERER_H
 #define GAME_QUADRENDERER_H
 
-#include "Shader.h"
 #include "RenderMesh.h"
 #include "OGLTexture.h"
+#include "Shader.h"
 
 class QuadRenderer {
 public:
@@ -24,13 +24,11 @@ public:
 
 private:
     void setupBufferAttributes();
-    std::unique_ptr<Shader> fragmentShader = nullptr;
-    std::unique_ptr<Shader> vertexShader = nullptr;
+    std::unique_ptr<Shader> shader = nullptr;
     std::unique_ptr<RenderMesh> mesh = nullptr;
     std::shared_ptr<TextureAtlas> textureAtlas;
-    GLuint shaderProgram;
+
     uint32_t vertexCount = 0;
-    //OGLTexture *texture = nullptr;
 };
 
 
