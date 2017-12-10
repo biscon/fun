@@ -4,12 +4,11 @@
 
 #include "Factory.h"
 #include "SDLSystem.h"
-#include "asset/AssetLoader.h"
 #include "input/SDLInput.h"
 #include "video/OGLRenderer.h"
 #include "../game/menu/MenuGameMode.h"
 #include "../game/intro/IntroGameMode.h"
-#include "asset/AssetLoader2.h"
+#include "engine/asset/AssetLoader.h"
 
 std::shared_ptr<IGame> Factory::createGame(std::shared_ptr<IRenderer> renderer, std::shared_ptr<IInput> input, std::shared_ptr<IAssetLoader> loader, std::shared_ptr<ISystem> system) {
     return std::make_shared<Game>(renderer, input, loader, system);
@@ -20,7 +19,7 @@ std::shared_ptr<ISystem> Factory::createSystem() {
 }
 
 std::shared_ptr<IAssetLoader> Factory::createAssetLoader() {
-    return std::make_shared<AssetLoader2>();
+    return std::make_shared<AssetLoader>();
 }
 
 std::shared_ptr<IInput> Factory::createInput() {
