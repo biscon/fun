@@ -52,12 +52,12 @@ void RenderMesh::upload() {
 void RenderMesh::addTexturedQuad(float left, float top, float right, float bottom, UVRect& uvRect)
 {
     vertices.insert(vertices.end(), {
-            left, top, 1.0f, 1.0f, 1.0f, uvRect.left, uvRect.top,
-            right, top, 1.0f, 1.0f, 1.0f, uvRect.right, uvRect.top,
-            right, bottom, 1.0f, 1.0f, 1.0f, uvRect.right, uvRect.bottom,
-            left, bottom, 1.0f, 1.0f, 1.0f, uvRect.left, uvRect.bottom
+            left, top, 1.0f, 1.0f, 1.0f, 1.0f, uvRect.left, uvRect.top,
+            right, top, 1.0f, 1.0f, 1.0f, 1.0f, uvRect.right, uvRect.top,
+            right, bottom, 1.0f, 1.0f, 1.0f, 1.0f, uvRect.right, uvRect.bottom,
+            left, bottom, 1.0f, 1.0f, 1.0f, 1.0f, uvRect.left, uvRect.bottom
     });
-    GLuint off = (vertices.size()/7) - 4;
+    GLuint off = (vertices.size()/8) - 4;
     elements.insert(elements.end(), {
             off, off + 1, off + 2,
             off + 2, off + 3, off

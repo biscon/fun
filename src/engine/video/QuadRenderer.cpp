@@ -95,12 +95,12 @@ void QuadRenderer::setupBufferAttributes() {
     GLint posAttrib = glGetAttribLocation(shader->getShaderId(), "position");
     if(posAttrib < 0)
         SDL_Log("position attribute not found");
-    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 7*sizeof(float), 0);
+    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), 0);
     glEnableVertexAttribArray(posAttrib);
 
     // setup color
     GLint colAttrib = glGetAttribLocation(shader->getShaderId(), "color");
-    glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 7*sizeof(float), (void*)(2*sizeof(float)));
+    glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(2*sizeof(float)));
     glEnableVertexAttribArray(colAttrib);
     if(colAttrib < 0)
         SDL_Log("color attribute not found");
@@ -109,7 +109,7 @@ void QuadRenderer::setupBufferAttributes() {
     GLint texAttrib = glGetAttribLocation(shader->getShaderId(), "texcoord");
     if(texAttrib < 0)
         SDL_Log("texcoord attribute not found");
-    glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 7*sizeof(float), (void*)(5*sizeof(float)));
+    glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(6*sizeof(float)));
     glEnableVertexAttribArray(texAttrib);
 }
 

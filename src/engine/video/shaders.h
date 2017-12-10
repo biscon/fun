@@ -10,11 +10,11 @@ static const char* vertexSource = R"glsl(
 
     // read from vertex buffer
     in vec2 position;
-    in vec3 color;
+    in vec4 color;
     in vec2 texcoord;
 
     // pass to fragment shader
-    out vec3 Color;
+    out vec4 Color;
     out vec2 Texcoord;
 
     // uniforms
@@ -61,7 +61,7 @@ static const char* fragmentSource = R"glsl(
     #version 150 core
 
     // passed from vertex shader
-    in vec3 Color;
+    in vec4 Color;
     in vec2 Texcoord;
 
     // resulting fragment color
@@ -72,7 +72,7 @@ static const char* fragmentSource = R"glsl(
 
     void main()
     {
-        outColor = texture(tex, Texcoord) * vec4(Color, 1.0);
+        outColor = texture(tex, Texcoord) * Color;
         //outColor = vec4(Color, 1.0);
     }
 )glsl";
