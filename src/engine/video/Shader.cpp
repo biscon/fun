@@ -55,7 +55,7 @@ void Shader::checkCompileErrors(GLuint shader, std::string type)
         if(!success)
         {
             glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
-            SDL_Log("Shader compilation error: %s\n%s", type, infoLog);
+            SDL_Log("Shader compilation error: %s\n%s", type.c_str(), infoLog);
         }
     }
     else
@@ -64,7 +64,7 @@ void Shader::checkCompileErrors(GLuint shader, std::string type)
         if(!success)
         {
             glGetProgramInfoLog(shader, 1024, nullptr, infoLog);
-            SDL_Log("Shader program link error: %s\n%s", type, infoLog);
+            SDL_Log("Shader program link error: %s\n%s", type.c_str(), infoLog);
         }
     }
 }
