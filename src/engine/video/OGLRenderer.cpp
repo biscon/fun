@@ -20,7 +20,7 @@ bool OGLRenderer::init(uint32 screenWidth, uint32 screenHeight) {
     SDL_Init(SDL_INIT_VIDEO);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
     window = SDL_CreateWindow("OpenGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screenWidth, screenHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE );
@@ -33,7 +33,7 @@ bool OGLRenderer::init(uint32 screenWidth, uint32 screenHeight) {
     //PixelBuffer *pb = new PixelBuffer("checker.png");
     //texture = new OGLTexture(atlas->getBuffer(), TextureUpdateType::STATIC);
 
-    glClearColor(0.0f, 1.0f, 0, 1.0f);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     //glEnable(GL_DEPTH_TEST);

@@ -26,8 +26,35 @@ void SDLInput::update() {
             return;
         }
         handleKeyboardEvent(&e);
+        if(e.type == SDL_MOUSEMOTION || e.type == SDL_MOUSEWHEEL || e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP)
+        {
+            handleMouseEvent(&e);
+        }
     }
 }
+
+void SDLInput::handleMouseEvent(const SDL_Event *event)
+{
+    switch( event->type ) {
+        case SDL_MOUSEMOTION: {
+            if(event->key.repeat == 0) {
+                // call listeners
+                //kb.keysym = event->key.keysym;
+                deliverMouseMotion(event);
+            }
+            break;
+        }
+    }
+}
+
+void SDLInput::deliverMouseMotion(const SDL_Event *event)
+{
+    for(auto i = mouseListeners.begin(); i != mouseListeners.end(); ++i)
+    {
+        (*i)->onMouseMotion(&event->motion);
+    }
+}
+
 
 void SDLInput::handleKeyboardEvent(const SDL_Event *event)
 {
@@ -82,4 +109,19 @@ void SDLInput::addKeyboardEventListener(IKeyboardEventListener *listener) {
 
 void SDLInput::setQuitEventListener(IQuitEventListener *listener) {
     quitEventListener = listener;
+}
+
+void SDLInput::removeMouseEventListener(IMouseEventListener *listener) {
+    for(auto i = mouseListeners.begin(); i != mouseListeners.end(); ++i)
+    {
+        if(*i == listener)
+        {
+            i = mouseListeners.erase(i);
+            return;
+        }
+    }
+}
+
+void SDLInput::addMouseEventListener(IMouseEventListener *listener) {
+    mouseListeners.push_back(listener);
 }

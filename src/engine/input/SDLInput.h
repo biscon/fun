@@ -16,13 +16,18 @@ public:
     void update() override;
     void addKeyboardEventListener(IKeyboardEventListener *listener) override;
     void removeKeyboardEventListener(IKeyboardEventListener *listener) override;
+    void addMouseEventListener(IMouseEventListener *listener) override;
+    void removeMouseEventListener(IMouseEventListener *listener) override;
     void setQuitEventListener(IQuitEventListener *listener) override;
 
 private:
     std::vector<IKeyboardEventListener*> keyListeners;
+    std::vector<IMouseEventListener*> mouseListeners;
     IQuitEventListener *quitEventListener = nullptr;
 
     void handleKeyboardEvent(const SDL_Event *event);
+    void handleMouseEvent(const SDL_Event *event);
+    void deliverMouseMotion(const SDL_Event *event);
     void deliverKeyDown(const SDL_Event *event);
     void deliverKeyUp(const SDL_Event *event);
 };

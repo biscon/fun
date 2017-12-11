@@ -21,6 +21,7 @@ public:
     void bindVBO();
     void clear();
     void generateTexturedCube(UVRect& r);
+    void generateCube();
 
     GLuint vao;
     GLuint vbo;

@@ -8,6 +8,7 @@
 #include "../../defs.h"
 #include "IKeyboardEventListener.h"
 #include "IQuitEventListener.h"
+#include "IMouseEventListener.h"
 
 class IInput
 {
@@ -19,6 +20,8 @@ public:
     virtual void update()=0;
     virtual void addKeyboardEventListener(IKeyboardEventListener *listener)=0;
     virtual void removeKeyboardEventListener(IKeyboardEventListener *listener)=0;
+    virtual void addMouseEventListener(IMouseEventListener *listener)=0;
+    virtual void removeMouseEventListener(IMouseEventListener *listener)=0;
     virtual void setQuitEventListener(IQuitEventListener *listener)=0;
 };
 

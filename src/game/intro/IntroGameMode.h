@@ -12,8 +12,9 @@
 #include <engine/video/QuadRenderer.h>
 #include <engine/video/FontRenderer.h>
 #include <engine/video/CubeRenderer.h>
+#include <engine/video/LightSceneRenderer.h>
 
-class IntroGameMode : public IGameMode, public IKeyboardEventListener, public ILoadTask {
+class IntroGameMode : public IGameMode, public IKeyboardEventListener, public IMouseEventListener, public ILoadTask {
 public:
     explicit IntroGameMode(std::shared_ptr<IGame> game);
 
@@ -29,6 +30,8 @@ public:
     void onKeyDown(const SDL_Event *event) override;
     void onKeyUp(const SDL_Event *event) override;
     void onKeyPressed(const SDL_Event *event) override;
+
+    void onMouseMotion(const SDL_MouseMotionEvent *event) override;
 
     bool load(IGame &game) override;
 
@@ -46,6 +49,9 @@ private:
     std::unique_ptr<QuadRenderer> quadRenderer;
     std::unique_ptr<CubeRenderer> cubeRenderer;
     std::shared_ptr<TextureAtlas> textureAtlas;
+
+    std::unique_ptr<LightSceneRenderer> lightSceneRenderer;
+    std::shared_ptr<Camera> camera;
 
     bool movingUp = false, movingDown = false, movingRight = false, movingLeft = false, zoomingIn = false, zoomingOut = false;
 };

@@ -38,6 +38,7 @@ public:
     std::shared_ptr<IAssetLoader> getAssetLoader() override;
     std::shared_ptr<ISystem> getSystem() override;
     double getTime() override;
+    double getDelta() override;
 
 private:
     std::shared_ptr<IRenderer> renderer;

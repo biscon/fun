@@ -246,3 +246,7 @@ double Game::getTime() {
     return ((double) (system->getPerformanceCounter() - initTimeStamp)) / (double) system->getPerformanceFreq();
 }
 
+double Game::getDelta() {
+    return fpsCounter->getDelta();
+}
+

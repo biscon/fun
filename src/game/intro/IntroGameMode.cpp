@@ -30,6 +30,7 @@ bool IntroGameMode::init() {
 
     });
      */
+
     fontRenderer = std::unique_ptr<FontRenderer>(new FontRenderer());
     font1 = fontRenderer->addFont("font9x14.png", 9, 14);
     font2 = fontRenderer->addFont("bedstead12x20.png", 12, 20);
@@ -39,6 +40,10 @@ bool IntroGameMode::init() {
     quadRenderer = std::unique_ptr<QuadRenderer>(new QuadRenderer(textureAtlas));
 
     cubeRenderer = std::unique_ptr<CubeRenderer>(new CubeRenderer(textureAtlas));
+
+
+    camera = std::make_shared<Camera>(glm::vec3(0.0f, 0.0f, 6.0f));
+    lightSceneRenderer = std::unique_ptr<LightSceneRenderer>(new LightSceneRenderer(camera));
 
     game->getAssetLoader()->addLoadTask(this);
     game->getAssetLoader()->load();
@@ -65,6 +70,7 @@ bool IntroGameMode::prepare(IGame &game) {
     textureAtlas->upload();
     quadRenderer->buildBuffers();
     cubeRenderer->buildBuffers();
+    lightSceneRenderer->buildBuffers();
     return true;
 }
 
@@ -74,12 +80,16 @@ void IntroGameMode::shutdown() {
 
 void IntroGameMode::resume() {
     SDL_Log("IntroGameMode::resume");
+    SDL_CaptureMouse(SDL_TRUE);
     game->getInput()->addKeyboardEventListener(this);
+    game->getInput()->addMouseEventListener(this);
 }
 
 void IntroGameMode::pause() {
     SDL_Log("IntroGameMode::pause");
+    SDL_CaptureMouse(SDL_FALSE);
     game->getInput()->removeKeyboardEventListener(this);
+    game->getInput()->removeMouseEventListener(this);
 }
 
 static bool fuckme = true;
@@ -89,10 +99,26 @@ void IntroGameMode::update() {
         fuckme = true;
         game->pushMode("MenuGameMode");
     }
+    if(movingRight)
+        camera->ProcessKeyboard(Camera_Movement::RIGHT, (float) game->getDelta());
+    if(movingLeft)
+        camera->ProcessKeyboard(Camera_Movement::LEFT, (float) game->getDelta());
+    if(movingUp)
+        camera->ProcessKeyboard(Camera_Movement::FORWARD, (float) game->getDelta());
+    if(movingDown)
+        camera->ProcessKeyboard(Camera_Movement::BACKWARD, (float) game->getDelta());
+
+    if(zoomingIn)
+        camera->ProcessMouseScroll(50.0f * (float) game->getDelta());
+    if(zoomingOut)
+        camera->ProcessMouseScroll(50.0f * (float) -game->getDelta());
+    //camera->P
 }
 
 void IntroGameMode::fixedUpdate() {
+    /*
     quadRenderer->startFrame();
+
     int index = 0;
     for(int i = 0; i < 10000; i++) {
         int x = (rand() % 1280)+1;
@@ -106,12 +132,13 @@ void IntroGameMode::fixedUpdate() {
             index = 0;
     }
     quadRenderer->render(1280, 720);
-    cubeRenderer->render(1280, 720, game->getTime());
-
+    */
+    //cubeRenderer->render(1280, 720, game->getTime());
+    lightSceneRenderer->render(1280,720, game->getTime());
 
     fontRenderer->startFrame();
-    fontRenderer->renderText(font2, 50, 50, 2, "Behold amazing spinning bacon cube!!");
-    fontRenderer->renderText(font2, 50, 680, 2, "4 different types of bacon 10000 times each second");
+    fontRenderer->renderText(font2, 50, 50, 2, "Behold amazing spinning gold cube!!");
+    fontRenderer->renderText(font2, 50, 680, 2, "Phong shading 1 point light source.");
     fontRenderer->render(1280, 720);
 }
 
@@ -194,6 +221,10 @@ void IntroGameMode::onKeyUp(const SDL_Event *event) {
 
 void IntroGameMode::onKeyPressed(const SDL_Event *event) {
 
+}
+
+void IntroGameMode::onMouseMotion(const SDL_MouseMotionEvent *event) {
+    //camera->ProcessMouseMovement(event->xrel, -event->yrel, true);
 }
 
 
