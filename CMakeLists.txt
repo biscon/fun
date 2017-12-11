@@ -90,7 +90,8 @@ set(SOURCE_FILES
         src/engine/video/FontRenderer.h
         src/engine/video/Shader.cpp
         src/engine/video/Shader.h
-        src/engine/video/MeshUpdateType.h)
+        src/engine/video/MeshUpdateType.h
+        src/engine/video/Camera.h)
 add_executable(game ${SOURCE_FILES})
 
 target_link_libraries(game ${GLEW_LIBRARY} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY})
