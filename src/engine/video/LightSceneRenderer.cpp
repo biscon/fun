@@ -12,9 +12,17 @@
 #include <gtc/type_ptr.hpp>
 #include <SDL_log.h>
 
-LightSceneRenderer::LightSceneRenderer(std::shared_ptr<Camera> camera) : camera(camera) {
-    lightingShader = std::unique_ptr<Shader>(new Shader(lightingShaderVertexSrc, lightingShaderFragmentSrc, nullptr));
-    lampShader = std::unique_ptr<Shader>(new Shader(lampShaderVertexSrc, lampShaderFragmentSrc, nullptr));
+LightSceneRenderer::LightSceneRenderer(ISystem& system, std::shared_ptr<Camera> camera) : camera(camera), system(system) {
+    auto lighting_vs = system.readTextFile("shaders/lighting_shader_vs.glsl");
+    auto lighting_fs = system.readTextFile("shaders/lighting_shader_fs.glsl");
+    lightingShader = std::unique_ptr<Shader>(new Shader(lighting_vs.c_str(), lighting_fs.c_str(), nullptr));
+
+
+    auto lamp_vs = system.readTextFile("shaders/lamp_shader_vs.glsl");
+    auto lamp_fs = system.readTextFile("shaders/lamp_shader_fs.glsl");
+
+    //SDL_Log("Shader source = %s", lamp_vs.c_str());
+    lampShader = std::unique_ptr<Shader>(new Shader(lamp_vs.c_str(), lamp_fs.c_str(), nullptr));
 }
 
 void LightSceneRenderer::render(float screenWidth, float screenHeight, double time) {

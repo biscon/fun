@@ -43,7 +43,7 @@ bool IntroGameMode::init() {
 
 
     camera = std::make_shared<Camera>(glm::vec3(0.0f, 0.0f, 6.0f));
-    lightSceneRenderer = std::unique_ptr<LightSceneRenderer>(new LightSceneRenderer(camera));
+    lightSceneRenderer = std::unique_ptr<LightSceneRenderer>(new LightSceneRenderer(*game->getSystem(), camera));
 
     game->getAssetLoader()->addLoadTask(this);
     game->getAssetLoader()->load();

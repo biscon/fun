@@ -7,13 +7,14 @@
 
 
 #include <memory>
+#include <engine/ISystem.h>
 #include "Shader.h"
 #include "Mesh.h"
 #include "Camera.h"
 
 class LightSceneRenderer {
 public:
-    LightSceneRenderer(std::shared_ptr<Camera> camera);
+    LightSceneRenderer(ISystem& system, std::shared_ptr<Camera> camera);
     void render(float screenWidth, float screenHeight, double time);
     void buildBuffers();
 
@@ -26,6 +27,7 @@ private:
     std::unique_ptr<Shader> lampShader = nullptr;
     unsigned int lightVAO;
     glm::vec3 lightPos = {1.2f, 1.0f, 2.0f};
+    ISystem& system;
 };
 
 
