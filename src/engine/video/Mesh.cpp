@@ -172,3 +172,48 @@ void Mesh::generateCube() {
     });
 }
 
+void Mesh::generateTexturedCubeWithNormals(UVRect& r) {
+    vertices.insert(vertices.end(),{
+            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, r.left, r.bottom,
+            0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, r.right, r.bottom,
+            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, r.right, r.top,
+            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, r.right, r.top,
+            -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, r.left, r.top,
+            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, r.left, r.bottom,
+
+            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f, r.left, r.bottom,
+            0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f, r.right, r.bottom,
+            0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f, r.right, r.top,
+            0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f, r.right, r.top,
+            -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f, r.left, r.top,
+            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f, r.left, r.bottom,
+
+            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f, r.right, r.bottom,
+            -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f, r.right, r.top,
+            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f, r.left, r.top,
+            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f, r.left, r.top,
+            -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f, r.left, r.bottom,
+            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f, r.right, r.bottom,
+
+            0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f, r.right, r.bottom,
+            0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f, r.right, r.top,
+            0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f, r.left, r.top,
+            0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f, r.left, r.top,
+            0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f, r.left, r.bottom,
+            0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f, r.right, r.bottom,
+
+            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f, r.left, r.top,
+            0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f, r.right, r.top,
+            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f, r.right, r.bottom,
+            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f, r.right, r.bottom,
+            -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f, r.left, r.bottom,
+            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f, r.left, r.top,
+
+            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f, r.left, r.top,
+            0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f, r.right, r.top,
+            0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f, r.right, r.bottom,
+            0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f, r.right, r.bottom,
+            -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f, r.left, r.bottom,
+            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f, r.left, r.top
+    });
+}
