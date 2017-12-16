@@ -17,6 +17,9 @@
 bool OGLRenderer::init(uint32 screenWidth, uint32 screenHeight) {
     this->screenWidth = screenWidth;
     this->screenHeight = screenHeight;
+    realWidth = screenWidth;
+    realHeight = screenHeight;
+
     SDL_Init(SDL_INIT_VIDEO);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -32,6 +35,8 @@ bool OGLRenderer::init(uint32 screenWidth, uint32 screenHeight) {
     // load texture
     //PixelBuffer *pb = new PixelBuffer("checker.png");
     //texture = new OGLTexture(atlas->getBuffer(), TextureUpdateType::STATIC);
+
+    onViewportChanged(realWidth, realHeight);
 
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glEnable(GL_BLEND);
@@ -74,15 +79,25 @@ int32_t OGLRenderer::getHeight() {
     return screenHeight;
 }
 
+int32_t OGLRenderer::getRealWidth() {
+    return realWidth;
+}
+
+int32_t OGLRenderer::getRealHeight() {
+    return realHeight;
+}
+
 
 
 void OGLRenderer::onViewportChanged(int32_t newWidth, int32_t newHeight) {
     SDL_Log("Viewport resize to %d,%d", newWidth, newHeight);
 
+    realWidth = static_cast<uint32_t>(newWidth);
+    realHeight = static_cast<uint32_t>(newHeight);
+
     float want_aspect;
     float real_aspect;
     float scale;
-    SDL_Rect viewport;
 
     want_aspect = (float) screenWidth / screenHeight;
     real_aspect = (float) newWidth / newHeight;
@@ -90,8 +105,12 @@ void OGLRenderer::onViewportChanged(int32_t newWidth, int32_t newHeight) {
     if (SDL_fabs(want_aspect-real_aspect) < 0.0001) {
         /* The aspect ratios are the same, just scale appropriately */
         //scale = (float) newWidth / screenWidth;
-        glViewport(0, 0, newWidth, newHeight);
-        SDL_Log("Same aspect ratio");
+        viewport.x = 0;
+        viewport.y = 0;
+        viewport.w = realWidth;
+        viewport.h = realHeight;
+        glViewport(viewport.x, viewport.y, viewport.w, viewport.h);
+        //SDL_Log("Same aspect ratio");
     } else if (want_aspect > real_aspect) {
         /* We want a wider aspect ratio than is available - letterbox it */
         scale = (float) newWidth / screenWidth;
@@ -100,7 +119,7 @@ void OGLRenderer::onViewportChanged(int32_t newWidth, int32_t newHeight) {
         viewport.h = (int)SDL_ceil(screenHeight * scale);
         viewport.y = (newHeight - viewport.h) / 2;
         glViewport(viewport.x, viewport.y, viewport.w, viewport.h);
-        SDL_Log("letterbox");
+        //SDL_Log("letterbox");
     } else {
         /* We want a narrower aspect ratio than is available - use side-bars */
         scale = (float) newHeight / screenHeight;
@@ -109,6 +128,22 @@ void OGLRenderer::onViewportChanged(int32_t newWidth, int32_t newHeight) {
         viewport.w = (int)SDL_ceil(screenWidth * scale);
         viewport.x = (newWidth - viewport.w) / 2;
         glViewport(viewport.x, viewport.y, viewport.w, viewport.h);
-        SDL_Log("sidebars");
+        //SDL_Log("sidebars");
     }
+}
+
+/*
+ * Sets a logical viewport where the renderer attempts to deliver the originally requested
+ * aspect ratio by using letter/pillarboxing and scaling
+ */
+void OGLRenderer::setLogicalViewport() {
+    glViewport(viewport.x, viewport.y, viewport.w, viewport.h);
+}
+
+/*
+ * Sets the viewport to the entire windows no matter what the aspect ratio might be
+ * this tends to distort 2D graphics :)
+ */
+void OGLRenderer::setRealViewport() {
+    glViewport(0, 0, realWidth, realHeight);
 }

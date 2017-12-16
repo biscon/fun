@@ -22,13 +22,20 @@ public:
     void renderDefaultLoadScreen(double progress) override;
     int32_t getWidth() override;
     int32_t getHeight() override;
+    int32_t getRealWidth() override;
+    int32_t getRealHeight() override;
     void onViewportChanged(int32_t newWidth, int32_t newHeight) override;
 
+    void setLogicalViewport() override;
+
+    void setRealViewport() override;
+
 private:
-    uint32_t screenWidth;
-    uint32_t screenHeight;
+    uint32_t screenWidth, realWidth;
+    uint32_t screenHeight, realHeight;
     SDL_Window* window = nullptr;
     SDL_GLContext context = nullptr;
+    SDL_Rect viewport{};
 };
 
 

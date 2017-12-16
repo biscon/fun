@@ -22,7 +22,11 @@ public:
     virtual void renderDefaultLoadScreen(double progress)=0;
     virtual int32 getWidth()=0;
     virtual int32 getHeight()=0;
+    virtual int32 getRealWidth()=0;
+    virtual int32 getRealHeight()=0;
     virtual void onViewportChanged(int32_t newWidth, int32_t newHeight)=0;
+    virtual void setLogicalViewport()=0;
+    virtual void setRealViewport()=0;
 };
 
 
