@@ -46,6 +46,13 @@ void SDLInput::handleMouseEvent(const SDL_Event *event)
             deliverMouseMotion(event);
             break;
         }
+        case SDL_MOUSEWHEEL: {
+            // call listeners
+            for(auto &l : mouseListeners) {
+                l->onMouseWheel(event->wheel.y);
+            }
+            break;
+        }
     }
 }
 

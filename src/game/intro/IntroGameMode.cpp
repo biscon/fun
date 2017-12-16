@@ -141,8 +141,9 @@ void IntroGameMode::fixedUpdate() {
 
     game->getRenderer()->setLogicalViewport();
     fontRenderer->startFrame();
-    fontRenderer->renderText(font2, 50, 50, 2, "Behold amazing spinning gold cube!!");
-    fontRenderer->renderText(font2, 50, 680, 2, "Phong shading 1 point light source.");
+    fontRenderer->renderText(font2, 50, 50, "Use WASD and mouse look to fly around");
+    fontRenderer->renderText(font2, 50, 80, "Mousewheel adjusts FOV, F12 toggles fullscreen");
+    fontRenderer->renderText(font2, 50, 1000, "Phong shading 1 point light source. Diffuse and specular mapping.");
     fontRenderer->render(game->getRenderer()->getWidth(), game->getRenderer()->getHeight());
 }
 
@@ -229,6 +230,10 @@ void IntroGameMode::onKeyPressed(const SDL_Event *event) {
 
 void IntroGameMode::onMouseMotion(const SDL_MouseMotionEvent *event) {
     camera->ProcessMouseMovement(event->xrel, -event->yrel, true);
+}
+
+void IntroGameMode::onMouseWheel(int32_t yoffset) {
+    camera->ProcessMouseScroll(yoffset);
 }
 
 

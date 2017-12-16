@@ -40,7 +40,7 @@ bool FontRenderer::prepare(IGame &game) {
     return true;
 }
 
-void FontRenderer::renderText(int32_t handle, float left, float top, int32_t layer, std::string txt) {
+void FontRenderer::renderText(int32_t handle, float left, float top, std::string txt) {
     FontAsset *font = fonts.at(handle).get();
     auto len = strlen(txt.c_str());
     auto off = left;
@@ -49,7 +49,7 @@ void FontRenderer::renderText(int32_t handle, float left, float top, int32_t lay
     for(uint32 i = 0; i < len; i++)
     {
         uint8_t index = (uint8_t) txt[i];
-        quadRenderer->drawTexturedQuad(font->getGlyphHandleMap()[index], off, top, off + gw, top + gh, layer);
+        quadRenderer->drawTexturedQuad(font->getGlyphHandleMap()[index], off, top, off + gw, top + gh, 0);
         off += gw;
     }
 }

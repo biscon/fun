@@ -20,7 +20,7 @@ public:
     void startFrame();
     bool load(IGame &game) override;
     bool prepare(IGame &game) override;
-    void renderText(int32_t handle, float left, float top, int32_t layer, std::string txt);
+    void renderText(int32_t handle, float left, float top, std::string txt);
 
 private:
     std::unique_ptr<QuadRenderer> quadRenderer;

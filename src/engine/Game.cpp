@@ -120,7 +120,7 @@ void Game::fixedUpdate() {
         {
             sprintf(fpsStr, "RENDERER FPS: %.0f GAME FPS: %.0f TIME: %.2f", fixedFpsCounter->getFps(), fps, elapsed_time);
         }
-        defaultFontRenderer->renderText(defaultFont, 0, 0, 3, std::string(fpsStr));
+        defaultFontRenderer->renderText(defaultFont, 0, 0, std::string(fpsStr));
         defaultFontRenderer->render(screenWidth, screenHeight);
         renderer->fixedUpdate();
     }

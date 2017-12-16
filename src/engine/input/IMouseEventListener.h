@@ -12,6 +12,7 @@ public:
     IMouseEventListener(){}
     virtual ~IMouseEventListener(){}
     virtual void onMouseMotion(const SDL_MouseMotionEvent *event)=0;
+    virtual void onMouseWheel(int32_t yoffset)=0;
 };
 
 

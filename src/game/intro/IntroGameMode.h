@@ -27,11 +27,15 @@ public:
     void update() override;
     void fixedUpdate() override;
 
+    // keyboard events
     void onKeyDown(const SDL_Event *event) override;
     void onKeyUp(const SDL_Event *event) override;
     void onKeyPressed(const SDL_Event *event) override;
 
+    // mouse events
     void onMouseMotion(const SDL_MouseMotionEvent *event) override;
+
+    void onMouseWheel(int32_t yoffset) override;
 
     bool load(IGame &game) override;
 
