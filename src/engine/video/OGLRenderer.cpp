@@ -65,3 +65,50 @@ void OGLRenderer::startFrame() {
 void OGLRenderer::renderDefaultLoadScreen(double progress) {
 
 }
+
+int32_t OGLRenderer::getWidth() {
+    return screenWidth;
+}
+
+int32_t OGLRenderer::getHeight() {
+    return screenHeight;
+}
+
+
+
+void OGLRenderer::onViewportChanged(int32_t newWidth, int32_t newHeight) {
+    SDL_Log("Viewport resize to %d,%d", newWidth, newHeight);
+
+    float want_aspect;
+    float real_aspect;
+    float scale;
+    SDL_Rect viewport;
+
+    want_aspect = (float) screenWidth / screenHeight;
+    real_aspect = (float) newWidth / newHeight;
+
+    if (SDL_fabs(want_aspect-real_aspect) < 0.0001) {
+        /* The aspect ratios are the same, just scale appropriately */
+        //scale = (float) newWidth / screenWidth;
+        glViewport(0, 0, newWidth, newHeight);
+        SDL_Log("Same aspect ratio");
+    } else if (want_aspect > real_aspect) {
+        /* We want a wider aspect ratio than is available - letterbox it */
+        scale = (float) newWidth / screenWidth;
+        viewport.x = 0;
+        viewport.w = newWidth;
+        viewport.h = (int)SDL_ceil(screenHeight * scale);
+        viewport.y = (newHeight - viewport.h) / 2;
+        glViewport(viewport.x, viewport.y, viewport.w, viewport.h);
+        SDL_Log("letterbox");
+    } else {
+        /* We want a narrower aspect ratio than is available - use side-bars */
+        scale = (float) newHeight / screenHeight;
+        viewport.y = 0;
+        viewport.h = newHeight;
+        viewport.w = (int)SDL_ceil(screenWidth * scale);
+        viewport.x = (newWidth - viewport.w) / 2;
+        glViewport(viewport.x, viewport.y, viewport.w, viewport.h);
+        SDL_Log("sidebars");
+    }
+}

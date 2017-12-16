@@ -20,6 +20,9 @@ public:
     virtual void fixedUpdate()=0;
     virtual void startFrame()=0;
     virtual void renderDefaultLoadScreen(double progress)=0;
+    virtual int32 getWidth()=0;
+    virtual int32 getHeight()=0;
+    virtual void onViewportChanged(int32_t newWidth, int32_t newHeight)=0;
 };
 
 

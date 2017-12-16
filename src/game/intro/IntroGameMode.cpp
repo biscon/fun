@@ -136,12 +136,12 @@ void IntroGameMode::fixedUpdate() {
     quadRenderer->render(1280, 720);
     */
     //cubeRenderer->render(1280, 720, game->getTime());
-    lightSceneRenderer->render(1280,720, game->getTime());
+    lightSceneRenderer->render(game->getRenderer()->getWidth(), game->getRenderer()->getHeight(), game->getTime());
 
     fontRenderer->startFrame();
     fontRenderer->renderText(font2, 50, 50, 2, "Behold amazing spinning gold cube!!");
     fontRenderer->renderText(font2, 50, 680, 2, "Phong shading 1 point light source.");
-    fontRenderer->render(1280, 720);
+    fontRenderer->render(game->getRenderer()->getWidth(), game->getRenderer()->getHeight());
 }
 
 static double decelerate(double input)

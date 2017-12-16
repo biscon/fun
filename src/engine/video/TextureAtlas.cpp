@@ -82,7 +82,7 @@ void TextureAtlas::debug()
 }
 
 void TextureAtlas::upload() {
-    texture = std::unique_ptr<OGLTexture>(new OGLTexture(atlas.get()));
+    texture = std::unique_ptr<OGLTexture>(new OGLTexture(atlas.get(), false));
     SDL_Log("Uploaded %d atlas textures", textureMap.size());
 }
 

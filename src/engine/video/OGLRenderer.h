@@ -20,6 +20,9 @@ public:
     void fixedUpdate() override;
     void startFrame() override;
     void renderDefaultLoadScreen(double progress) override;
+    int32_t getWidth() override;
+    int32_t getHeight() override;
+    void onViewportChanged(int32_t newWidth, int32_t newHeight) override;
 
 private:
     uint32_t screenWidth;

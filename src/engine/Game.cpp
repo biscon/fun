@@ -28,9 +28,12 @@ void Game::run() {
     input->init();
     input->setQuitEventListener(this);
     input->addKeyboardEventListener(this);
+    input->addWindowEventListener(this);
 
     // init renderer
-    renderer->init(1280, 720);
+    screenWidth = 1920;
+    screenHeight = 1080;
+    renderer->init(screenWidth, screenHeight);
 
     defaultFontRenderer = std::make_shared<FontRenderer>();
     defaultFont = defaultFontRenderer->addFont("font9x14.png", 9, 14);
@@ -85,6 +88,7 @@ void Game::run() {
 
     // shutdown input
     input->removeKeyboardEventListener(this);
+    input->removeWindowEventListener(this);
     input->shutdown();
 }
 
@@ -117,7 +121,7 @@ void Game::fixedUpdate() {
             sprintf(fpsStr, "RENDERER FPS: %.0f GAME FPS: %.0f TIME: %.2f", fixedFpsCounter->getFps(), fps, elapsed_time);
         }
         defaultFontRenderer->renderText(defaultFont, 0, 0, 3, std::string(fpsStr));
-        defaultFontRenderer->render(1280, 720);
+        defaultFontRenderer->render(screenWidth, screenHeight);
         renderer->fixedUpdate();
     }
     fixedFpsCounter->update();
@@ -248,5 +252,10 @@ double Game::getTime() {
 
 double Game::getDelta() {
     return fpsCounter->getDelta();
+}
+
+void Game::onWindowResize(int32_t width, int32_t height) {
+    if(renderer != nullptr)
+        renderer->onViewportChanged(width, height);
 }
 

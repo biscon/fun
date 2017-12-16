@@ -9,6 +9,7 @@
 #include "IKeyboardEventListener.h"
 #include "IQuitEventListener.h"
 #include "IMouseEventListener.h"
+#include "IWindowEventListener.h"
 
 class IInput
 {
@@ -22,6 +23,8 @@ public:
     virtual void removeKeyboardEventListener(IKeyboardEventListener *listener)=0;
     virtual void addMouseEventListener(IMouseEventListener *listener)=0;
     virtual void removeMouseEventListener(IMouseEventListener *listener)=0;
+    virtual void addWindowEventListener(IWindowEventListener *listener)=0;
+    virtual void removeWindowEventListener(IWindowEventListener *listener)=0;
     virtual void setQuitEventListener(IQuitEventListener *listener)=0;
 };
 

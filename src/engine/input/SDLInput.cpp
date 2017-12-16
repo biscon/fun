@@ -30,6 +30,11 @@ void SDLInput::update() {
         {
             handleMouseEvent(&e);
         }
+        if(e.type == SDL_WINDOWEVENT)
+        {
+            //SDL_Log("Window event");
+            handleWindowEvent(&e);
+        }
     }
 }
 
@@ -37,15 +42,32 @@ void SDLInput::handleMouseEvent(const SDL_Event *event)
 {
     switch( event->type ) {
         case SDL_MOUSEMOTION: {
-            if(event->key.repeat == 0) {
-                // call listeners
-                //kb.keysym = event->key.keysym;
-                deliverMouseMotion(event);
-            }
+            // call listeners
+            deliverMouseMotion(event);
             break;
         }
     }
 }
+
+void SDLInput::handleWindowEvent(const SDL_Event *event)
+{
+    switch( event->window.event ) {
+        case SDL_WINDOWEVENT_SIZE_CHANGED: {
+            // call listeners
+            deliverWindowEvent(event);
+            break;
+        }
+    }
+}
+
+void SDLInput::deliverWindowEvent(const SDL_Event *event)
+{
+    for(auto i = windowListeners.begin(); i != windowListeners.end(); ++i)
+    {
+        (*i)->onWindowResize(event->window.data1, event->window.data2);
+    }
+}
+
 
 void SDLInput::deliverMouseMotion(const SDL_Event *event)
 {
@@ -124,4 +146,19 @@ void SDLInput::removeMouseEventListener(IMouseEventListener *listener) {
 
 void SDLInput::addMouseEventListener(IMouseEventListener *listener) {
     mouseListeners.push_back(listener);
+}
+
+void SDLInput::addWindowEventListener(IWindowEventListener *listener) {
+    windowListeners.push_back(listener);
+}
+
+void SDLInput::removeWindowEventListener(IWindowEventListener *listener) {
+    for(auto i = windowListeners.begin(); i != windowListeners.end(); ++i)
+    {
+        if(*i == listener)
+        {
+            i = windowListeners.erase(i);
+            return;
+        }
+    }
 }

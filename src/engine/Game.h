@@ -20,7 +20,7 @@
 #include "FPSCounter.h"
 #include "video/FontRenderer.h"
 
-class Game : public IGame, public IQuitEventListener, public IKeyboardEventListener {
+class Game : public IGame, public IQuitEventListener, public IKeyboardEventListener, public IWindowEventListener {
 public:
     explicit Game(std::shared_ptr<IRenderer> renderer, std::shared_ptr<IInput> input, std::shared_ptr<IAssetLoader> loader, std::shared_ptr<ISystem> system);
     void run() override;
@@ -32,6 +32,8 @@ public:
     void onKeyDown(const SDL_Event *event) override;
     void onKeyUp(const SDL_Event *event) override {}
     void onKeyPressed(const SDL_Event *event) override {}
+
+    void onWindowResize(int32_t width, int32_t height) override;
 
     std::shared_ptr<IRenderer> getRenderer() override;
     std::shared_ptr<IInput> getInput() override;
@@ -60,6 +62,8 @@ private:
     void update();
     void initFpsTimer();
     uint64 initTimeStamp = 0;
+    int32 screenWidth;
+    int32 screenHeight;
 };
 
 
