@@ -57,6 +57,30 @@ void SDLInput::handleWindowEvent(const SDL_Event *event)
             deliverWindowEvent(event);
             break;
         }
+        case SDL_WINDOWEVENT_ENTER: {
+            for(auto &l : windowListeners) {
+                l->onMouseEnter();
+            }
+            break;
+        }
+        case SDL_WINDOWEVENT_LEAVE: {
+            for(auto &l : windowListeners) {
+                l->onMouseLeave();
+            }
+            break;
+        }
+        case SDL_WINDOWEVENT_FOCUS_GAINED: {
+            for(auto &l : windowListeners) {
+                l->onFocusGained();
+            }
+            break;
+        }
+        case SDL_WINDOWEVENT_FOCUS_LOST: {
+            for(auto &l : windowListeners) {
+                l->onFocusLost();
+            }
+            break;
+        }
     }
 }
 

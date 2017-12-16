@@ -99,7 +99,7 @@ void Game::fixedUpdate() {
     defaultFontRenderer->startFrame();
 
     if(!assetLoader->isLoading()) {
-        if (!modeStack.empty())
+        if (!modeStack.empty() && !paused)
             modeStack.top()->fixedUpdate();
     }
     else
@@ -134,7 +134,7 @@ void Game::update() {
     assetLoader->update();
     if(!assetLoader->isLoading())
     {
-        if (!modeStack.empty())
+        if (!modeStack.empty() && !paused)
             modeStack.top()->update();
     }
     fpsCounter->update();
@@ -257,5 +257,31 @@ double Game::getDelta() {
 void Game::onWindowResize(int32_t width, int32_t height) {
     if(renderer != nullptr)
         renderer->onViewportChanged(width, height);
+}
+
+void Game::onMouseEnter() {
+    SDL_Log("Mouse enter");
+}
+
+void Game::onMouseLeave() {
+    SDL_Log("Mouse leave");
+}
+
+void Game::onFocusGained() {
+    SDL_Log("Focus gained");
+    paused = false;
+    if(!modeStack.empty())
+    {
+        modeStack.top()->resume();
+    }
+}
+
+void Game::onFocusLost() {
+    SDL_Log("Focus lost");
+    paused = true;
+    if(!modeStack.empty())
+    {
+        modeStack.top()->pause();
+    }
 }
 

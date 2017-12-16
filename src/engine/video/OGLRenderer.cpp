@@ -87,8 +87,6 @@ int32_t OGLRenderer::getRealHeight() {
     return realHeight;
 }
 
-
-
 void OGLRenderer::onViewportChanged(int32_t newWidth, int32_t newHeight) {
     SDL_Log("Viewport resize to %d,%d", newWidth, newHeight);
 

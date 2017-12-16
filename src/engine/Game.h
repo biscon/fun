@@ -29,11 +29,18 @@ public:
     void pushMode(std::string mode) override;
     void replaceMode(std::string name) override;
     void popMode() override;
+
+    // keyboard events
     void onKeyDown(const SDL_Event *event) override;
     void onKeyUp(const SDL_Event *event) override {}
     void onKeyPressed(const SDL_Event *event) override {}
 
+    // window events
     void onWindowResize(int32_t width, int32_t height) override;
+    void onMouseEnter() override;
+    void onMouseLeave() override;
+    void onFocusGained() override;
+    void onFocusLost() override;
 
     std::shared_ptr<IRenderer> getRenderer() override;
     std::shared_ptr<IInput> getInput() override;
@@ -64,6 +71,7 @@ private:
     uint64 initTimeStamp = 0;
     int32 screenWidth;
     int32 screenHeight;
+    bool paused = false;
 };
 
 

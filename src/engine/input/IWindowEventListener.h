@@ -12,6 +12,10 @@ public:
     IWindowEventListener(){}
     virtual ~IWindowEventListener(){}
     virtual void onWindowResize(int32_t width, int32_t height)=0;
+    virtual void onMouseEnter()=0;
+    virtual void onMouseLeave()=0;
+    virtual void onFocusGained()=0;
+    virtual void onFocusLost()=0;
 };
 
 

@@ -82,14 +82,14 @@ void IntroGameMode::shutdown() {
 
 void IntroGameMode::resume() {
     SDL_Log("IntroGameMode::resume");
-    SDL_CaptureMouse(SDL_TRUE);
+    SDL_SetRelativeMouseMode(SDL_TRUE);
     game->getInput()->addKeyboardEventListener(this);
     game->getInput()->addMouseEventListener(this);
 }
 
 void IntroGameMode::pause() {
     SDL_Log("IntroGameMode::pause");
-    SDL_CaptureMouse(SDL_FALSE);
+    SDL_SetRelativeMouseMode(SDL_FALSE);
     game->getInput()->removeKeyboardEventListener(this);
     game->getInput()->removeMouseEventListener(this);
 }
@@ -228,7 +228,7 @@ void IntroGameMode::onKeyPressed(const SDL_Event *event) {
 }
 
 void IntroGameMode::onMouseMotion(const SDL_MouseMotionEvent *event) {
-    //camera->ProcessMouseMovement(event->xrel, -event->yrel, true);
+    camera->ProcessMouseMovement(event->xrel, -event->yrel, true);
 }
 
 
