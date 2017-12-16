@@ -54,7 +54,7 @@ bool TextureAtlas::build() {
             // texture space flips y axis just to piss you off :)
             uv_rect.top = remapFloat(0, (float) height, 0, 1, (float) node->rect.top);
             uv_rect.bottom = remapFloat(0, (float) height, 0, 1, (float) node->rect.bottom+1);
-            textureMap[idMap[pb]] = std::unique_ptr<AtlasTexture>(new AtlasTexture(pb->getName(), node->rect, uv_rect, idMap[pb]));
+            textureMap[idMap[pb]] = std::unique_ptr<AtlasTexture>(new AtlasTexture(pb->getName(), node->rect, uv_rect, idMap[pb], pb->getWidth(), pb->getHeight()));
             //SDL_Log("Fitted image %s size: %dx%d in atlas", pb->getName().c_str(), pb->getWidth(), pb->getHeight());
         }
         else
@@ -77,32 +77,43 @@ void TextureAtlas::debug()
     for(auto const& tex : textureMap)
     {
         auto t = tex.second.get();
-        SDL_Log("Texture: %s px = (%d,%d,%d,%d) uv = (%.2f,%.2f,%.2f,%.2f)", t->name.c_str(), t->rect.left, t->rect.top, t->rect.right, t->rect.bottom, t->uvRect.left, t->uvRect.top, t->uvRect.right, t->uvRect.bottom);
+        SDL_Log("[%d] Texture: %s px = (%d,%d,%d,%d) uv = (%.2f,%.2f,%.2f,%.2f)", tex.first, t->name.c_str(), t->rect.left, t->rect.top, t->rect.right, t->rect.bottom, t->uvRect.left, t->uvRect.top, t->uvRect.right, t->uvRect.bottom);
     }
 }
 
 void TextureAtlas::upload() {
     texture = std::unique_ptr<OGLTexture>(new OGLTexture(atlas.get()));
-
+    SDL_Log("Uploaded %d atlas textures", textureMap.size());
 }
 
 UVRect& TextureAtlas::getUVRect(int32_t handle) {
-    /*try { */
-        const auto &tex = textureMap.at(handle);
-        if (textureMap.at(handle) != nullptr) {
-            return tex->uvRect;
-        }
-    /*}
+    //debug();
+    try {
+        return textureMap[handle]->uvRect;
+    }
     catch (std::out_of_range& e)
     {
         SDL_Log("std::out_of_range arg = %d", handle);
         abort();
-    }*/
+    }
 }
 
 void TextureAtlas::bind() {
     if(texture != nullptr)
         texture->bind();
+}
+
+void TextureAtlas::bind(int tex_unit) {
+    glActiveTexture(GL_TEXTURE0 + tex_unit);
+    glBindTexture(GL_TEXTURE_2D, texture->tex);
+}
+
+std::shared_ptr<OGLTexture> TextureAtlas::createOGLTexture(int32_t handle) {
+    auto& tex = textureMap[handle];
+    std::unique_ptr<PixelBuffer> pb = std::unique_ptr<PixelBuffer>(new PixelBuffer(static_cast<uint32_t>(tex->width), static_cast<uint32_t>(tex->height)));
+    Rect2D r(tex->rect.left, tex->rect.top, tex->width, tex->height);
+    pb->copy(atlas.get(), &r, 0, 0);
+    return std::make_shared<OGLTexture>(pb.get(), true);
 }
 
 

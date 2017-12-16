@@ -16,7 +16,7 @@ class LightSceneRenderer {
 public:
     LightSceneRenderer(ISystem& system, std::shared_ptr<Camera> camera);
     void render(float screenWidth, float screenHeight, double time);
-    void buildBuffers();
+    void buildBuffers(std::shared_ptr<OGLTexture> diffuse_map, std::shared_ptr<OGLTexture> specular_map);
 
 private:
     void setupBufferAttributes();
@@ -28,6 +28,9 @@ private:
     unsigned int lightVAO;
     glm::vec3 lightPos = {1.2f, 1.0f, 2.0f};
     ISystem& system;
+    std::shared_ptr<OGLTexture> diffuseMap;
+    std::shared_ptr<OGLTexture> specularMap;
+    std::array<glm::vec3, 10> cubePositions;
 };
 
 

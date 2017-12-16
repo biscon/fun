@@ -22,7 +22,7 @@ public:
     void clear();
     void generateTexturedCube(UVRect& r);
     void generateCube();
-    void generateTexturedCubeWithNormals(UVRect& r);
+    void generateTexturedCubeWithNormals();
 
     GLuint vao;
     GLuint vbo;

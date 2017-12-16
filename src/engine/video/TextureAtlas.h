@@ -55,12 +55,14 @@ struct UVRect
 
 struct AtlasTexture
 {
-    AtlasTexture(std::string name, const AtlasRect &rect, const UVRect &uvRect, int32_t id) : name(std::move(name)), rect(rect),
-                                                                                         uvRect(uvRect), id(id) {}
+    AtlasTexture(std::string name, const AtlasRect &rect, const UVRect &uvRect, int32_t id, int32_t width, int32_t height) : name(std::move(name)), rect(rect),
+                                                                                         uvRect(uvRect), id(id), width(width), height(height) {}
     std::string name;
     AtlasRect rect;
     UVRect uvRect;
     int32_t id;
+    int32_t width;
+    int32_t height;
 };
 
 class TextureAtlas {
@@ -86,6 +88,8 @@ public:
 
     UVRect& getUVRect(int32_t handle);
     void bind();
+    void bind(int tex_unit);
+    std::shared_ptr<OGLTexture> createOGLTexture(int32_t handle);
 
 private:
     bool built = false;

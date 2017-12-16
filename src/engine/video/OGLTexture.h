@@ -13,9 +13,11 @@
 class OGLTexture : public ITexture {
 public:
     explicit OGLTexture(PixelBuffer* pb);
+    explicit OGLTexture(PixelBuffer* pb, bool filtering);
     virtual ~OGLTexture();
 
     void bind();
+    void bind(int tex_unit);
 
     uint32_t getWidth() override;
     uint32_t getHeight() override;
@@ -26,7 +28,7 @@ public:
 
 private:
     bool didInit = false;
-    bool init(PixelBuffer *pb);
+    bool init(PixelBuffer *pb, bool filtering);
 };
 
 

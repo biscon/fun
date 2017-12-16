@@ -6,7 +6,11 @@
 #include "OGLTexture.h"
 
 OGLTexture::OGLTexture(PixelBuffer *pb) {
-    init(pb);
+    init(pb, false);
+}
+
+OGLTexture::OGLTexture(PixelBuffer *pb, bool filtering) {
+    init(pb, filtering);
 }
 
 OGLTexture::~OGLTexture() {
@@ -14,7 +18,7 @@ OGLTexture::~OGLTexture() {
         glDeleteTextures(1, &tex);
 }
 
-bool OGLTexture::init(PixelBuffer *pb) {
+bool OGLTexture::init(PixelBuffer *pb, bool filtering) {
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
 
@@ -31,9 +35,15 @@ bool OGLTexture::init(PixelBuffer *pb) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     // nearest neighbour filtering
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
+    if(!filtering) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    }
+    else
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
     // Black/white checkerboard
     /*
     float pixels[] = {
@@ -69,5 +79,12 @@ uint32_t OGLTexture::getHeight() {
 }
 
 void OGLTexture::bind() {
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex);
 }
+
+void OGLTexture::bind(int tex_unit) {
+    glActiveTexture(GL_TEXTURE0 + tex_unit);
+    glBindTexture(GL_TEXTURE_2D, tex);
+}
+

@@ -61,6 +61,8 @@ bool IntroGameMode::load(IGame &game) {
     textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("bacon2.png")));
     textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("bacon3.png")));
     textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("bacon4.png")));
+    textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("container_diffuse.png")));
+    textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("container_specular.png")));
     textureAtlas->build();
     return true;
 }
@@ -70,7 +72,7 @@ bool IntroGameMode::prepare(IGame &game) {
     textureAtlas->upload();
     quadRenderer->buildBuffers();
     cubeRenderer->buildBuffers();
-    lightSceneRenderer->buildBuffers();
+    lightSceneRenderer->buildBuffers(textureAtlas->createOGLTexture(5), textureAtlas->createOGLTexture(6));
     return true;
 }
 

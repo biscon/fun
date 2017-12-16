@@ -61,7 +61,7 @@ void CubeRenderer::buildBuffers() {
     mesh = std::unique_ptr<Mesh>(new Mesh(MeshUpdateType::STATIC));
     mesh->bindVAO();
     mesh->bindVBO();
-    mesh->generateTexturedCube(textureAtlas->getUVRect(3));
+    mesh->generateTexturedCube(textureAtlas->getUVRect(1));
     mesh->upload();
     setupBufferAttributes();
 }
