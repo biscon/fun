@@ -51,8 +51,8 @@ void LightSceneRenderer::render(float screenWidth, float screenHeight, double ti
     lightingShader->setVec3("light.position", lightPos);
 
     // set material
-    lightingShader->setInt("material.diffuse", 0);
-    lightingShader->setInt("material.specular", 1);
+    lightingShader->setInt("material.texture_diffuse1", 0);
+    lightingShader->setInt("material.texture_specular1", 1);
     lightingShader->setFloat("material.shininess", 32.0f);
 
     // view/projection transformations
@@ -82,6 +82,16 @@ void LightSceneRenderer::render(float screenWidth, float screenHeight, double ti
         model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
         lightingShader->setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
+
+    // draw model
+    if(testModel != nullptr)
+    {
+        glm::mat4 model;
+        model = glm::translate(model, glm::vec3(0.0f, -1.75f, -5.0f)); // translate it down so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
+        lightingShader->setMat4("model", model);
+        testModel->draw(*lightingShader);
     }
 
     // also draw the lamp object

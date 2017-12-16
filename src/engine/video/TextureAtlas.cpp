@@ -82,7 +82,7 @@ void TextureAtlas::debug()
 }
 
 void TextureAtlas::upload() {
-    texture = std::unique_ptr<OGLTexture>(new OGLTexture(atlas.get(), false));
+    texture = std::unique_ptr<OGLTexture>(new OGLTexture(atlas.get(), "texture_diffuse", false));
     SDL_Log("Uploaded %d atlas textures", textureMap.size());
 }
 
@@ -113,7 +113,7 @@ std::shared_ptr<OGLTexture> TextureAtlas::createOGLTexture(int32_t handle) {
     std::unique_ptr<PixelBuffer> pb = std::unique_ptr<PixelBuffer>(new PixelBuffer(static_cast<uint32_t>(tex->width), static_cast<uint32_t>(tex->height)));
     Rect2D r(tex->rect.left, tex->rect.top, tex->width, tex->height);
     pb->copy(atlas.get(), &r, 0, 0);
-    return std::make_shared<OGLTexture>(pb.get(), true);
+    return std::make_shared<OGLTexture>(pb.get(), "texture_diffuse", true);
 }
 
 

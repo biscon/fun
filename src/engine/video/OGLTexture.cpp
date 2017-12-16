@@ -5,11 +5,11 @@
 #include <SDL_log.h>
 #include "OGLTexture.h"
 
-OGLTexture::OGLTexture(PixelBuffer *pb) {
+OGLTexture::OGLTexture(PixelBuffer *pb, std::string type) : type(type) {
     init(pb, false);
 }
 
-OGLTexture::OGLTexture(PixelBuffer *pb, bool filtering) {
+OGLTexture::OGLTexture(PixelBuffer *pb, std::string type, bool filtering) : type(type) {
     init(pb, filtering);
 }
 
@@ -28,12 +28,14 @@ bool OGLTexture::init(PixelBuffer *pb, bool filtering) {
     //SDL_Log("glTexImage2D width = %d, height = %d, data = %d", width, height, (void *) pb->getPixels());
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void *) pb->getPixels());
     // set wrap repeat
-    /*
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    */
+
+    /*
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+     */
     // nearest neighbour filtering
     if(!filtering) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

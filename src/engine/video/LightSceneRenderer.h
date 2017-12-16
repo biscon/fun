@@ -11,12 +11,15 @@
 #include "Shader.h"
 #include "Mesh.h"
 #include "Camera.h"
+#include "Model.h"
 
 class LightSceneRenderer {
 public:
     LightSceneRenderer(ISystem& system, std::shared_ptr<Camera> camera);
     void render(float screenWidth, float screenHeight, double time);
     void buildBuffers(std::shared_ptr<OGLTexture> diffuse_map, std::shared_ptr<OGLTexture> specular_map);
+
+    std::shared_ptr<Model> testModel;
 
 private:
     void setupBufferAttributes();

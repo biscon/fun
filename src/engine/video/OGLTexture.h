@@ -5,6 +5,8 @@
 #ifndef GAME_OGLTEXTURE_H
 #define GAME_OGLTEXTURE_H
 
+#include <string>
+
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include "ITexture.h"
@@ -12,8 +14,8 @@
 
 class OGLTexture : public ITexture {
 public:
-    explicit OGLTexture(PixelBuffer* pb);
-    explicit OGLTexture(PixelBuffer* pb, bool filtering);
+    explicit OGLTexture(PixelBuffer* pb, std::string type);
+    explicit OGLTexture(PixelBuffer* pb, std::string type, bool filtering);
     virtual ~OGLTexture();
 
     void bind();
@@ -25,6 +27,7 @@ public:
     GLuint tex;
     uint32_t width;
     uint32_t height;
+    std::string type;
 
 private:
     bool didInit = false;

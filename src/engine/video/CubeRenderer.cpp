@@ -11,7 +11,6 @@
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 #include <SDL_log.h>
-#include <engine/asset/tiny_obj_loader.h>
 
 CubeRenderer::CubeRenderer(std::shared_ptr<TextureAtlas> textureAtlas) : textureAtlas(textureAtlas) {
     shader = std::unique_ptr<Shader>(new Shader(vertexSource3D, fragmentSource3D, nullptr));

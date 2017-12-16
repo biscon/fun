@@ -13,6 +13,7 @@
 #include <engine/video/FontRenderer.h>
 #include <engine/video/CubeRenderer.h>
 #include <engine/video/LightSceneRenderer.h>
+#include <engine/video/Model.h>
 
 class IntroGameMode : public IGameMode, public IKeyboardEventListener, public IMouseEventListener, public ILoadTask {
 public:
@@ -53,6 +54,8 @@ private:
     std::unique_ptr<QuadRenderer> quadRenderer;
     std::unique_ptr<CubeRenderer> cubeRenderer;
     std::shared_ptr<TextureAtlas> textureAtlas;
+
+    std::shared_ptr<Model> model;
 
     std::unique_ptr<LightSceneRenderer> lightSceneRenderer;
     std::shared_ptr<Camera> camera;
