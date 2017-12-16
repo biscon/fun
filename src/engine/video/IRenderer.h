@@ -27,6 +27,10 @@ public:
     virtual void onViewportChanged(int32_t newWidth, int32_t newHeight)=0;
     virtual void setLogicalViewport()=0;
     virtual void setRealViewport()=0;
+    virtual void setWindowBordered(bool bordered)=0;
+    virtual void maximizeWindow()=0;
+    virtual void minimizeWindow()=0;
+    virtual void restoreWindow()=0;
 };
 
 

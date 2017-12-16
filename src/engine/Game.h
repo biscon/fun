@@ -72,6 +72,7 @@ private:
     int32 screenWidth;
     int32 screenHeight;
     bool paused = false;
+    bool fullscreen = false;
 };
 
 

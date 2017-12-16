@@ -93,7 +93,10 @@ set(SOURCE_FILES
         src/engine/video/MeshUpdateType.h
         src/engine/video/Camera.h
         src/engine/asset/tiny_obj_loader.h
-        src/engine/asset/tiny_obj_loader.cpp src/engine/video/LightSceneRenderer.cpp src/engine/video/LightSceneRenderer.h src/engine/input/IMouseEventListener.h)
+        src/engine/asset/tiny_obj_loader.cpp
+        src/engine/video/LightSceneRenderer.cpp
+        src/engine/video/LightSceneRenderer.h
+        src/engine/input/IMouseEventListener.h)
 add_executable(game ${SOURCE_FILES})
 
 target_link_libraries(game ${GLEW_LIBRARY} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY})

@@ -25,10 +25,15 @@ public:
     int32_t getRealWidth() override;
     int32_t getRealHeight() override;
     void onViewportChanged(int32_t newWidth, int32_t newHeight) override;
-
     void setLogicalViewport() override;
-
     void setRealViewport() override;
+    void setWindowBordered(bool bordered) override;
+
+    void maximizeWindow() override;
+
+    void minimizeWindow() override;
+
+    void restoreWindow() override;
 
 private:
     uint32_t screenWidth, realWidth;

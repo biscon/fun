@@ -145,3 +145,22 @@ void OGLRenderer::setLogicalViewport() {
 void OGLRenderer::setRealViewport() {
     glViewport(0, 0, realWidth, realHeight);
 }
+
+void OGLRenderer::setWindowBordered(bool bordered) {
+    if(bordered)
+        SDL_SetWindowBordered(window, SDL_TRUE);
+    else
+        SDL_SetWindowBordered(window, SDL_FALSE);
+}
+
+void OGLRenderer::maximizeWindow() {
+    SDL_MaximizeWindow(window);
+}
+
+void OGLRenderer::minimizeWindow() {
+    SDL_MinimizeWindow(window);
+}
+
+void OGLRenderer::restoreWindow() {
+    SDL_RestoreWindow(window);
+}

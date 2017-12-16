@@ -224,6 +224,21 @@ void Game::onKeyDown(const SDL_Event *event) {
             shouldQuit = true;
         return;
     }
+    if(event->key.keysym.sym == SDLK_F12)
+    {
+        if(fullscreen)  // fullscreen off
+        {
+            renderer->setWindowBordered(true);
+            renderer->restoreWindow();
+            fullscreen = false;
+        }
+        else            // fullscreen on
+        {
+            renderer->setWindowBordered(false);
+            renderer->maximizeWindow();
+            fullscreen = true;
+        }
+    }
 }
 
 std::shared_ptr<IRenderer> Game::getRenderer() {
