@@ -100,7 +100,13 @@ set(SOURCE_FILES
         src/engine/video/Mesh2.h
         src/engine/video/Model.cpp
         src/engine/video/Model.h
-        src/engine/video/Material.h src/engine/video/MaterialDictionary.cpp src/engine/video/MaterialDictionary.h)
+        src/engine/video/Material.h
+        src/engine/video/MaterialDictionary.cpp
+        src/engine/video/MaterialDictionary.h
+        src/engine/voxel/Block.cpp
+        src/engine/voxel/Block.h
+        src/engine/voxel/Chunk.cpp
+        src/engine/voxel/Chunk.h)
 add_executable(game ${SOURCE_FILES})
 
 target_link_libraries(game ${GLEW_LIBRARY} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY})

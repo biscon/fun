@@ -17,6 +17,9 @@
 #include "Material.h"
 
 struct Vertex {
+    Vertex() {}
+    Vertex(const glm::vec3 &Position, const glm::vec3 &Normal, const glm::vec2 &TexCoords) : Position(Position),
+                                                                                             Normal(Normal), TexCoords(TexCoords) {}
     glm::vec3 Position;
     glm::vec3 Normal;
     glm::vec2 TexCoords;
@@ -29,6 +32,8 @@ public:
     Mesh2(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
     void draw(const Shader& shader);
     void prepare();
+
+    void addTexturedCubeWithNormals(float x, float y, float z);
 
     /*  Mesh Data  */
     std::vector<Vertex> vertices;

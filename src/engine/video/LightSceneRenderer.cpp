@@ -64,16 +64,16 @@ void LightSceneRenderer::render(float screenWidth, float screenHeight, double ti
     // directional light
     lightingShader->setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
     lightingShader->setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-    lightingShader->setVec3("dirLight.diffuse", 0.0f, 0.0f, 0.0f);
-    lightingShader->setVec3("dirLight.specular", 0.0f, 0.0f, 0.0f);
+    lightingShader->setVec3("dirLight.diffuse", 0.25f, 0.25f, 0.25f);
+    lightingShader->setVec3("dirLight.specular", 0.30f, 0.30f, 0.30f);
     // point light 1
     lightingShader->setVec3("pointLights[0].position", pointLightPositions[0]);
     lightingShader->setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
     lightingShader->setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
     lightingShader->setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
     lightingShader->setFloat("pointLights[0].constant", 1.0f);
-    lightingShader->setFloat("pointLights[0].linear", 0.09);
-    lightingShader->setFloat("pointLights[0].quadratic", 0.032);
+    lightingShader->setFloat("pointLights[0].linear", 0.022f);
+    lightingShader->setFloat("pointLights[0].quadratic", 0.0019f);
     // point light 2
     lightingShader->setVec3("pointLights[1].position", pointLightPositions[1]);
     lightingShader->setVec3("pointLights[1].ambient", 0.05f, 0.05f, 0.05f);
