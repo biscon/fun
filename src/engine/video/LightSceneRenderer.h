@@ -34,6 +34,7 @@ private:
     std::shared_ptr<OGLTexture> diffuseMap;
     std::shared_ptr<OGLTexture> specularMap;
     std::array<glm::vec3, 10> cubePositions;
+    std::array<glm::vec3, 4> pointLightPositions;
 };
 
 

@@ -8,7 +8,9 @@
 #include <engine/asset/tiny_obj_loader.h>
 #include <iostream>
 
-Model::Model(const std::string &filename, const std::string &basepath) : filename(filename), basepath(basepath) {}
+Model::Model(const std::string &filename, const std::string &basepath) : filename(filename), basepath(basepath) {
+    materialDictionary = std::unique_ptr<MaterialDictionary>(new MaterialDictionary());
+}
 
 bool Model::loadOBJ() {
     tinyobj::attrib_t attrib;
@@ -74,23 +76,16 @@ bool Model::loadOBJ() {
         std::vector<TextureBufferItem*> mesh_textures;
         auto mat_id = shapes[s].mesh.material_ids[0];
         auto mat = materials.at(mat_id);
-        if(!mat.diffuse_texname.empty())
-        {
-            // check if already exists otherwise add
-            if(textureBufferItems.count(mat.diffuse_texname) == 0)
-                textureBufferItems[mat.diffuse_texname] = std::unique_ptr<TextureBufferItem>(new TextureBufferItem(mat.diffuse_texname, "texture_diffuse"));
-            mesh_textures.push_back(textureBufferItems[mat.diffuse_texname].get());
-        }
+        SDL_Log("Processing material %s", mat.name.c_str());
 
-        if(!mat.specular_texname.empty())
-        {
-            if(textureBufferItems.count(mat.specular_texname) == 0)
-                textureBufferItems[mat.specular_texname] = std::unique_ptr<TextureBufferItem>(new TextureBufferItem(mat.specular_texname, "texture_specular"));
-            mesh_textures.push_back(textureBufferItems[mat.specular_texname].get());
-        }
+        materialDictionary->createMaterial(mat.name,
+                                           glm::vec3(mat.ambient[0], mat.ambient[1], mat.ambient[2]),
+                                           glm::vec3(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2]),
+                                           glm::vec3(mat.specular[0], mat.specular[1], mat.specular[2]),
+                                           mat.diffuse_texname, mat.specular_texname, mat.shininess);
 
         SDL_Log("Building submesh %s containing %d vertices", shapes[s].name.c_str(), vertices.size());
-        meshTextureMap[meshes.back().get()] = mesh_textures;
+        meshMaterialMap[meshes.back().get()] = mat.name;
     }
     return true;
 }
@@ -98,29 +93,18 @@ bool Model::loadOBJ() {
 bool Model::load(IGame &game) {
     SDL_Log("Loading model %s", filename.c_str());
     loadOBJ();
-    for(auto& kv : textureBufferItems)
-    {
-        SDL_Log("Loading texture map %s type %s", kv.first.c_str(), kv.second->type.c_str());
-        kv.second->buffer = std::make_shared<PixelBuffer>(basepath + kv.first);
-    }
+    materialDictionary->load(basepath);
     return true;
 }
 
 bool Model::prepare(IGame &game) {
     SDL_Log("Preparing model %s", filename.c_str());
     // upload textures
-    SDL_Log("Uploading %d texture maps", textureBufferItems.size());
-    for(auto& kv : textureBufferItems) {
-        kv.second->texture = std::make_shared<OGLTexture>(kv.second->buffer.get(), kv.second->type, true);
-    }
+    materialDictionary->prepare();
     SDL_Log("Uploading %d meshes", meshes.size());
     for(auto& mesh : meshes)
     {
-        // assign textures
-        for(auto& texitem : meshTextureMap[mesh.get()])
-        {
-            mesh->textures.push_back(texitem->texture);
-        }
+        mesh->material = materialDictionary->getMaterial(meshMaterialMap[mesh.get()]);
         // upload mesh
         mesh->prepare();
     }

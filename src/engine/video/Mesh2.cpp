@@ -43,23 +43,22 @@ void Mesh2::prepare()
 
 void Mesh2::draw(const Shader& shader)
 {
-    unsigned int diffuseNr = 1;
-    unsigned int specularNr = 1;
-    for(unsigned int i = 0; i < textures.size(); i++)
+    if(material->diffuseTexture != nullptr)
     {
-        glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
-        // retrieve texture number (the N in diffuse_textureN)
-        std::string number;
-        std::string name = textures[i]->type;
-        if(name == "texture_diffuse")
-            number = std::to_string(diffuseNr++);
-        else if(name == "texture_specular")
-            number = std::to_string(specularNr++);
-
-        shader.setInt(("material." + name + number).c_str(), i);
-        glBindTexture(GL_TEXTURE_2D, textures[i]->tex);
+        glActiveTexture(GL_TEXTURE0);
+        shader.setInt("material.texture_diffuse1", 0);
+        glBindTexture(GL_TEXTURE_2D, material->diffuseTexture->tex);
+    }
+    if(material->specularTexture != nullptr)
+    {
+        glActiveTexture(GL_TEXTURE1);
+        shader.setInt("material.texture_specular1", 1);
+        glBindTexture(GL_TEXTURE_2D, material->specularTexture->tex);
     }
     glActiveTexture(GL_TEXTURE0);
+
+    shader.setFloat("material.shininess", material->shininess);
+
 
     // draw mesh
     glBindVertexArray(VAO);

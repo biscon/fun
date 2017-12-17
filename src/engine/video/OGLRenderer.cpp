@@ -38,7 +38,8 @@ bool OGLRenderer::init(uint32 screenWidth, uint32 screenHeight) {
 
     onViewportChanged(realWidth, realHeight);
 
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    //glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     //glEnable(GL_DEPTH_TEST);

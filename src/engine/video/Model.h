@@ -17,16 +17,7 @@
 #include "Shader.h"
 #include "OGLTexture.h"
 #include "Mesh2.h"
-
-struct TextureBufferItem
-{
-    TextureBufferItem(const std::string &name, const std::string &type) : name(name), type(type) {}
-
-    std::string name;
-    std::string type;
-    std::shared_ptr<PixelBuffer> buffer;
-    std::shared_ptr<OGLTexture> texture;
-};
+#include "MaterialDictionary.h"
 
 class Model : public ILoadTask {
 public:
@@ -38,9 +29,10 @@ public:
     void draw(Shader& shader);
 
 private:
+    std::unique_ptr<MaterialDictionary> materialDictionary;
     std::vector<std::unique_ptr<Mesh2>> meshes;
-    std::map<Mesh2*, std::vector<TextureBufferItem*>> meshTextureMap;
-    std::map<std::string, std::unique_ptr<TextureBufferItem>> textureBufferItems;
+    std::map<Mesh2*, std::string> meshMaterialMap;
+
 
     std::string filename;
     std::string basepath;

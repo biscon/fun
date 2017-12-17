@@ -95,7 +95,12 @@ set(SOURCE_FILES
         src/engine/asset/tiny_obj_loader.cpp
         src/engine/video/LightSceneRenderer.cpp
         src/engine/video/LightSceneRenderer.h
-        src/engine/input/IMouseEventListener.h src/engine/video/Mesh2.cpp src/engine/video/Mesh2.h src/engine/video/Model.cpp src/engine/video/Model.h)
+        src/engine/input/IMouseEventListener.h
+        src/engine/video/Mesh2.cpp
+        src/engine/video/Mesh2.h
+        src/engine/video/Model.cpp
+        src/engine/video/Model.h
+        src/engine/video/Material.h src/engine/video/MaterialDictionary.cpp src/engine/video/MaterialDictionary.h)
 add_executable(game ${SOURCE_FILES})
 
 target_link_libraries(game ${GLEW_LIBRARY} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY})

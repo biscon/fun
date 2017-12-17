@@ -14,6 +14,7 @@
 #include "MeshUpdateType.h"
 #include "Shader.h"
 #include "OGLTexture.h"
+#include "Material.h"
 
 struct Vertex {
     glm::vec3 Position;
@@ -32,7 +33,8 @@ public:
     /*  Mesh Data  */
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
-    std::vector<std::shared_ptr<OGLTexture>> textures;
+    std::shared_ptr<Material> material;
+
 private:
     /*  Render data  */
     unsigned int VAO, VBO, EBO;
