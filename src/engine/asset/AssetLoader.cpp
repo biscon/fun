@@ -7,7 +7,7 @@
 
 AssetLoader::AssetLoader() {
     loading = false;
-    thread = std::thread(AssetLoader::run, this);
+    thread = std::thread(&AssetLoader::run, this);
 }
 
 AssetLoader::~AssetLoader() {

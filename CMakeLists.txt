@@ -12,9 +12,11 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 set(GLM_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/src/glm)
 
-# glew
-set(GLEW_INCLUDE_DIR "E:/glew-2.1.0-win32/glew-2.1.0/include")
-set(GLEW_LIBRARY "E:/glew-2.1.0-win32/glew-2.1.0/lib/Release/x64/glew32s.lib")
+# glew (windows) on os x: brew install glew
+if(WIN32)
+    set(GLEW_INCLUDE_DIR "E:/glew-2.1.0-win32/glew-2.1.0/include")
+    set(GLEW_LIBRARY "E:/glew-2.1.0-win32/glew-2.1.0/lib/Release/x64/glew32s.lib")
+endif()
 
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../")

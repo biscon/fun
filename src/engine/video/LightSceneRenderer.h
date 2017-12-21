@@ -8,6 +8,7 @@
 
 #include <memory>
 #include <engine/ISystem.h>
+#include <array>
 #include "Shader.h"
 #include "Mesh.h"
 #include "Camera.h"

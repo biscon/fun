@@ -11,9 +11,13 @@
 #include <atomic>
 #include <mutex>
 // needed because GCC on windows sucks
-#include "../mingw.thread.h"
+
+#ifdef WIN32
+    #include "mingw.thread.h"
+    #include "../mingw.condition_variable.h"
+#endif
+
 #include "IAssetLoader.h"
-#include "../mingw.condition_variable.h"
 #include "ILoadTask.h"
 
 class AssetLoader : public IAssetLoader {

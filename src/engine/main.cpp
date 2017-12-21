@@ -3,7 +3,10 @@
 #include <chrono>
 #include "Game.h"
 #include "Factory.h"
-#include "mingw.thread.h"
+
+#ifdef WIN32
+    #include "mingw.thread.h"
+#endif
 
 /*
 #ifdef __cplusplus

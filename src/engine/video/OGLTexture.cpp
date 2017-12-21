@@ -66,7 +66,7 @@ bool OGLTexture::init(PixelBuffer *pb, bool filtering) {
     // check OpenGL error
     GLenum err;
     while ((err = glGetError()) != GL_NO_ERROR) {
-        SDL_Log("OpenGL error: %s", err);
+        //SDL_Log("OpenGL error: %s", err);
     }
     didInit = true;
     return true;
