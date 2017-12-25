@@ -18,6 +18,7 @@
 #include "OGLTexture.h"
 #include "Mesh2.h"
 #include "MaterialDictionary.h"
+#include "Mesh3.h"
 
 class Model : public ILoadTask {
 public:
@@ -30,8 +31,8 @@ public:
 
 private:
     std::unique_ptr<MaterialDictionary> materialDictionary;
-    std::vector<std::unique_ptr<Mesh2>> meshes;
-    std::map<Mesh2*, std::string> meshMaterialMap;
+    std::vector<std::unique_ptr<Mesh3>> meshes;
+    std::map<Mesh3*, std::string> meshMaterialMap;
 
 
     std::string filename;

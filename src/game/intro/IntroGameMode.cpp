@@ -47,8 +47,11 @@ bool IntroGameMode::init() {
 
     model = std::make_shared<Model>("nanosuit/nanosuit.obj", "nanosuit/");
     lightSceneRenderer->testModel = model;
-
     game->getAssetLoader()->addLoadTask(model.get());
+
+    model2 = std::make_shared<Model>("assets/grass_tile.obj", "assets/");
+    game->getAssetLoader()->addLoadTask(model2.get());
+
 
     game->getAssetLoader()->addLoadTask(this);
     game->getAssetLoader()->load();

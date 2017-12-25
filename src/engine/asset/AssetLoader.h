@@ -12,8 +12,8 @@
 #include <mutex>
 // needed because GCC on windows sucks
 
-#ifdef WIN32
-    #include "mingw.thread.h"
+#ifdef __WIN32__
+    #include "../mingw.thread.h"
     #include "../mingw.condition_variable.h"
 #endif
 

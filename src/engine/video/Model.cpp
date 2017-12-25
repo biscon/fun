@@ -28,8 +28,9 @@ bool Model::loadOBJ() {
         return false;
     }
 
-    std::vector<Vertex> vertices;
+    std::vector<float> vertices;
     //std::vector<std::shared_ptr<OGLTexture>> textures;
+    bool texcoords = false;
 
 // Loop over shapes
     for (size_t s = 0; s < shapes.size(); s++) {
@@ -52,14 +53,21 @@ bool Model::loadOBJ() {
                 tinyobj::real_t nx = attrib.normals[3*idx.normal_index+0];
                 tinyobj::real_t ny = attrib.normals[3*idx.normal_index+1];
                 tinyobj::real_t nz = attrib.normals[3*idx.normal_index+2];
-                tinyobj::real_t tx = attrib.texcoords[2*idx.texcoord_index+0];
-                tinyobj::real_t ty = 1.0f - attrib.texcoords[2*idx.texcoord_index+1];
 
-                Vertex vertex{};
-                vertex.Position = glm::vec3(vx, vy, vz);
-                vertex.Normal = glm::vec3(nx, ny, nz);
-                vertex.TexCoords = glm::vec2(tx, ty);
-                vertices.push_back(vertex);
+                // position
+                vertices.insert(vertices.end(), {vx, vy, vz});
+
+                // normal
+                vertices.insert(vertices.end(), {nx, ny, nz});
+
+                if(!attrib.texcoords.empty()) {
+                    tinyobj::real_t tx = attrib.texcoords[2 * idx.texcoord_index + 0];
+                    tinyobj::real_t ty = 1.0f - attrib.texcoords[2 * idx.texcoord_index + 1];
+                    texcoords = true;
+                    // tex coords
+                    vertices.insert(vertices.end(), {tx, ty});
+                }
+
 
                 // Optional: vertex colors
                 // tinyobj::real_t red = attrib.colors[3*idx.vertex_index+0];
@@ -71,9 +79,15 @@ bool Model::loadOBJ() {
             // per-face material
             //auto mat_id = shapes[s].mesh.material_ids[f];
         }
-        meshes.push_back(std::unique_ptr<Mesh2>(new Mesh2(vertices)));
+        meshes.push_back(std::unique_ptr<Mesh3>(new Mesh3(vertices)));
+        meshes.back()->hasTexcoords = texcoords;
+        meshes.back()->hasNormals = true;
+        if(texcoords)
+            meshes.back()->vertexSize = 8;
+        else
+            meshes.back()->vertexSize = 6;
 
-        std::vector<TextureBufferItem*> mesh_textures;
+        //std::vector<TextureBufferItem*> mesh_textures;
         auto mat_id = shapes[s].mesh.material_ids[0];
         auto mat = materials.at(mat_id);
         SDL_Log("Processing material %s", mat.name.c_str());

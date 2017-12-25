@@ -100,6 +100,8 @@ set(SOURCE_FILES
         src/engine/input/IMouseEventListener.h
         src/engine/video/Mesh2.cpp
         src/engine/video/Mesh2.h
+        src/engine/video/Mesh3.cpp
+        src/engine/video/Mesh3.h
         src/engine/video/Model.cpp
         src/engine/video/Model.h
         src/engine/video/Material.h

@@ -56,6 +56,7 @@ private:
     std::shared_ptr<TextureAtlas> textureAtlas;
 
     std::shared_ptr<Model> model;
+    std::shared_ptr<Model> model2;
 
     std::unique_ptr<LightSceneRenderer> lightSceneRenderer;
     std::shared_ptr<Camera> camera;

@@ -16,13 +16,17 @@ void MaterialDictionary::createMaterial(std::string name, glm::vec3 ambient, glm
     material->diffuseMap = diffuseMap;
     material->specularMap = specularMap;
     materialsMap[name] = material;
-    if(textureBufferItems.count(diffuseMap) == 0)
-    {
-        textureBufferItems[diffuseMap] = std::unique_ptr<TextureBufferItem>(new TextureBufferItem(diffuseMap, "texture_diffuse"));
+    if(!diffuseMap.empty()) {
+        if (textureBufferItems.count(diffuseMap) == 0) {
+            textureBufferItems[diffuseMap] = std::unique_ptr<TextureBufferItem>(
+                    new TextureBufferItem(diffuseMap, "texture_diffuse"));
+        }
     }
-    if(textureBufferItems.count(specularMap) == 0)
-    {
-        textureBufferItems[specularMap] = std::unique_ptr<TextureBufferItem>(new TextureBufferItem(specularMap, "texture_specular"));
+    if(!specularMap.empty()) {
+        if (textureBufferItems.count(specularMap) == 0) {
+            textureBufferItems[specularMap] = std::unique_ptr<TextureBufferItem>(
+                    new TextureBufferItem(specularMap, "texture_specular"));
+        }
     }
 }
 
