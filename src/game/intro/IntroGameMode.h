@@ -14,6 +14,7 @@
 #include <engine/video/CubeRenderer.h>
 #include <engine/video/LightSceneRenderer.h>
 #include <engine/video/Model.h>
+#include <engine/video/ModelRenderer.h>
 
 class IntroGameMode : public IGameMode, public IKeyboardEventListener, public IMouseEventListener, public ILoadTask {
 public:
@@ -59,6 +60,7 @@ private:
     std::shared_ptr<Model> model2;
 
     std::unique_ptr<LightSceneRenderer> lightSceneRenderer;
+    std::unique_ptr<ModelRenderer> modelRenderer;
     std::shared_ptr<Camera> camera;
 
     bool movingUp = false, movingDown = false, movingRight = false, movingLeft = false, zoomingIn = false, zoomingOut = false;

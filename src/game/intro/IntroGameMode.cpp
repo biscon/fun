@@ -43,14 +43,16 @@ bool IntroGameMode::init() {
 
 
     camera = std::make_shared<Camera>(glm::vec3(0.0f, 0.0f, 6.0f));
-    lightSceneRenderer = std::unique_ptr<LightSceneRenderer>(new LightSceneRenderer(*game->getSystem(), camera));
+    //lightSceneRenderer = std::unique_ptr<LightSceneRenderer>(new LightSceneRenderer(*game->getSystem(), camera));
 
-    model = std::make_shared<Model>("nanosuit/nanosuit.obj", "nanosuit/");
-    lightSceneRenderer->testModel = model;
-    game->getAssetLoader()->addLoadTask(model.get());
+    //model = std::make_shared<Model>("nanosuit/nanosuit.obj", "nanosuit/");
+    //lightSceneRenderer->testModel = model;
+    //game->getAssetLoader()->addLoadTask(model.get());
 
     model2 = std::make_shared<Model>("assets/grass_tile.obj", "assets/");
     game->getAssetLoader()->addLoadTask(model2.get());
+
+    modelRenderer = std::unique_ptr<ModelRenderer>(new ModelRenderer(*game->getSystem(), model2, camera));
 
 
     game->getAssetLoader()->addLoadTask(this);
@@ -80,7 +82,7 @@ bool IntroGameMode::prepare(IGame &game) {
     textureAtlas->upload();
     quadRenderer->buildBuffers();
     cubeRenderer->buildBuffers();
-    lightSceneRenderer->buildBuffers(textureAtlas->createOGLTexture(5), textureAtlas->createOGLTexture(6));
+    //lightSceneRenderer->buildBuffers(textureAtlas->createOGLTexture(5), textureAtlas->createOGLTexture(6));
     return true;
 }
 
@@ -145,7 +147,8 @@ void IntroGameMode::fixedUpdate() {
     */
     //cubeRenderer->render(1280, 720, game->getTime());
     game->getRenderer()->setRealViewport();
-    lightSceneRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight(), game->getTime());
+    //lightSceneRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight(), game->getTime());
+    modelRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight(), game->getTime());
 
     game->getRenderer()->setLogicalViewport();
     fontRenderer->startFrame();

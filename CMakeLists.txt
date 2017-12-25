@@ -110,7 +110,9 @@ set(SOURCE_FILES
         src/engine/voxel/Block.cpp
         src/engine/voxel/Block.h
         src/engine/voxel/Chunk.cpp
-        src/engine/voxel/Chunk.h)
+        src/engine/voxel/Chunk.h
+        src/engine/video/ModelRenderer.cpp
+        src/engine/video/ModelRenderer.h)
 add_executable(game ${SOURCE_FILES})
 
 target_link_libraries(game ${GLEW_LIBRARY} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY})

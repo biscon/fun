@@ -15,6 +15,7 @@ void MaterialDictionary::createMaterial(std::string name, glm::vec3 ambient, glm
     material->shininess = shininess;
     material->diffuseMap = diffuseMap;
     material->specularMap = specularMap;
+    SDL_Log("MaterialDictionary: Adding material shininess %.2f, ambient = {%.2f,%.2f,%.2f}", material->shininess, material->ambient[0], material->ambient[1], material->ambient[2]);
     materialsMap[name] = material;
     if(!diffuseMap.empty()) {
         if (textureBufferItems.count(diffuseMap) == 0) {
