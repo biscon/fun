@@ -65,9 +65,9 @@ void TileRenderer::render(float screenWidth, float screenHeight, double time) {
 
     // directional light
     shader->setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-    shader->setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-    shader->setVec3("dirLight.diffuse", 0.15f, 0.15f, 0.15f);
-    shader->setVec3("dirLight.specular", 0.20f, 0.20f, 0.20f);
+    shader->setVec3("dirLight.ambient", 0.025f, 0.025f, 0.025f);
+    shader->setVec3("dirLight.diffuse", 0.05f, 0.05f, 0.10f);
+    shader->setVec3("dirLight.specular", 0.1f, 0.1f, 0.1f);
     /*
     shader->setVec3("dirLight.diffuse", 0.25f, 0.25f, 0.25f);
     shader->setVec3("dirLight.specular", 0.30f, 0.30f, 0.30f);
