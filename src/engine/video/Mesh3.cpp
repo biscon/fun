@@ -4,6 +4,8 @@
 
 #include "Mesh3.h"
 
+Mesh3::Mesh3() {}
+
 Mesh3::Mesh3(std::vector<float> vertices, std::vector<unsigned int> indices) : vertices(vertices), indices(indices) {
 
 }
@@ -19,15 +21,8 @@ void Mesh3::prepare()
     if(!indices.empty())
         glGenBuffers(1, &EBO);
 
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    upload();
 
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
-
-    if(!indices.empty()) {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
-    }
     auto bytes_vertex = vertexSize * sizeof(float);
     // vertex positions
     glEnableVertexAttribArray(0);
@@ -43,6 +38,26 @@ void Mesh3::prepare()
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, bytes_vertex, (void *) (6 * sizeof(float)));
     }
     glBindVertexArray(0);
+}
+
+void Mesh3::upload()
+{
+    GLenum t = GL_STATIC_DRAW;
+    if(type == MeshUpdateType::DYNAMIC)
+        t = GL_DYNAMIC_DRAW;
+    if(type == MeshUpdateType::STREAMING)
+        t = GL_STREAM_DRAW;
+
+    glBindVertexArray(VAO);
+    if(!vertices.empty()) {
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], t);
+    }
+
+    if(!indices.empty()) {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], t);
+    }
 }
 
 void Mesh3::draw(const Shader& shader)
@@ -126,5 +141,53 @@ void Mesh3::generateCubeAt(float x, float y, float z) {
     });
 }
 
+void Mesh3::clear() {
+    vertices.clear();
+    indices.clear();
+}
 
+void Mesh3::generateTexturedCubeAt(float x, float y, float z, UVRect &r) {
+    vertices.insert(vertices.end(),{
+            x-0.5f, y-0.5f, z-0.5f,  0.0f,  0.0f, -1.0f, r.left, r.bottom,
+            x+0.5f, y-0.5f, z-0.5f,  0.0f,  0.0f, -1.0f, r.right, r.bottom,
+            x+0.5f, y+0.5f, z-0.5f,  0.0f,  0.0f, -1.0f, r.right, r.top,
+            x+0.5f, y+0.5f, z-0.5f,  0.0f,  0.0f, -1.0f, r.right, r.top,
+            x-0.5f, y+0.5f, z-0.5f,  0.0f,  0.0f, -1.0f, r.left, r.top,
+            x-0.5f, y-0.5f, z-0.5f,  0.0f,  0.0f, -1.0f, r.left, r.bottom,
 
+            x-0.5f, y-0.5f, z+0.5f,  0.0f,  0.0f, 1.0f, r.left, r.bottom,
+            x+0.5f, y-0.5f, z+0.5f,  0.0f,  0.0f, 1.0f, r.right, r.bottom,
+            x+0.5f, y+0.5f, z+0.5f,  0.0f,  0.0f, 1.0f, r.right, r.top,
+            x+0.5f, y+0.5f, z+0.5f,  0.0f,  0.0f, 1.0f, r.right, r.top,
+            x-0.5f, y+0.5f, z+0.5f,  0.0f,  0.0f, 1.0f, r.left, r.top,
+            x-0.5f, y-0.5f, z+0.5f,  0.0f,  0.0f, 1.0f, r.left, r.bottom,
+
+            x-0.5f, y+0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, r.right, r.bottom,
+            x-0.5f, y+0.5f, z-0.5f, -1.0f,  0.0f,  0.0f, r.right, r.top,
+            x-0.5f, y-0.5f, z-0.5f, -1.0f,  0.0f,  0.0f, r.left, r.top,
+            x-0.5f, y-0.5f, z-0.5f, -1.0f,  0.0f,  0.0f, r.left, r.top,
+            x-0.5f, y-0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, r.left, r.bottom,
+            x-0.5f, y+0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, r.right, r.bottom,
+
+            x+0.5f, y+0.5f, z+0.5f,  1.0f,  0.0f,  0.0f, r.right, r.bottom,
+            x+0.5f, y+0.5f, z-0.5f,  1.0f,  0.0f,  0.0f, r.right, r.top,
+            x+0.5f, y-0.5f, z-0.5f,  1.0f,  0.0f,  0.0f, r.left, r.top,
+            x+0.5f, y-0.5f, z-0.5f,  1.0f,  0.0f,  0.0f, r.left, r.top,
+            x+0.5f, y-0.5f, z+0.5f,  1.0f,  0.0f,  0.0f, r.left, r.bottom,
+            x+0.5f, y+0.5f, z+0.5f,  1.0f,  0.0f,  0.0f, r.right, r.bottom,
+
+            x-0.5f, y-0.5f, z-0.5f,  0.0f, -1.0f,  0.0f, r.left, r.top,
+            x+0.5f, y-0.5f, z-0.5f,  0.0f, -1.0f,  0.0f, r.right, r.top,
+            x+0.5f, y-0.5f, z+0.5f,  0.0f, -1.0f,  0.0f, r.right, r.bottom,
+            x+0.5f, y-0.5f, z+0.5f,  0.0f, -1.0f,  0.0f, r.right, r.bottom,
+            x-0.5f, y-0.5f, z+0.5f,  0.0f, -1.0f,  0.0f, r.left, r.bottom,
+            x-0.5f, y-0.5f, z-0.5f,  0.0f, -1.0f,  0.0f, r.left, r.top,
+
+            x-0.5f, y+0.5f, z-0.5f,  0.0f,  1.0f,  0.0f, r.left, r.top,
+            x+0.5f, y+0.5f, z-0.5f,  0.0f,  1.0f,  0.0f, r.right, r.top,
+            x+0.5f, y+0.5f, z+0.5f,  0.0f,  1.0f,  0.0f, r.right, r.bottom,
+            x+0.5f, y+0.5f, z+0.5f,  0.0f,  1.0f,  0.0f, r.right, r.bottom,
+            x-0.5f, y+0.5f, z+0.5f,  0.0f,  1.0f,  0.0f, r.left, r.bottom,
+            x-0.5f, y+0.5f, z-0.5f,  0.0f,  1.0f,  0.0f, r.left, r.top
+    });
+}

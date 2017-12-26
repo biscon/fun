@@ -15,16 +15,19 @@
 #include "Shader.h"
 #include "OGLTexture.h"
 #include "Material.h"
+#include "TextureAtlas.h"
 
 class Mesh3 {
 public:
-    /*  Functions  */
+    Mesh3();
     explicit Mesh3(std::vector<float> vertices);
     Mesh3(std::vector<float> vertices, std::vector<unsigned int> indices);
     void draw(const Shader& shader);
     void prepare();
-
+    void upload();
     void generateCubeAt(float x, float y, float z);
+    void generateTexturedCubeAt(float x, float y, float z, UVRect& r);
+    void clear();
 
 
     /*  Mesh Data  */
@@ -36,6 +39,7 @@ public:
     uint32_t vertexSize = 6;
     bool hasNormals = true;
     bool hasTexcoords = false;
+    MeshUpdateType type = MeshUpdateType::STATIC;
 
 private:
     /*  Render data  */

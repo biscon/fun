@@ -67,7 +67,7 @@ struct AtlasTexture
 
 class TextureAtlas {
 public:
-    TextureAtlas(uint32_t width, uint32_t height);
+    TextureAtlas(uint32_t width, uint32_t height, bool filtering);
 
     int32_t addBuffer(std::shared_ptr<PixelBuffer> pb);
 
@@ -90,6 +90,7 @@ public:
     void bind();
     void bind(int tex_unit);
     std::shared_ptr<OGLTexture> createOGLTexture(int32_t handle);
+    std::shared_ptr<OGLTexture> getTexture();
 
 private:
     bool built = false;
@@ -100,8 +101,9 @@ private:
     std::map<std::shared_ptr<PixelBuffer>, int32_t> idMap;
     std::map<int32_t, std::unique_ptr<AtlasTexture>> textureMap;
     std::vector<int32_t> unfittedIds;
-    std::unique_ptr<OGLTexture> texture;
+    std::shared_ptr<OGLTexture> texture;
     int32_t nextHandle = 1;
+    bool useFiltering;
 };
 
 

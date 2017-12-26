@@ -15,6 +15,7 @@
 #include <engine/video/LightSceneRenderer.h>
 #include <engine/video/Model.h>
 #include <engine/video/ModelRenderer.h>
+#include <engine/video/tiles/TileRenderer.h>
 
 class IntroGameMode : public IGameMode, public IKeyboardEventListener, public IMouseEventListener, public ILoadTask {
 public:
@@ -61,6 +62,7 @@ private:
 
     std::unique_ptr<LightSceneRenderer> lightSceneRenderer;
     std::unique_ptr<ModelRenderer> modelRenderer;
+    std::unique_ptr<TileRenderer> tileRenderer;
     std::shared_ptr<Camera> camera;
 
     bool movingUp = false, movingDown = false, movingRight = false, movingLeft = false, zoomingIn = false, zoomingOut = false;

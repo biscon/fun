@@ -8,8 +8,7 @@
 #include "../util/math_util.h"
 
 
-TextureAtlas::TextureAtlas(uint32_t width, uint32_t height) : width(width), height(height) {
-
+TextureAtlas::TextureAtlas(uint32_t width, uint32_t height, bool filtering) : width(width), height(height), useFiltering(filtering) {
 }
 
 int32_t TextureAtlas::addBuffer(std::shared_ptr<PixelBuffer> pb) {
@@ -82,7 +81,7 @@ void TextureAtlas::debug()
 }
 
 void TextureAtlas::upload() {
-    texture = std::unique_ptr<OGLTexture>(new OGLTexture(atlas.get(), "texture_diffuse", false));
+    texture = std::make_shared<OGLTexture>(atlas.get(), "texture_diffuse", useFiltering);
     SDL_Log("Uploaded %d atlas textures", textureMap.size());
 }
 
@@ -114,6 +113,10 @@ std::shared_ptr<OGLTexture> TextureAtlas::createOGLTexture(int32_t handle) {
     Rect2D r(tex->rect.left, tex->rect.top, tex->width, tex->height);
     pb->copy(atlas.get(), &r, 0, 0);
     return std::make_shared<OGLTexture>(pb.get(), "texture_diffuse", true);
+}
+
+std::shared_ptr<OGLTexture> TextureAtlas::getTexture() {
+    return texture;
 }
 
 

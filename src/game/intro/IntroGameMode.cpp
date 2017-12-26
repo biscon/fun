@@ -36,7 +36,7 @@ bool IntroGameMode::init() {
     font2 = fontRenderer->addFont("bedstead12x20.png", 12, 20);
     game->getAssetLoader()->addLoadTask(fontRenderer.get());
 
-    textureAtlas = std::make_shared<TextureAtlas>(2048, 2048);
+    textureAtlas = std::make_shared<TextureAtlas>(2048, 2048, false);
     quadRenderer = std::unique_ptr<QuadRenderer>(new QuadRenderer(textureAtlas));
 
     cubeRenderer = std::unique_ptr<CubeRenderer>(new CubeRenderer(textureAtlas));
@@ -54,6 +54,8 @@ bool IntroGameMode::init() {
 
     modelRenderer = std::unique_ptr<ModelRenderer>(new ModelRenderer(*game->getSystem(), model2, camera));
 
+    tileRenderer = std::unique_ptr<TileRenderer>(new TileRenderer(*game->getSystem(), camera));
+    game->getAssetLoader()->addLoadTask(tileRenderer.get());
 
     game->getAssetLoader()->addLoadTask(this);
     game->getAssetLoader()->load();
@@ -125,6 +127,7 @@ void IntroGameMode::update() {
     if(zoomingOut)
         camera->ProcessMouseScroll(50.0f * (float) -game->getDelta());
     //camera->P
+    tileRenderer->update();
 }
 
 void IntroGameMode::fixedUpdate() {
@@ -148,7 +151,8 @@ void IntroGameMode::fixedUpdate() {
     //cubeRenderer->render(1280, 720, game->getTime());
     game->getRenderer()->setRealViewport();
     //lightSceneRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight(), game->getTime());
-    modelRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight(), game->getTime());
+    //modelRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight(), game->getTime());
+    tileRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight(), game->getTime());
 
     game->getRenderer()->setLogicalViewport();
     fontRenderer->startFrame();
