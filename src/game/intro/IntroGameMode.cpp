@@ -42,7 +42,7 @@ bool IntroGameMode::init() {
     cubeRenderer = std::unique_ptr<CubeRenderer>(new CubeRenderer(textureAtlas));
 
 
-    camera = std::make_shared<Camera>(glm::vec3(0.0f, 0.0f, 6.0f));
+    camera = std::make_shared<Camera>(glm::vec3(0.0f, 2.0f, 0.0f));
     //lightSceneRenderer = std::unique_ptr<LightSceneRenderer>(new LightSceneRenderer(*game->getSystem(), camera));
 
     //model = std::make_shared<Model>("nanosuit/nanosuit.obj", "nanosuit/");

@@ -85,7 +85,7 @@ void main()
     //result += CalcSpotLight(spotLight, norm, FragPos, viewDir);
 
     // add in a little diffuse as ambient lighting
-    result += 0.10 * material.diffuse;
+    result += 0.50 * material.diffuse;
 
     FragColor = vec4(result, 1.0);
 }

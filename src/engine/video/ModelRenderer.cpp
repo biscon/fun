@@ -47,13 +47,19 @@ void ModelRenderer::render(float screenWidth, float screenHeight, double time) {
     shader->setVec3("dirLight.diffuse", 0.25f, 0.25f, 0.25f);
     shader->setVec3("dirLight.specular", 0.30f, 0.30f, 0.30f);
     */
+
     shader->setVec3("dirLight.diffuse", 0.3f, 0.3f, 0.3f);
     shader->setVec3("dirLight.specular", 0.4f, 0.4f, 0.4f);
+
+    /*
+    shader->setVec3("dirLight.diffuse", 0.8f, 0.8f, 0.8f);
+    shader->setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
+    */
 
     float radius = 4.0f;
     float camX = sin(0.50f * time) * radius;
     float camZ = cos(0.50f * time) * radius;
-    lightPos = glm::vec3(camX, 2.0f, camZ-7.0f);
+    lightPos = glm::vec3(camX, 2.0f, camZ);
     //lightPos[1] = glm::vec3(sin(0.50f * time) * 10, cos(0.50f * time) * 6, -7.0f);
     // point light 1
     shader->setVec3("pointLights[0].position", lightPos);
@@ -93,11 +99,24 @@ void ModelRenderer::render(float screenWidth, float screenHeight, double time) {
 
     // draw model
     glm::mat4 model_m;
+    /*
     model_m = glm::translate(model_m, glm::vec3(0.0f, -0.0f, -7.0f)); // translate it down so it's at the center of the scene
-    //model_m = glm::scale(model_m, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
     shader->setMat4("model", model_m);
     model->draw(*shader);
+     */
 
+    float size = 32.0f;
+    int isize = (int) size;
+    model_m = glm::mat4();
+    model_m = glm::translate(model_m, glm::vec3(-0.5*size, 0.0f, -0.5*size));
+    for(int y = 0; y < isize; y++) {
+        for (int x = 0; x < isize; x++) {
+            shader->setMat4("model", model_m);
+            model->draw(*shader);
+            model_m = glm::translate(model_m, glm::vec3(1.0f, 0.0f, 0.0f));
+        }
+        model_m = glm::translate(model_m, glm::vec3(-size, 0.0f, 1.0f));
+    }
 
     lampShader->use();
     lampShader->setMat4("projection", projection);

@@ -24,6 +24,8 @@ public:
     void draw(const Shader& shader);
     void prepare();
 
+    void generateCubeAt(float x, float y, float z);
+
 
     /*  Mesh Data  */
     std::vector<float> vertices;
