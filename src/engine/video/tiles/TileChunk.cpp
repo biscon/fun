@@ -53,7 +53,7 @@ void TileChunk::rebuild() {
         {
             m = glm::translate(m, glm::vec3(1.0f, 0.0f, 0.0f));
             auto pos = m * origin;
-            pos.y = ((float) rand()/ (float) RAND_MAX) / 4.0f;
+            //pos.y = ((float) rand()/ (float) RAND_MAX) / 4.0f;
             auto type = tiles[y*16+x];
             auto tile = tileTypeDict.getTileTypeAt(type);
 
