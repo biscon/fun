@@ -135,9 +135,9 @@ void TileRenderer::render(float screenWidth, float screenHeight, double time) {
 
     for(auto& chunk : activeChunks) {
         glm::mat4 model_m;
-        model_m = glm::translate(model_m, chunk->position); // translate it down so it's at the center of the scene
+        model_m = glm::translate(model_m, chunk.second->position); // translate it down so it's at the center of the scene
         shader->setMat4("model", model_m);
-        chunk->draw(*shader);
+        chunk.second->draw(*shader);
     }
 
     /*
@@ -167,34 +167,6 @@ bool TileRenderer::prepare(IGame &game) {
     return true;
 }
 
-void TileRenderer::buildVisibleList()
-{
-    activeChunks.clear();
-    // calculate width of a box centered on the camera pos
-    int size = (VISIBLE_RADIUS * 2) + 1;
-    float fsize = (float) size;
-    auto m = glm::mat4();
-    auto origin = glm::vec4(0,0,0,1);
-    float cs = (float) TileChunk::CHUNK_SIZE;
-    m = glm::translate(m, glm::vec3((-0.5 * (fsize * cs)) - cs/2, -0.5f, (-0.5 * (fsize * cs)) + cs/2));
-    for(int y = 0; y < size; y++)
-    {
-        glm::mat4 old = m;
-        for(int x = 0; x < size; x++)
-        {
-            m = glm::translate(m, glm::vec3(cs, 0.0f, 0.0f));
-            auto pos = m * origin;
-            //SDL_Log("Build chunk at %.2f,%.2f,%.2f", pos.x, pos.y, pos.z);
-            activeChunks.push_back(std::make_shared<TileChunk>(*tileTypeDict));
-            activeChunks.back()->position = pos;
-            activeChunks.back()->rebuild();
-        }
-        m = old;
-        m = glm::translate(m, glm::vec3(0.0f, 0.0f, cs));
-    }
-    SDL_Log("Build visible list of %d chunks", activeChunks.size());
-}
-
 static int distance(int x1, int y1, int x2, int y2)
 {
     int dx = x2 - x1;
@@ -213,18 +185,12 @@ bool TileRenderer::posInVisibleRadius(ChunkPos& pos)
 }
 
 void TileRenderer::update() {
-    if(activeChunks.empty())
-    {
-        buildVisibleList();
-    }
     worldToChunk(camera->Position, camChunkPos);
     chunkToWorld(camChunkPos, worldPos);
 
-    static bool onlyonce = false;
     // check if chunks needs to be added, by checking a grid based on the visual radius around the camera
     // calculate width of a box centered on the camera pos
     int size = (VISIBLE_RADIUS * 2) + 1;
-    float fsize = (float) size;
     auto m = glm::mat4();
     for(int z = 0; z < size; z++)
     {
@@ -235,34 +201,32 @@ void TileRenderer::update() {
             testpos.x = camChunkPos.x + (x - VISIBLE_RADIUS);
             testpos.z = camChunkPos.z + (z - VISIBLE_RADIUS);
             chunkToWorld(testpos, worldpos);
-            auto chunk = findChunkAt(activeChunks, testpos);
+            auto chunk = findChunkAt(testpos);
             if(chunk == nullptr)
             {
                 //SDL_Log("No chunk found at pos %d,%d, adding one.", testpos.x, testpos.z);
-                activeChunks.push_back(std::make_shared<TileChunk>(*tileTypeDict));
-                activeChunks.back()->position = worldpos;
-                activeChunks.back()->rebuild();
-            }
-            if(!onlyonce)
-            {
-                SDL_Log("testing pos %d,%d in world coords = %.2f,%.2f found chunk = %d", testpos.x, testpos.z, worldpos.x, worldpos.z, chunk != nullptr);
-            }
+                auto nc = std::make_shared<TileChunk>(*tileTypeDict);
+                nc->position = worldpos;
+                nc->rebuild();
+                activeChunks[testpos] = nc;
 
+            }
         }
     }
     // check if chunks need to be removed
-    ChunkPos tilepos;
-    std::vector<std::shared_ptr<TileChunk>>::iterator iter;
-    for (iter = activeChunks.begin(); iter != activeChunks.end(); )
+    for (auto it = activeChunks.cbegin(); it != activeChunks.cend() /* not hoisted */; /* no increment */)
     {
-        worldToChunk((*iter)->position, tilepos);
+        auto tilepos = (*it).first;
         auto visible = posInVisibleRadius(tilepos);
-        if(!visible)
-            iter = activeChunks.erase(iter);
+        if (!visible)
+        {
+            activeChunks.erase(it++);    // or "it = m.erase(it)" since C++11
+        }
         else
-            ++iter;
+        {
+            ++it;
+        }
     }
-    onlyonce = true;
 }
 
 void TileRenderer::worldToChunk(glm::vec3& worldpos, ChunkPos& chunkpos)
@@ -282,6 +246,19 @@ void TileRenderer::chunkToWorld(ChunkPos &chunkpos, glm::vec3 &worldpos) {
     worldpos.z = chunkpos.z * TileChunk::CHUNK_SIZE;
 }
 
+TileChunk *TileRenderer::findChunkAt(const ChunkPos &pos) {
+    auto it = activeChunks.find(pos);
+    if(it != activeChunks.end())
+        return (*it).second.get();
+
+    return nullptr;
+}
+
+int32_t TileRenderer::getActiveChunks() {
+    return static_cast<int32_t>(activeChunks.size());
+}
+
+/*
 TileChunk *TileRenderer::findChunkAt(const std::vector<std::shared_ptr<TileChunk>> &tilelist, const ChunkPos &pos) {
     ChunkPos curpos;
     for(auto &tile : tilelist)
@@ -292,3 +269,4 @@ TileChunk *TileRenderer::findChunkAt(const std::vector<std::shared_ptr<TileChunk
     }
     return nullptr;
 }
+*/
