@@ -54,7 +54,9 @@ void TileChunk::rebuild() {
             m = glm::translate(m, glm::vec3(1.0f, 0.0f, 0.0f));
             auto pos = m * origin;
             //pos.y = ((float) rand()/ (float) RAND_MAX) / 4.0f;
-            auto type = tiles[y*16+x];
+            int type = 0;
+            if(x < 16 && y < 16 && x >= 0 && y >= 0)
+                type = tiles[y*16+x];
             auto tile = tileTypeDict.getTileTypeAt(type);
 
             // new material, instantiate new mesh

@@ -22,6 +22,9 @@ public:
     Mesh3();
     explicit Mesh3(std::vector<float> vertices);
     Mesh3(std::vector<float> vertices, std::vector<unsigned int> indices);
+
+    virtual ~Mesh3();
+
     void draw(const Shader& shader);
     void prepare();
     void upload();
@@ -43,7 +46,7 @@ public:
 
 private:
     /*  Render data  */
-    unsigned int VAO, VBO, EBO;
+    unsigned int VAO = 0, VBO = 0, EBO = 0;
     /*  Functions    */
 };
 

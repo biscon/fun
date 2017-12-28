@@ -6,6 +6,7 @@
 
 #include <utility>
 #include <ctime>
+#include <engine/util/string_util.h>
 #include "IntroGameMode.h"
 
 IntroGameMode::IntroGameMode(std::shared_ptr<IGame> game) : IGameMode(std::move(game)) {
@@ -158,7 +159,7 @@ void IntroGameMode::fixedUpdate() {
     fontRenderer->startFrame();
     fontRenderer->renderText(font2, 50, 50, "Use WASD and mouse look to fly around");
     fontRenderer->renderText(font2, 50, 80, "Mousewheel adjusts FOV, F12 toggles fullscreen");
-    fontRenderer->renderText(font2, 50, 1000, "Phong shading 1 point light source. Diffuse and specular mapping.");
+    fontRenderer->renderText(font2, 50, 1000, stringFormat("camXZ = %.2f,%.2f camChunkXZ = %d,%d  x=%.2f,%.2f", camera->Position.x, camera->Position.z, tileRenderer->camChunkPos.x, tileRenderer->camChunkPos.z, tileRenderer->worldPos.x, tileRenderer->worldPos.z));
     fontRenderer->render(game->getRenderer()->getWidth(), game->getRenderer()->getHeight());
 }
 

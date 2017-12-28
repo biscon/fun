@@ -147,42 +147,44 @@ void Mesh3::clear() {
 }
 
 void Mesh3::generateTexturedCubeAt(float x, float y, float z, UVRect &r) {
+    /*
     vertices.insert(vertices.end(),{
+            // back face
             x-0.5f, y-0.5f, z-0.5f,  0.0f,  0.0f, -1.0f, r.left, r.bottom,
             x+0.5f, y-0.5f, z-0.5f,  0.0f,  0.0f, -1.0f, r.right, r.bottom,
             x+0.5f, y+0.5f, z-0.5f,  0.0f,  0.0f, -1.0f, r.right, r.top,
             x+0.5f, y+0.5f, z-0.5f,  0.0f,  0.0f, -1.0f, r.right, r.top,
             x-0.5f, y+0.5f, z-0.5f,  0.0f,  0.0f, -1.0f, r.left, r.top,
             x-0.5f, y-0.5f, z-0.5f,  0.0f,  0.0f, -1.0f, r.left, r.bottom,
-
+            // front face
             x-0.5f, y-0.5f, z+0.5f,  0.0f,  0.0f, 1.0f, r.left, r.bottom,
             x+0.5f, y-0.5f, z+0.5f,  0.0f,  0.0f, 1.0f, r.right, r.bottom,
             x+0.5f, y+0.5f, z+0.5f,  0.0f,  0.0f, 1.0f, r.right, r.top,
             x+0.5f, y+0.5f, z+0.5f,  0.0f,  0.0f, 1.0f, r.right, r.top,
             x-0.5f, y+0.5f, z+0.5f,  0.0f,  0.0f, 1.0f, r.left, r.top,
             x-0.5f, y-0.5f, z+0.5f,  0.0f,  0.0f, 1.0f, r.left, r.bottom,
-
+            // left face
             x-0.5f, y+0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, r.right, r.bottom,
             x-0.5f, y+0.5f, z-0.5f, -1.0f,  0.0f,  0.0f, r.right, r.top,
             x-0.5f, y-0.5f, z-0.5f, -1.0f,  0.0f,  0.0f, r.left, r.top,
             x-0.5f, y-0.5f, z-0.5f, -1.0f,  0.0f,  0.0f, r.left, r.top,
             x-0.5f, y-0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, r.left, r.bottom,
             x-0.5f, y+0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, r.right, r.bottom,
-
+            // right face
             x+0.5f, y+0.5f, z+0.5f,  1.0f,  0.0f,  0.0f, r.right, r.bottom,
             x+0.5f, y+0.5f, z-0.5f,  1.0f,  0.0f,  0.0f, r.right, r.top,
             x+0.5f, y-0.5f, z-0.5f,  1.0f,  0.0f,  0.0f, r.left, r.top,
             x+0.5f, y-0.5f, z-0.5f,  1.0f,  0.0f,  0.0f, r.left, r.top,
             x+0.5f, y-0.5f, z+0.5f,  1.0f,  0.0f,  0.0f, r.left, r.bottom,
             x+0.5f, y+0.5f, z+0.5f,  1.0f,  0.0f,  0.0f, r.right, r.bottom,
-
+            // bottom face
             x-0.5f, y-0.5f, z-0.5f,  0.0f, -1.0f,  0.0f, r.left, r.top,
             x+0.5f, y-0.5f, z-0.5f,  0.0f, -1.0f,  0.0f, r.right, r.top,
             x+0.5f, y-0.5f, z+0.5f,  0.0f, -1.0f,  0.0f, r.right, r.bottom,
             x+0.5f, y-0.5f, z+0.5f,  0.0f, -1.0f,  0.0f, r.right, r.bottom,
             x-0.5f, y-0.5f, z+0.5f,  0.0f, -1.0f,  0.0f, r.left, r.bottom,
             x-0.5f, y-0.5f, z-0.5f,  0.0f, -1.0f,  0.0f, r.left, r.top,
-
+            // top face
             x-0.5f, y+0.5f, z-0.5f,  0.0f,  1.0f,  0.0f, r.left, r.top,
             x+0.5f, y+0.5f, z-0.5f,  0.0f,  1.0f,  0.0f, r.right, r.top,
             x+0.5f, y+0.5f, z+0.5f,  0.0f,  1.0f,  0.0f, r.right, r.bottom,
@@ -190,4 +192,59 @@ void Mesh3::generateTexturedCubeAt(float x, float y, float z, UVRect &r) {
             x-0.5f, y+0.5f, z+0.5f,  0.0f,  1.0f,  0.0f, r.left, r.bottom,
             x-0.5f, y+0.5f, z-0.5f,  0.0f,  1.0f,  0.0f, r.left, r.top
     });
+     */
+    vertices.insert(vertices.end(),{
+            // Back face
+            x-0.5f, y-0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, r.left, r.bottom, // Bottom-left
+            x+0.5f, y+0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, r.right, r.top, // top-right
+            x+0.5f, y-0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, r.right, r.bottom, // bottom-right
+            x+0.5f, y+0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, r.right, r.top, // top-right
+            x-0.5f, y-0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, r.left, r.bottom, // bottom-left
+            x-0.5f, y+0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, r.left, r.top, // top-left
+            // Front face
+            x-0.5f, y-0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, r.left, r.bottom, // bottom-left
+            x+0.5f, y-0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, r.right, r.bottom, // bottom-right
+            x+0.5f, y+0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, r.right, r.top, // top-right
+            x+0.5f, y+0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, r.right, r.top, // top-right
+            x-0.5f, y+0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, r.left, r.top, // top-left
+            x-0.5f, y-0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, r.left, r.bottom, // bottom-left
+            // Left face
+            x-0.5f, y+0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, r.right, r.bottom, // top-right
+            x-0.5f, y+0.5f, z-0.5f, -1.0f,  0.0f,  0.0f, r.right, r.top, // top-left
+            x-0.5f, y-0.5f, z-0.5f, -1.0f,  0.0f,  0.0f, r.left, r.top, // bottom-left
+            x-0.5f, y-0.5f, z-0.5f, -1.0f,  0.0f,  0.0f, r.left, r.top, // bottom-left
+            x-0.5f, y-0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, r.left, r.bottom, // bottom-right
+            x-0.5f, y+0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, r.right, r.bottom, // top-right
+            // Right face
+            x+0.5f, y+0.5f, z+0.5f, 1.0f,  0.0f,  0.0f, r.right, r.bottom, // top-left
+            x+0.5f, y-0.5f, z-0.5f, 1.0f,  0.0f,  0.0f, r.left, r.top, // bottom-right
+            x+0.5f, y+0.5f, z-0.5f, 1.0f,  0.0f,  0.0f, r.right, r.top, // top-right
+            x+0.5f, y-0.5f, z-0.5f, 1.0f,  0.0f,  0.0f, r.left, r.top, // bottom-right
+            x+0.5f, y+0.5f, z+0.5f, 1.0f,  0.0f,  0.0f, r.right, r.bottom, // top-left
+            x+0.5f, y-0.5f, z+0.5f, 1.0f,  0.0f,  0.0f, r.left, r.bottom, // bottom-left
+            // Bottom face
+            x-0.5f, y-0.5f, z-0.5f, 0.0f, -1.0f,  0.0f, r.left, r.top, // top-right
+            x+0.5f, y-0.5f, z-0.5f, 0.0f, -1.0f,  0.0f, r.right, r.top, // top-left
+            x+0.5f, y-0.5f, z+0.5f, 0.0f, -1.0f,  0.0f, r.right, r.bottom, // bottom-left
+            x+0.5f, y-0.5f, z+0.5f, 0.0f, -1.0f,  0.0f, r.right, r.bottom, // bottom-left
+            x-0.5f, y-0.5f, z+0.5f, 0.0f, -1.0f,  0.0f, r.left, r.bottom, // bottom-right
+            x-0.5f, y-0.5f, z-0.5f, 0.0f, -1.0f,  0.0f, r.left, r.top, // top-right
+            // Top face
+            x-0.5f, y+0.5f, z-0.5f, 0.0f,  1.0f,  0.0f, r.left, r.top, // top-left
+            x+0.5f, y+0.5f, z+0.5f, 0.0f,  1.0f,  0.0f, r.right, r.bottom, // bottom-right
+            x+0.5f, y+0.5f, z-0.5f, 0.0f,  1.0f,  0.0f, r.right, r.top, // top-right
+            x+0.5f, y+0.5f, z+0.5f, 0.0f,  1.0f,  0.0f, r.right, r.bottom, // bottom-right
+            x-0.5f, y+0.5f, z-0.5f, 0.0f,  1.0f,  0.0f, r.left, r.top, // top-left
+            x-0.5f, y+0.5f, z+0.5f, 0.0f,  1.0f,  0.0f, r.left, r.bottom  // bottom-left
+    });
+}
+
+Mesh3::~Mesh3() {
+    if(VBO > 0)
+        glDeleteBuffers(1, &VBO);
+    if(EBO > 0)
+        glDeleteBuffers(1, &EBO);
+    if(VAO > 0)
+        glDeleteVertexArrays(1, &VAO);
+
 }

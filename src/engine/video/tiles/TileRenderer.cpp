@@ -10,6 +10,7 @@
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 #include <SDL_log.h>
+#include <cmath>
 
 TileRenderer::TileRenderer(ISystem &system, const std::shared_ptr<Camera> &camera) : system(system), camera(camera) {
     auto lighting_vs = system.readTextFile("shaders/lit_tile_shader_vs.glsl");
@@ -59,6 +60,11 @@ TileRenderer::TileRenderer(ISystem &system, const std::shared_ptr<Camera> &camer
 
 void TileRenderer::render(float screenWidth, float screenHeight, double time) {
     glEnable(GL_DEPTH_TEST);
+
+    glEnable(GL_CULL_FACE);     // Cull back facing polygons
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
+
     // be sure to activate shader when setting uniforms/drawing objects
     shader->use();
     shader->setVec3("viewPos", camera->Position);
@@ -66,16 +72,19 @@ void TileRenderer::render(float screenWidth, float screenHeight, double time) {
     // directional light
     shader->setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
     shader->setVec3("dirLight.ambient", 0.025f, 0.025f, 0.025f);
+
+    /*
     shader->setVec3("dirLight.diffuse", 0.05f, 0.05f, 0.10f);
-    shader->setVec3("dirLight.specular", 0.1f, 0.1f, 0.1f);
+    shader->setVec3("dirLight.specular", 0.0f, 0.0f, 0.0f);
+     */
     /*
     shader->setVec3("dirLight.diffuse", 0.25f, 0.25f, 0.25f);
     shader->setVec3("dirLight.specular", 0.30f, 0.30f, 0.30f);
     */
-    /*
+
     shader->setVec3("dirLight.diffuse", 0.3f, 0.3f, 0.3f);
     shader->setVec3("dirLight.specular", 0.4f, 0.4f, 0.4f);
-    */
+
     /*
     shader->setVec3("dirLight.diffuse", 0.8f, 0.8f, 0.8f);
     shader->setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
@@ -109,15 +118,22 @@ void TileRenderer::render(float screenWidth, float screenHeight, double time) {
     shader->setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
 
     // view/projection transformations
-    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), screenWidth / screenHeight, 0.1f, 100.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), screenWidth / screenHeight, 0.1f, 800.0f);
     glm::mat4 view = camera->GetViewMatrix();
 
     shader->setMat4("projection", projection);
     shader->setMat4("view", view);
 
     // draw model
+    /*
+    glm::mat4 model_m;
+    model_m = glm::translate(model_m, chunk->position); // translate it down so it's at the center of the scene
+    shader->setMat4("model", model_m);
+    for(int i = 0; i < 1500; i++)
+        chunk->draw(*shader);
+    */
 
-    for(auto& chunk : visibleList) {
+    for(auto& chunk : activeChunks) {
         glm::mat4 model_m;
         model_m = glm::translate(model_m, chunk->position); // translate it down so it's at the center of the scene
         shader->setMat4("model", model_m);
@@ -135,6 +151,7 @@ void TileRenderer::render(float screenWidth, float screenHeight, double time) {
     model->draw(*lampShader);
     */
     glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
 }
 
 bool TileRenderer::load(IGame &game) {
@@ -144,14 +161,15 @@ bool TileRenderer::load(IGame &game) {
 
 bool TileRenderer::prepare(IGame &game) {
     tileTypeDict->prepare(game);
-    chunk = std::unique_ptr<TileChunk>(new TileChunk(*tileTypeDict));
+    chunk = std::make_shared<TileChunk>(*tileTypeDict);
+    chunk->position = glm::vec3(0,0,0);
     chunk->rebuild();
     return true;
 }
 
 void TileRenderer::buildVisibleList()
 {
-    visibleList.clear();
+    activeChunks.clear();
     // calculate width of a box centered on the camera pos
     int size = (VISIBLE_RADIUS * 2) + 1;
     float fsize = (float) size;
@@ -167,19 +185,110 @@ void TileRenderer::buildVisibleList()
             m = glm::translate(m, glm::vec3(cs, 0.0f, 0.0f));
             auto pos = m * origin;
             //SDL_Log("Build chunk at %.2f,%.2f,%.2f", pos.x, pos.y, pos.z);
-            visibleList.push_back(std::make_shared<TileChunk>(*tileTypeDict));
-            visibleList.back()->position = pos;
-            visibleList.back()->rebuild();
+            activeChunks.push_back(std::make_shared<TileChunk>(*tileTypeDict));
+            activeChunks.back()->position = pos;
+            activeChunks.back()->rebuild();
         }
         m = old;
         m = glm::translate(m, glm::vec3(0.0f, 0.0f, cs));
     }
-    SDL_Log("Build visible list of %d chunks", visibleList.size());
+    SDL_Log("Build visible list of %d chunks", activeChunks.size());
+}
+
+static int distance(int x1, int y1, int x2, int y2)
+{
+    int dx = x2 - x1;
+    int dy = y2 - y1;
+    return sqrt(dx*dx + dy*dy);
+}
+
+bool TileRenderer::posInVisibleRadius(ChunkPos& pos)
+{
+    auto x1 = camChunkPos.x - VISIBLE_RADIUS;
+    auto x2 = camChunkPos.x + VISIBLE_RADIUS;
+    auto z1 = camChunkPos.z - VISIBLE_RADIUS;
+    auto z2 = camChunkPos.z + VISIBLE_RADIUS;
+    return pos.x >= x1 && pos.x <= x2
+           && pos.z >= z1 && pos.z <= z2;
 }
 
 void TileRenderer::update() {
-    if(visibleList.empty())
+    if(activeChunks.empty())
     {
         buildVisibleList();
     }
+    worldToChunk(camera->Position, camChunkPos);
+    chunkToWorld(camChunkPos, worldPos);
+
+    static bool onlyonce = false;
+    // check if chunks needs to be added, by checking a grid based on the visual radius around the camera
+    // calculate width of a box centered on the camera pos
+    int size = (VISIBLE_RADIUS * 2) + 1;
+    float fsize = (float) size;
+    auto m = glm::mat4();
+    for(int z = 0; z < size; z++)
+    {
+        for(int x = 0; x < size; x++)
+        {
+            ChunkPos testpos;
+            glm::vec3 worldpos = {0, -0.5f, 0};
+            testpos.x = camChunkPos.x + (x - VISIBLE_RADIUS);
+            testpos.z = camChunkPos.z + (z - VISIBLE_RADIUS);
+            chunkToWorld(testpos, worldpos);
+            auto chunk = findChunkAt(activeChunks, testpos);
+            if(chunk == nullptr)
+            {
+                //SDL_Log("No chunk found at pos %d,%d, adding one.", testpos.x, testpos.z);
+                activeChunks.push_back(std::make_shared<TileChunk>(*tileTypeDict));
+                activeChunks.back()->position = worldpos;
+                activeChunks.back()->rebuild();
+            }
+            if(!onlyonce)
+            {
+                SDL_Log("testing pos %d,%d in world coords = %.2f,%.2f found chunk = %d", testpos.x, testpos.z, worldpos.x, worldpos.z, chunk != nullptr);
+            }
+
+        }
+    }
+    // check if chunks need to be removed
+    ChunkPos tilepos;
+    std::vector<std::shared_ptr<TileChunk>>::iterator iter;
+    for (iter = activeChunks.begin(); iter != activeChunks.end(); )
+    {
+        worldToChunk((*iter)->position, tilepos);
+        auto visible = posInVisibleRadius(tilepos);
+        if(!visible)
+            iter = activeChunks.erase(iter);
+        else
+            ++iter;
+    }
+    onlyonce = true;
+}
+
+void TileRenderer::worldToChunk(glm::vec3& worldpos, ChunkPos& chunkpos)
+{
+    auto xoffset = (float) TileChunk::CHUNK_SIZE/2;
+    auto zoffset = (float) TileChunk::CHUNK_SIZE/2;
+    if(worldpos.x < 0)
+        xoffset *= -1;
+    if(worldpos.z < 0)
+        zoffset *= -1;
+    chunkpos.x = (int) ((worldpos.x + xoffset) / (float) TileChunk::CHUNK_SIZE);
+    chunkpos.z = (int) ((worldpos.z + zoffset) / (float) TileChunk::CHUNK_SIZE);
+}
+
+void TileRenderer::chunkToWorld(ChunkPos &chunkpos, glm::vec3 &worldpos) {
+    worldpos.x = chunkpos.x * TileChunk::CHUNK_SIZE;
+    worldpos.z = chunkpos.z * TileChunk::CHUNK_SIZE;
+}
+
+TileChunk *TileRenderer::findChunkAt(const std::vector<std::shared_ptr<TileChunk>> &tilelist, const ChunkPos &pos) {
+    ChunkPos curpos;
+    for(auto &tile : tilelist)
+    {
+        worldToChunk(tile->position, curpos);
+        if(curpos.x == pos.x && curpos.z == pos.z)
+            return tile.get();
+    }
+    return nullptr;
 }
