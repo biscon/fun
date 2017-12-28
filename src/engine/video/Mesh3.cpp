@@ -4,14 +4,16 @@
 
 #include "Mesh3.h"
 
-Mesh3::Mesh3() {}
+Mesh3::Mesh3() {
+    init();
+}
 
 Mesh3::Mesh3(std::vector<float> vertices, std::vector<unsigned int> indices) : vertices(vertices), indices(indices) {
-
+    init();
 }
 
 Mesh3::Mesh3(std::vector<float> vertices) : vertices(vertices) {
-
+    init();
 }
 
 void Mesh3::prepare()
@@ -247,4 +249,8 @@ Mesh3::~Mesh3() {
     if(VAO > 0)
         glDeleteVertexArrays(1, &VAO);
 
+}
+
+void Mesh3::init() {
+    vertices.reserve(256000);
 }

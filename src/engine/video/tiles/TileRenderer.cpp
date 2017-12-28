@@ -93,7 +93,7 @@ void TileRenderer::render(float screenWidth, float screenHeight, double time) {
     float radius = 4.0f;
     float camX = sin(0.50f * time) * radius;
     float camZ = cos(0.50f * time) * radius;
-    lightPos = glm::vec3(camX, 2.0f, camZ);
+    lightPos = glm::vec3(camX, 18.0f, camZ);
     //lightPos[1] = glm::vec3(sin(0.50f * time) * 10, cos(0.50f * time) * 6, -7.0f);
     // point light 1
     shader->setVec3("pointLights[0].position", lightPos);
@@ -197,7 +197,7 @@ void TileRenderer::update() {
         for(int x = 0; x < size; x++)
         {
             ChunkPos testpos;
-            glm::vec3 worldpos = {0, -0.5f, 0};
+            glm::vec3 worldpos = {0, 0.5f, 0};
             testpos.x = camChunkPos.x + (x - VISIBLE_RADIUS);
             testpos.z = camChunkPos.z + (z - VISIBLE_RADIUS);
             chunkToWorld(testpos, worldpos);

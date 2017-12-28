@@ -45,22 +45,26 @@ void TileChunk::rebuild() {
     material->specularTexture = tileTypeDict.specularAtlas->getTexture();
     auto m = glm::mat4();
     auto origin = glm::vec4(0,0,0,1);
-    m = glm::translate(m, glm::vec3(-0.5*CHUNK_SIZE, -0.5f, -0.5*CHUNK_SIZE));
-    for(int y = 0; y < CHUNK_SIZE; y++)
+    m = glm::translate(m, glm::vec3(-0.5*CHUNK_SIZE, 0.5f, -0.5*CHUNK_SIZE));
+    for(int z = 0; z < CHUNK_SIZE; z++)
     {
         glm::mat4 old = m;
         for(int x = 0; x < CHUNK_SIZE; x++)
         {
-            m = glm::translate(m, glm::vec3(1.0f, 0.0f, 0.0f));
-            auto pos = m * origin;
             //pos.y = ((float) rand()/ (float) RAND_MAX) / 4.0f;
             int type = 0;
-            if(x < 16 && y < 16 && x >= 0 && y >= 0)
-                type = tiles[y*16+x];
+            if(x < 16 && z < 16 && x >= 0 && z >= 0)
+                type = tiles[z*16+x];
             auto tile = tileTypeDict.getTileTypeAt(type);
-
+            m = glm::translate(m, glm::vec3(1.0f, 0.0f, 0.0f));
+            auto y_m = m;
+            auto top = 12 + (rand() % 4);
             // new material, instantiate new mesh
-            mesh->generateTexturedCubeAt(pos.x, pos.y, pos.z, tileTypeDict.diffuseAtlas->getUVRect(tile.diffuseMapHandle));
+            for(int y = 0; y < top; y++) {
+                auto pos = y_m * origin;
+                mesh->generateTexturedCubeAt(pos.x, pos.y, pos.z, tileTypeDict.diffuseAtlas->getUVRect(tile.diffuseMapHandle));
+                y_m = glm::translate(y_m, glm::vec3(0.0f, 1.0f, 0.0f));
+            }
             //SDL_Log("Generated cube at %.2f,%.2f,%.2f", pos.x, pos.y, pos.z);
         }
         m = old;
