@@ -107,8 +107,8 @@ set(SOURCE_FILES
         src/engine/video/Material.h
         src/engine/video/MaterialDictionary.cpp
         src/engine/video/MaterialDictionary.h
-        src/engine/voxel/Block.cpp
-        src/engine/voxel/Block.h
+        src/engine/video/tiles/Block.cpp
+        src/engine/video/tiles/Block.h
         src/engine/voxel/Chunk.cpp
         src/engine/voxel/Chunk.h
         src/engine/video/ModelRenderer.cpp

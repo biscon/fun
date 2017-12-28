@@ -8,7 +8,7 @@
 
 #include <memory>
 #include <engine/video/Mesh2.h>
-#include "Block.h"
+#include "engine/video/tiles/Block.h"
 
 class Chunk {
 public:

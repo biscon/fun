@@ -53,9 +53,8 @@ TileRenderer::TileRenderer(ISystem &system, const std::shared_ptr<Camera> &camer
 
     tileTypeDict = std::unique_ptr<TileTypeDictionary>(new TileTypeDictionary());
     tileTypeDict->createTileType("grass", "assets/grass_diffuse.png", "assets/grass_specular.png", 32);
-    tileTypeDict->createTileType("wood", "assets/wood_diffuse.png", "assets/wood_specular.png", 32);
     tileTypeDict->createTileType("stone", "assets/stone_diffuse.png", "assets/stone_specular.png", 32);
-    tileTypeDict->createTileType("wood2", "assets/wood_diffuse.png", "assets/wood_specular.png", 32);
+    tileTypeDict->createTileType("wood", "assets/wood_diffuse.png", "assets/wood_specular.png", 32);
 }
 
 void TileRenderer::render(float screenWidth, float screenHeight, double time) {
