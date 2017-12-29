@@ -23,6 +23,7 @@ void Mesh3::prepare()
     if(!indices.empty())
         glGenBuffers(1, &EBO);
 
+    glBindVertexArray(VAO);
     upload();
 
     auto bytes_vertex = vertexSize * sizeof(float);
@@ -50,7 +51,6 @@ void Mesh3::upload()
     if(type == MeshUpdateType::STREAMING)
         t = GL_STREAM_DRAW;
 
-    glBindVertexArray(VAO);
     if(!vertices.empty()) {
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], t);

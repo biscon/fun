@@ -134,7 +134,7 @@ void TileRenderer::render(float screenWidth, float screenHeight, double time) {
 
     for(auto& chunk : activeChunks) {
         glm::mat4 model_m;
-        model_m = glm::translate(model_m, chunk.second->position); // translate it down so it's at the center of the scene
+        model_m = glm::translate(model_m, chunk.second->position);
         shader->setMat4("model", model_m);
         chunk.second->draw(*shader);
     }
@@ -204,11 +204,20 @@ void TileRenderer::update() {
             if(chunk == nullptr)
             {
                 //SDL_Log("No chunk found at pos %d,%d, adding one.", testpos.x, testpos.z);
-                auto nc = std::make_shared<TileChunk>(*tileTypeDict);
-                nc->position = worldpos;
-                nc->rebuild();
-                activeChunks[testpos] = nc;
-
+                if(!recycleList.empty())
+                {
+                    std::shared_ptr<TileChunk> nc = recycleList.back();
+                    recycleList.pop_back();
+                    nc->position = worldpos;
+                    nc->rebuild();
+                    activeChunks[testpos] = nc;
+                }
+                else {
+                    auto nc = std::make_shared<TileChunk>(*tileTypeDict);
+                    nc->position = worldpos;
+                    nc->rebuild();
+                    activeChunks[testpos] = nc;
+                }
             }
         }
     }
@@ -219,6 +228,8 @@ void TileRenderer::update() {
         auto visible = posInVisibleRadius(tilepos);
         if (!visible)
         {
+            auto chunk = (*it).second;
+            recycleList.push_back(chunk);
             activeChunks.erase(it++);    // or "it = m.erase(it)" since C++11
         }
         else

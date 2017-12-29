@@ -39,16 +39,23 @@ TileChunk::~TileChunk() {
 }
 
 void TileChunk::rebuild() {
-    mesh = std::unique_ptr<Mesh3>(new Mesh3());
-    mesh->type = MeshUpdateType::DYNAMIC;
-    mesh->hasNormals = true;
-    mesh->hasTexcoords = true;
-    mesh->vertexSize = 8;
+    bool first_build = false;
+    if(mesh == nullptr) {
+        first_build = true;
+        mesh = std::unique_ptr<Mesh3>(new Mesh3());
+        mesh->type = MeshUpdateType::DYNAMIC;
+        mesh->hasNormals = true;
+        mesh->hasTexcoords = true;
+        mesh->vertexSize = 8;
+        auto material = std::make_shared<Material>();
+        material->shininess = 4;
+        material->diffuseTexture = tileTypeDict.diffuseAtlas->getTexture();
+        material->specularTexture = tileTypeDict.specularAtlas->getTexture();
+        mesh->material = material;
+    }
+    if(!first_build)
+        mesh->clear();
 
-    auto material = std::make_shared<Material>();
-    material->shininess = 4;
-    material->diffuseTexture = tileTypeDict.diffuseAtlas->getTexture();
-    material->specularTexture = tileTypeDict.specularAtlas->getTexture();
     auto m = glm::mat4();
     auto origin = glm::vec4(0,0,0,1);
     m = glm::translate(m, glm::vec3(-0.5*CHUNK_SIZE, 0.5f, -0.5*CHUNK_SIZE));
@@ -86,8 +93,10 @@ void TileChunk::rebuild() {
         m = old;
         m = glm::translate(m, glm::vec3(0.0f, 0.0f, 1.0f));
     }
-    mesh->material = material;
-    mesh->prepare();
+    if(first_build)
+        mesh->prepare();
+    else
+        mesh->upload();
 }
 
 void TileChunk::draw(const Shader &shader) {

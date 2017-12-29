@@ -44,6 +44,7 @@ struct ChunkPos
         return z < rhs.z;
     }
 
+    /*
     bool operator>(const ChunkPos &rhs) const {
         return rhs < *this;
     }
@@ -55,11 +56,12 @@ struct ChunkPos
     bool operator>=(const ChunkPos &rhs) const {
         return !(*this < rhs);
     }
+     */
 };
 
 class TileRenderer : public ILoadTask {
 public:
-    const int VISIBLE_RADIUS = 4;
+    const int VISIBLE_RADIUS = 8;
 
     TileRenderer(ISystem &system, const std::shared_ptr<Camera> &camera);
     void render(float screenWidth, float screenHeight, double time);
