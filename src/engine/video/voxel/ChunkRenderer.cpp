@@ -2,7 +2,7 @@
 // Created by bison on 25-12-2017.
 //
 
-#include "TileRenderer.h"
+#include "ChunkRenderer.h"
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -12,7 +12,7 @@
 #include <SDL_log.h>
 #include <cmath>
 
-TileRenderer::TileRenderer(ISystem &system, const std::shared_ptr<Camera> &camera) : system(system), camera(camera) {
+ChunkRenderer::ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &camera) : system(system), camera(camera) {
     auto lighting_vs = system.readTextFile("shaders/lit_tile_shader_vs.glsl");
     auto lighting_fs = system.readTextFile("shaders/lit_tile_shader_fs.glsl");
 
@@ -51,13 +51,13 @@ TileRenderer::TileRenderer(ISystem &system, const std::shared_ptr<Camera> &camer
                                  "", "", 0.2f*128.0f);
     */
 
-    tileTypeDict = std::unique_ptr<TileTypeDictionary>(new TileTypeDictionary());
+    tileTypeDict = std::unique_ptr<BlockTypeDictionary>(new BlockTypeDictionary());
     tileTypeDict->createTileType("grass", "assets/grass_diffuse.png", "assets/grass_specular.png", 32);
     tileTypeDict->createTileType("stone", "assets/stone_diffuse.png", "assets/stone_specular.png", 32);
     tileTypeDict->createTileType("wood", "assets/wood_diffuse.png", "assets/wood_specular.png", 32);
 }
 
-void TileRenderer::render(float screenWidth, float screenHeight, double time) {
+void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
     glEnable(GL_DEPTH_TEST);
 
     glEnable(GL_CULL_FACE);     // Cull back facing polygons
@@ -153,14 +153,14 @@ void TileRenderer::render(float screenWidth, float screenHeight, double time) {
     glDisable(GL_CULL_FACE);
 }
 
-bool TileRenderer::load(IGame &game) {
+bool ChunkRenderer::load(IGame &game) {
     tileTypeDict->load(game);
     return true;
 }
 
-bool TileRenderer::prepare(IGame &game) {
+bool ChunkRenderer::prepare(IGame &game) {
     tileTypeDict->prepare(game);
-    chunk = std::make_shared<TileChunk>(*tileTypeDict);
+    chunk = std::make_shared<Chunk>(*tileTypeDict);
     chunk->position = glm::vec3(0,0,0);
     chunk->rebuild();
     return true;
@@ -173,7 +173,7 @@ static int distance(int x1, int y1, int x2, int y2)
     return sqrt(dx*dx + dy*dy);
 }
 
-bool TileRenderer::posInVisibleRadius(ChunkPos& pos)
+bool ChunkRenderer::posInVisibleRadius(ChunkPos& pos)
 {
     auto x1 = camChunkPos.x - VISIBLE_RADIUS;
     auto x2 = camChunkPos.x + VISIBLE_RADIUS;
@@ -183,7 +183,7 @@ bool TileRenderer::posInVisibleRadius(ChunkPos& pos)
            && pos.z >= z1 && pos.z <= z2;
 }
 
-void TileRenderer::update() {
+void ChunkRenderer::update() {
     worldToChunk(camera->Position, camChunkPos);
     chunkToWorld(camChunkPos, worldPos);
 
@@ -206,14 +206,14 @@ void TileRenderer::update() {
                 //SDL_Log("No chunk found at pos %d,%d, adding one.", testpos.x, testpos.z);
                 if(!recycleList.empty())
                 {
-                    std::shared_ptr<TileChunk> nc = recycleList.back();
+                    std::shared_ptr<Chunk> nc = recycleList.back();
                     recycleList.pop_back();
                     nc->position = worldpos;
                     nc->rebuild();
                     activeChunks[testpos] = nc;
                 }
                 else {
-                    auto nc = std::make_shared<TileChunk>(*tileTypeDict);
+                    auto nc = std::make_shared<Chunk>(*tileTypeDict);
                     nc->position = worldpos;
                     nc->rebuild();
                     activeChunks[testpos] = nc;
@@ -239,24 +239,24 @@ void TileRenderer::update() {
     }
 }
 
-void TileRenderer::worldToChunk(glm::vec3& worldpos, ChunkPos& chunkpos)
+void ChunkRenderer::worldToChunk(glm::vec3& worldpos, ChunkPos& chunkpos)
 {
-    auto xoffset = (float) TileChunk::CHUNK_SIZE/2;
-    auto zoffset = (float) TileChunk::CHUNK_SIZE/2;
+    auto xoffset = (float) Chunk::CHUNK_SIZE/2;
+    auto zoffset = (float) Chunk::CHUNK_SIZE/2;
     if(worldpos.x < 0)
         xoffset *= -1;
     if(worldpos.z < 0)
         zoffset *= -1;
-    chunkpos.x = (int) ((worldpos.x + xoffset) / (float) TileChunk::CHUNK_SIZE);
-    chunkpos.z = (int) ((worldpos.z + zoffset) / (float) TileChunk::CHUNK_SIZE);
+    chunkpos.x = (int) ((worldpos.x + xoffset) / (float) Chunk::CHUNK_SIZE);
+    chunkpos.z = (int) ((worldpos.z + zoffset) / (float) Chunk::CHUNK_SIZE);
 }
 
-void TileRenderer::chunkToWorld(ChunkPos &chunkpos, glm::vec3 &worldpos) {
-    worldpos.x = chunkpos.x * TileChunk::CHUNK_SIZE;
-    worldpos.z = chunkpos.z * TileChunk::CHUNK_SIZE;
+void ChunkRenderer::chunkToWorld(ChunkPos &chunkpos, glm::vec3 &worldpos) {
+    worldpos.x = chunkpos.x * Chunk::CHUNK_SIZE;
+    worldpos.z = chunkpos.z * Chunk::CHUNK_SIZE;
 }
 
-TileChunk *TileRenderer::findChunkAt(const ChunkPos &pos) {
+Chunk *ChunkRenderer::findChunkAt(const ChunkPos &pos) {
     auto it = activeChunks.find(pos);
     if(it != activeChunks.end())
         return (*it).second.get();
@@ -264,12 +264,12 @@ TileChunk *TileRenderer::findChunkAt(const ChunkPos &pos) {
     return nullptr;
 }
 
-int32_t TileRenderer::getActiveChunks() {
+int32_t ChunkRenderer::getActiveChunks() {
     return static_cast<int32_t>(activeChunks.size());
 }
 
 /*
-TileChunk *TileRenderer::findChunkAt(const std::vector<std::shared_ptr<TileChunk>> &tilelist, const ChunkPos &pos) {
+Chunk *ChunkRenderer::findChunkAt(const std::vector<std::shared_ptr<Chunk>> &tilelist, const ChunkPos &pos) {
     ChunkPos curpos;
     for(auto &tile : tilelist)
     {

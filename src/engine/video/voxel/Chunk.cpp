@@ -2,7 +2,7 @@
 // Created by bison on 26-12-2017.
 //
 
-#include "TileChunk.h"
+#include "Chunk.h"
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -11,7 +11,7 @@
 #include <gtc/type_ptr.hpp>
 #include <SDL_log.h>
 
-TileChunk::TileChunk(TileTypeDictionary &tileTypeDict) : tileTypeDict(tileTypeDict) {
+Chunk::Chunk(BlockTypeDictionary &tileTypeDict) : tileTypeDict(tileTypeDict) {
     blocks = new Block**[CHUNK_SIZE];
     for(int i = 0; i < CHUNK_SIZE; i++)
     {
@@ -23,7 +23,7 @@ TileChunk::TileChunk(TileTypeDictionary &tileTypeDict) : tileTypeDict(tileTypeDi
     }
 }
 
-TileChunk::~TileChunk() {
+Chunk::~Chunk() {
     // Delete the blocks
     for (int i = 0; i < CHUNK_SIZE; ++i)
     {
@@ -37,7 +37,7 @@ TileChunk::~TileChunk() {
     delete [] blocks;
 }
 
-void TileChunk::randomizeHeights()
+void Chunk::randomizeHeights()
 {
     for(int z = 0; z < CHUNK_SIZE; z++)
     {
@@ -59,7 +59,7 @@ void TileChunk::randomizeHeights()
     }
 }
 
-void TileChunk::rebuild() {
+void Chunk::rebuild() {
     bool first_build = false;
     if(mesh == nullptr) {
         first_build = true;
@@ -120,11 +120,11 @@ void TileChunk::rebuild() {
         mesh->upload();
 }
 
-void TileChunk::draw(const Shader &shader) {
+void Chunk::draw(const Shader &shader) {
     mesh->draw(shader);
 }
 
-bool TileChunk::isBlockActiveAt(int32_t x, int32_t y, int32_t z)
+bool Chunk::isBlockActiveAt(int32_t x, int32_t y, int32_t z)
 {
     if(x < 0 || x >= CHUNK_SIZE)
         return false;

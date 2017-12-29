@@ -83,8 +83,8 @@ set(SOURCE_FILES
         src/engine/video/QuadRenderer.h
         src/engine/video/CubeRenderer.cpp
         src/engine/video/CubeRenderer.h
-        src/engine/video/tiles/TileMap.cpp
-        src/engine/video/tiles/TileMap.h
+        src/engine/video/voxel/TileMap.cpp
+        src/engine/video/voxel/TileMap.h
         src/engine/asset/ILoadTask.h
         src/engine/asset/AssetLoader.cpp
         src/engine/asset/AssetLoader.h
@@ -107,18 +107,22 @@ set(SOURCE_FILES
         src/engine/video/Material.h
         src/engine/video/MaterialDictionary.cpp
         src/engine/video/MaterialDictionary.h
-        src/engine/video/tiles/Block.cpp
-        src/engine/video/tiles/Block.h
-        src/engine/voxel/Chunk.cpp
-        src/engine/voxel/Chunk.h
+        src/engine/video/voxel/Block.cpp
+        src/engine/video/voxel/Block.h
         src/engine/video/ModelRenderer.cpp
         src/engine/video/ModelRenderer.h
-        src/engine/video/tiles/TileRenderer.cpp
-        src/engine/video/tiles/TileRenderer.h
-        src/engine/video/tiles/TileChunk.cpp
-        src/engine/video/tiles/TileChunk.h
-        src/engine/video/tiles/TileTypeDictionary.cpp
-        src/engine/video/tiles/TileTypeDictionary.h)
+        src/engine/video/voxel/ChunkRenderer.cpp
+        src/engine/video/voxel/ChunkRenderer.h
+        src/engine/video/voxel/Chunk.cpp
+        src/engine/video/voxel/Chunk.h
+        src/engine/video/voxel/BlockTypeDictionary.cpp
+        src/engine/video/voxel/BlockTypeDictionary.h
+        src/engine/video/voxel/BiomeType.h
+        src/engine/video/voxel/BiomeType.cpp
+        src/engine/video/voxel/HeightMap.h
+        src/engine/video/voxel/HeightMap.cpp
+        src/engine/video/voxel/Terrain.h
+        src/engine/video/voxel/Terrain.cpp)
 add_executable(game ${SOURCE_FILES})
 
 target_link_libraries(game ${GLEW_LIBRARY} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY})

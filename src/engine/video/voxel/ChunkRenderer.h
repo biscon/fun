@@ -15,8 +15,8 @@
 #include <engine/asset/ILoadTask.h>
 #include <map>
 #include <unordered_map>
-#include "TileChunk.h"
-#include "TileTypeDictionary.h"
+#include "Chunk.h"
+#include "BlockTypeDictionary.h"
 
 struct ChunkPos
 {
@@ -59,11 +59,11 @@ struct ChunkPos
      */
 };
 
-class TileRenderer : public ILoadTask {
+class ChunkRenderer : public ILoadTask {
 public:
-    const int VISIBLE_RADIUS = 8;
+    const int VISIBLE_RADIUS = 4;
 
-    TileRenderer(ISystem &system, const std::shared_ptr<Camera> &camera);
+    ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &camera);
     void render(float screenWidth, float screenHeight, double time);
 
     bool load(IGame &game) override;
@@ -78,17 +78,17 @@ private:
     std::shared_ptr<Camera> camera = nullptr;
     std::unique_ptr<Shader> shader = nullptr;
     std::unique_ptr<Shader> lampShader = nullptr;
-    std::unique_ptr<TileTypeDictionary> tileTypeDict;
-    std::map<ChunkPos, std::shared_ptr<TileChunk>> activeChunks;
-    std::vector<std::shared_ptr<TileChunk>> renderList;
-    std::vector<std::shared_ptr<TileChunk>> recycleList;
+    std::unique_ptr<BlockTypeDictionary> tileTypeDict;
+    std::map<ChunkPos, std::shared_ptr<Chunk>> activeChunks;
+    std::vector<std::shared_ptr<Chunk>> renderList;
+    std::vector<std::shared_ptr<Chunk>> recycleList;
     glm::vec3 lightPos = {0.0f, 2.0f, -6.0f};
-    std::shared_ptr<TileChunk> chunk;
+    std::shared_ptr<Chunk> chunk;
 
     void worldToChunk(glm::vec3 &worldpos, ChunkPos &chunkpos);
     void chunkToWorld(ChunkPos &chunkpos, glm::vec3 &worldpos);
-    //TileChunk* findChunkAt(const std::vector<std::shared_ptr<TileChunk>>& tilelist, const ChunkPos& pos);
-    TileChunk* findChunkAt(const ChunkPos& pos);
+    //Chunk* findChunkAt(const std::vector<std::shared_ptr<Chunk>>& tilelist, const ChunkPos& pos);
+    Chunk* findChunkAt(const ChunkPos& pos);
 
     bool posInVisibleRadius(ChunkPos &pos);
 };

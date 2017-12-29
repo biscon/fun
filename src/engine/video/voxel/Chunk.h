@@ -8,15 +8,15 @@
 #include <memory>
 #include <engine/video/Mesh3.h>
 #include <engine/video/TextureAtlas.h>
-#include "TileTypeDictionary.h"
+#include "BlockTypeDictionary.h"
 #include "Block.h"
 
-class TileChunk {
+class Chunk {
 public:
     static const int32_t CHUNK_SIZE = 16;
-    TileChunk(TileTypeDictionary &tileTypeDict);
+    Chunk(BlockTypeDictionary &tileTypeDict);
 
-    virtual ~TileChunk();
+    virtual ~Chunk();
 
     void rebuild();
     void draw(const Shader& shader);
@@ -24,7 +24,7 @@ public:
     Block*** blocks;
 
 private:
-    TileTypeDictionary& tileTypeDict;
+    BlockTypeDictionary& tileTypeDict;
     std::unique_ptr<Mesh3> mesh;
 
     bool isBlockActiveAt(int32_t x, int32_t y, int32_t z);

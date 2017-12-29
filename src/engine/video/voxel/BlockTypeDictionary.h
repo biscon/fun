@@ -22,9 +22,9 @@ struct TileType
     float shininess;
 };
 
-class TileTypeDictionary : public ILoadTask {
+class BlockTypeDictionary : public ILoadTask {
 public:
-    TileTypeDictionary();
+    BlockTypeDictionary();
     bool load(IGame &game) override;
     bool prepare(IGame &game) override;
     void createTileType(std::string name, std::string diffuseMapFilename, std::string specularMapFilename, float shininess);

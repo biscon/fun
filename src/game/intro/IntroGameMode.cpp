@@ -55,7 +55,7 @@ bool IntroGameMode::init() {
 
     modelRenderer = std::unique_ptr<ModelRenderer>(new ModelRenderer(*game->getSystem(), model2, camera));
 
-    tileRenderer = std::unique_ptr<TileRenderer>(new TileRenderer(*game->getSystem(), camera));
+    tileRenderer = std::unique_ptr<ChunkRenderer>(new ChunkRenderer(*game->getSystem(), camera));
     game->getAssetLoader()->addLoadTask(tileRenderer.get());
 
     game->getAssetLoader()->addLoadTask(this);
