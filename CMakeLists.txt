@@ -3,7 +3,7 @@ project(game)
 
 set(CMAKE_CXX_STANDARD 11)
 
-#set(CMAKE_CXX_FLAGS_DEBUG "-pthread")
+#set(CMAKE_CXX_FLAGS_DEBUG "-O3")
 # uncomment this to compile as gui app (doesnt open the console)
 #set(CMAKE_CXX_FLAGS_DEBUG "-mwindows")
 

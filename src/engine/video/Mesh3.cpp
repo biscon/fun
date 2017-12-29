@@ -16,6 +16,10 @@ Mesh3::Mesh3(std::vector<float> vertices) : vertices(vertices) {
     init();
 }
 
+void Mesh3::init() {
+    vertices.reserve(256000);
+}
+
 void Mesh3::prepare()
 {
     glGenVertexArrays(1, &VAO);
@@ -149,52 +153,6 @@ void Mesh3::clear() {
 }
 
 void Mesh3::generateTexturedCubeAt(float x, float y, float z, UVRect &r) {
-    /*
-    vertices.insert(vertices.end(),{
-            // back face
-            x-0.5f, y-0.5f, z-0.5f,  0.0f,  0.0f, -1.0f, r.left, r.bottom,
-            x+0.5f, y-0.5f, z-0.5f,  0.0f,  0.0f, -1.0f, r.right, r.bottom,
-            x+0.5f, y+0.5f, z-0.5f,  0.0f,  0.0f, -1.0f, r.right, r.top,
-            x+0.5f, y+0.5f, z-0.5f,  0.0f,  0.0f, -1.0f, r.right, r.top,
-            x-0.5f, y+0.5f, z-0.5f,  0.0f,  0.0f, -1.0f, r.left, r.top,
-            x-0.5f, y-0.5f, z-0.5f,  0.0f,  0.0f, -1.0f, r.left, r.bottom,
-            // front face
-            x-0.5f, y-0.5f, z+0.5f,  0.0f,  0.0f, 1.0f, r.left, r.bottom,
-            x+0.5f, y-0.5f, z+0.5f,  0.0f,  0.0f, 1.0f, r.right, r.bottom,
-            x+0.5f, y+0.5f, z+0.5f,  0.0f,  0.0f, 1.0f, r.right, r.top,
-            x+0.5f, y+0.5f, z+0.5f,  0.0f,  0.0f, 1.0f, r.right, r.top,
-            x-0.5f, y+0.5f, z+0.5f,  0.0f,  0.0f, 1.0f, r.left, r.top,
-            x-0.5f, y-0.5f, z+0.5f,  0.0f,  0.0f, 1.0f, r.left, r.bottom,
-            // left face
-            x-0.5f, y+0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, r.right, r.bottom,
-            x-0.5f, y+0.5f, z-0.5f, -1.0f,  0.0f,  0.0f, r.right, r.top,
-            x-0.5f, y-0.5f, z-0.5f, -1.0f,  0.0f,  0.0f, r.left, r.top,
-            x-0.5f, y-0.5f, z-0.5f, -1.0f,  0.0f,  0.0f, r.left, r.top,
-            x-0.5f, y-0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, r.left, r.bottom,
-            x-0.5f, y+0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, r.right, r.bottom,
-            // right face
-            x+0.5f, y+0.5f, z+0.5f,  1.0f,  0.0f,  0.0f, r.right, r.bottom,
-            x+0.5f, y+0.5f, z-0.5f,  1.0f,  0.0f,  0.0f, r.right, r.top,
-            x+0.5f, y-0.5f, z-0.5f,  1.0f,  0.0f,  0.0f, r.left, r.top,
-            x+0.5f, y-0.5f, z-0.5f,  1.0f,  0.0f,  0.0f, r.left, r.top,
-            x+0.5f, y-0.5f, z+0.5f,  1.0f,  0.0f,  0.0f, r.left, r.bottom,
-            x+0.5f, y+0.5f, z+0.5f,  1.0f,  0.0f,  0.0f, r.right, r.bottom,
-            // bottom face
-            x-0.5f, y-0.5f, z-0.5f,  0.0f, -1.0f,  0.0f, r.left, r.top,
-            x+0.5f, y-0.5f, z-0.5f,  0.0f, -1.0f,  0.0f, r.right, r.top,
-            x+0.5f, y-0.5f, z+0.5f,  0.0f, -1.0f,  0.0f, r.right, r.bottom,
-            x+0.5f, y-0.5f, z+0.5f,  0.0f, -1.0f,  0.0f, r.right, r.bottom,
-            x-0.5f, y-0.5f, z+0.5f,  0.0f, -1.0f,  0.0f, r.left, r.bottom,
-            x-0.5f, y-0.5f, z-0.5f,  0.0f, -1.0f,  0.0f, r.left, r.top,
-            // top face
-            x-0.5f, y+0.5f, z-0.5f,  0.0f,  1.0f,  0.0f, r.left, r.top,
-            x+0.5f, y+0.5f, z-0.5f,  0.0f,  1.0f,  0.0f, r.right, r.top,
-            x+0.5f, y+0.5f, z+0.5f,  0.0f,  1.0f,  0.0f, r.right, r.bottom,
-            x+0.5f, y+0.5f, z+0.5f,  0.0f,  1.0f,  0.0f, r.right, r.bottom,
-            x-0.5f, y+0.5f, z+0.5f,  0.0f,  1.0f,  0.0f, r.left, r.bottom,
-            x-0.5f, y+0.5f, z-0.5f,  0.0f,  1.0f,  0.0f, r.left, r.top
-    });
-     */
     vertices.insert(vertices.end(),{
             // Back face
             x-0.5f, y-0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, r.left, r.bottom, // Bottom-left
@@ -251,6 +209,3 @@ Mesh3::~Mesh3() {
 
 }
 
-void Mesh3::init() {
-    vertices.reserve(256000);
-}

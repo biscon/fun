@@ -12,7 +12,6 @@
 #include <SDL_log.h>
 
 TileChunk::TileChunk(TileTypeDictionary &tileTypeDict) : tileTypeDict(tileTypeDict) {
-    // Create the blocks
     blocks = new Block**[CHUNK_SIZE];
     for(int i = 0; i < CHUNK_SIZE; i++)
     {
@@ -64,7 +63,6 @@ void TileChunk::rebuild() {
         glm::mat4 old = m;
         for(int x = 0; x < CHUNK_SIZE; x++)
         {
-            //pos.y = ((float) rand()/ (float) RAND_MAX) / 4.0f;
             m = glm::translate(m, glm::vec3(1.0f, 0.0f, 0.0f));
             auto y_m = m;
             //auto top = 12 + (rand() % 4);
