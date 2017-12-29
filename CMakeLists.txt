@@ -3,7 +3,7 @@ project(game)
 
 set(CMAKE_CXX_STANDARD 11)
 
-#set(CMAKE_CXX_FLAGS_DEBUG "-O3")
+set(CMAKE_CXX_FLAGS_DEBUG "-O3")
 # uncomment this to compile as gui app (doesnt open the console)
 #set(CMAKE_CXX_FLAGS_DEBUG "-mwindows")
 
@@ -83,8 +83,8 @@ set(SOURCE_FILES
         src/engine/video/QuadRenderer.h
         src/engine/video/CubeRenderer.cpp
         src/engine/video/CubeRenderer.h
-        src/engine/video/TileMap.cpp
-        src/engine/video/TileMap.h
+        src/engine/video/tiles/TileMap.cpp
+        src/engine/video/tiles/TileMap.h
         src/engine/asset/ILoadTask.h
         src/engine/asset/AssetLoader.cpp
         src/engine/asset/AssetLoader.h

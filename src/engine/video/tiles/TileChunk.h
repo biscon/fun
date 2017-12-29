@@ -28,6 +28,8 @@ private:
     std::unique_ptr<Mesh3> mesh;
 
     bool isBlockActiveAt(int32_t x, int32_t y, int32_t z);
+
+    void randomizeHeights();
 };
 
 

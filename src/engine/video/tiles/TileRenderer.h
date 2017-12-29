@@ -61,7 +61,7 @@ struct ChunkPos
 
 class TileRenderer : public ILoadTask {
 public:
-    const int VISIBLE_RADIUS = 4;
+    const int VISIBLE_RADIUS = 8;
 
     TileRenderer(ISystem &system, const std::shared_ptr<Camera> &camera);
     void render(float screenWidth, float screenHeight, double time);

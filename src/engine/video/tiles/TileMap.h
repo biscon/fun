@@ -9,22 +9,10 @@
 #include <memory>
 #include <vector>
 
-struct TileType
-{
-
-};
-
-struct Tile
-{
-
-};
-
 class TileMap {
 public:
 
 private:
-    std::vector<std::unique_ptr<TileType>> tileTypes;
-    Tile* tiles;
 };
 
 

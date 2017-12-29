@@ -37,6 +37,28 @@ TileChunk::~TileChunk() {
     delete [] blocks;
 }
 
+void TileChunk::randomizeHeights()
+{
+    for(int z = 0; z < CHUNK_SIZE; z++)
+    {
+        for(int x = 0; x < CHUNK_SIZE; x++)
+        {
+            auto top = 10 + (rand() % 6);
+            for(int y = 0; y < CHUNK_SIZE; y++)
+            {
+                if(y < top)
+                {
+                    blocks[x][y][z].active = true;
+                    if(y < 13)
+                        blocks[x][y][z].type = Block::STONE;
+                }
+                else
+                    blocks[x][y][z].active = false;
+            }
+        }
+    }
+}
+
 void TileChunk::rebuild() {
     bool first_build = false;
     if(mesh == nullptr) {
@@ -55,6 +77,8 @@ void TileChunk::rebuild() {
     if(!first_build)
         mesh->clear();
 
+    randomizeHeights();
+
     auto m = glm::mat4();
     auto origin = glm::vec4(0,0,0,1);
     m = glm::translate(m, glm::vec3(-0.5*CHUNK_SIZE, 0.5f, -0.5*CHUNK_SIZE));
@@ -65,25 +89,24 @@ void TileChunk::rebuild() {
         {
             m = glm::translate(m, glm::vec3(1.0f, 0.0f, 0.0f));
             auto y_m = m;
-            //auto top = 12 + (rand() % 4);
-            // new material, instantiate new mesh
             for(int y = 0; y < CHUNK_SIZE; y++) {
                 Block &block = blocks[x][y][z];
-                auto tile = tileTypeDict.getTileTypeAt(block.type);
-                auto pos = y_m * origin;
-                bool should_mesh = false;
+                if(block.active) {
+                    auto tile = tileTypeDict.getTileTypeAt(block.type);
+                    auto pos = y_m * origin;
+                    bool should_mesh = false;
 
-                // Check if each of the cubes side is not active, if then we need to mesh it
-                if(!isBlockActiveAt(x,y,z-1)) should_mesh = true; // back
-                if(!isBlockActiveAt(x,y,z+1)) should_mesh = true; // front
-                if(!isBlockActiveAt(x-1,y,z)) should_mesh = true; // left
-                if(!isBlockActiveAt(x+1,y,z)) should_mesh = true; // right
-                if(!isBlockActiveAt(x,y+1,z)) should_mesh = true; // bottom
-                if(!isBlockActiveAt(x,y-1,z)) should_mesh = true; // top
+                    // Check if each of the cubes side is not active, if then we need to mesh it
+                    if (!isBlockActiveAt(x, y, z - 1)) should_mesh = true; // back
+                    if (!isBlockActiveAt(x, y, z + 1)) should_mesh = true; // front
+                    if (!isBlockActiveAt(x - 1, y, z)) should_mesh = true; // left
+                    if (!isBlockActiveAt(x + 1, y, z)) should_mesh = true; // right
+                    if (!isBlockActiveAt(x, y + 1, z)) should_mesh = true; // bottom
+                    if (!isBlockActiveAt(x, y - 1, z)) should_mesh = true; // top
 
-                if(should_mesh)
-                    mesh->generateTexturedCubeAt(pos.x, pos.y, pos.z, tileTypeDict.diffuseAtlas->getUVRect(tile.diffuseMapHandle));
-
+                    if (should_mesh)
+                        mesh->generateTexturedCubeAt(pos.x, pos.y, pos.z, tileTypeDict.diffuseAtlas->getUVRect(tile.diffuseMapHandle));
+                }
                 y_m = glm::translate(y_m, glm::vec3(0.0f, 1.0f, 0.0f));
             }
             //SDL_Log("Generated cube at %.2f,%.2f,%.2f", pos.x, pos.y, pos.z);
