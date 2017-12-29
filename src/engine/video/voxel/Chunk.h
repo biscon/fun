@@ -10,26 +10,30 @@
 #include <engine/video/TextureAtlas.h>
 #include "BlockTypeDictionary.h"
 #include "Block.h"
+#include "ChunkPos.h"
+#include "Terrain.h"
 
 class Chunk {
 public:
     static const int32_t CHUNK_SIZE = 16;
-    Chunk(BlockTypeDictionary &tileTypeDict);
+    Chunk(BlockTypeDictionary &blockTypeDict);
 
     virtual ~Chunk();
 
-    void rebuild();
+    void rebuild(const ChunkPos& position, const std::shared_ptr<Terrain>& terrain);
     void draw(const Shader& shader);
     glm::vec3 position;
     Block*** blocks;
 
 private:
-    BlockTypeDictionary& tileTypeDict;
+    BlockTypeDictionary& blockTypeDict;
     std::unique_ptr<Mesh3> mesh;
 
     bool isBlockActiveAt(int32_t x, int32_t y, int32_t z);
 
     void randomizeHeights();
+
+    void setupFromTerrain(const ChunkPos &position, const std::shared_ptr<Terrain> &terrain);
 };
 
 

@@ -30,11 +30,13 @@ public:
     void upload();
     void generateCubeAt(float x, float y, float z);
     void generateTexturedCubeAt(float x, float y, float z, UVRect& r);
+
     void clear();
 
 
     /*  Mesh Data  */
     std::vector<float> vertices;
+    //std::vector<float> cube;
     std::vector<unsigned int> indices;
     std::shared_ptr<Material> material;
 

@@ -82,7 +82,7 @@ void main()
             result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
     }
     // phase 3: spot light
-    //result += CalcSpotLight(spotLight, norm, FragPos, viewDir);
+    result += CalcSpotLight(spotLight, norm, FragPos, viewDir);
     // if fragment is black, add a little diffuse
     //if(result.r == 0 && result.g == 0 && result.b == 0 )
     //    result += 0.15 * vec3(texture(material.texture_diffuse1, TexCoords));

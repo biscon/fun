@@ -16,6 +16,7 @@
 #include <engine/video/Model.h>
 #include <engine/video/ModelRenderer.h>
 #include <engine/video/voxel/ChunkRenderer.h>
+#include <engine/video/voxel/Terrain.h>
 
 class IntroGameMode : public IGameMode, public IKeyboardEventListener, public IMouseEventListener, public ILoadTask {
 public:
@@ -53,17 +54,18 @@ private:
     std::vector<int32_t> textures;
 
     std::unique_ptr<FontRenderer> fontRenderer;
-    std::unique_ptr<QuadRenderer> quadRenderer;
-    std::unique_ptr<CubeRenderer> cubeRenderer;
-    std::shared_ptr<TextureAtlas> textureAtlas;
+    //std::unique_ptr<QuadRenderer> quadRenderer;
+    //std::unique_ptr<CubeRenderer> cubeRenderer;
+    //std::shared_ptr<TextureAtlas> textureAtlas;
 
-    std::shared_ptr<Model> model;
-    std::shared_ptr<Model> model2;
+    //std::shared_ptr<Model> model;
+    //std::shared_ptr<Model> model2;
 
     std::unique_ptr<LightSceneRenderer> lightSceneRenderer;
-    std::unique_ptr<ModelRenderer> modelRenderer;
-    std::unique_ptr<ChunkRenderer> tileRenderer;
+    //std::unique_ptr<ModelRenderer> modelRenderer;
+    std::unique_ptr<ChunkRenderer> chunkRenderer;
     std::shared_ptr<Camera> camera;
+    std::shared_ptr<Terrain> terrain;
 
     bool movingUp = false, movingDown = false, movingRight = false, movingLeft = false, zoomingIn = false, zoomingOut = false;
 };

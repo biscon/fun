@@ -122,7 +122,7 @@ set(SOURCE_FILES
         src/engine/video/voxel/HeightMap.h
         src/engine/video/voxel/HeightMap.cpp
         src/engine/video/voxel/Terrain.h
-        src/engine/video/voxel/Terrain.cpp)
+        src/engine/video/voxel/Terrain.cpp src/engine/video/voxel/ChunkPos.h)
 add_executable(game ${SOURCE_FILES})
 
 target_link_libraries(game ${GLEW_LIBRARY} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY})

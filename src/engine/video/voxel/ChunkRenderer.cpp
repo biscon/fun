@@ -12,7 +12,7 @@
 #include <SDL_log.h>
 #include <cmath>
 
-ChunkRenderer::ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &camera) : system(system), camera(camera) {
+ChunkRenderer::ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain) : system(system), camera(camera), terrain(terrain) {
     auto lighting_vs = system.readTextFile("shaders/lit_tile_shader_vs.glsl");
     auto lighting_fs = system.readTextFile("shaders/lit_tile_shader_fs.glsl");
 
@@ -51,10 +51,10 @@ ChunkRenderer::ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &cam
                                  "", "", 0.2f*128.0f);
     */
 
-    tileTypeDict = std::unique_ptr<BlockTypeDictionary>(new BlockTypeDictionary());
-    tileTypeDict->createTileType("grass", "assets/grass_diffuse.png", "assets/grass_specular.png", 32);
-    tileTypeDict->createTileType("stone", "assets/stone_diffuse.png", "assets/stone_specular.png", 32);
-    tileTypeDict->createTileType("wood", "assets/wood_diffuse.png", "assets/wood_specular.png", 32);
+    blockTypeDict = std::unique_ptr<BlockTypeDictionary>(new BlockTypeDictionary());
+    blockTypeDict->createTileType("grass", "assets/grass_diffuse.png", "assets/grass_specular.png", 32);
+    blockTypeDict->createTileType("stone", "assets/stone_diffuse.png", "assets/stone_specular.png", 32);
+    blockTypeDict->createTileType("wood", "assets/wood_diffuse.png", "assets/wood_specular.png", 32);
 }
 
 void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
@@ -154,15 +154,12 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
 }
 
 bool ChunkRenderer::load(IGame &game) {
-    tileTypeDict->load(game);
+    blockTypeDict->load(game);
     return true;
 }
 
 bool ChunkRenderer::prepare(IGame &game) {
-    tileTypeDict->prepare(game);
-    chunk = std::make_shared<Chunk>(*tileTypeDict);
-    chunk->position = glm::vec3(0,0,0);
-    chunk->rebuild();
+    blockTypeDict->prepare(game);
     return true;
 }
 
@@ -187,6 +184,8 @@ void ChunkRenderer::update() {
     worldToChunk(camera->Position, camChunkPos);
     chunkToWorld(camChunkPos, worldPos);
 
+    bool did_rebuild = false;
+    auto start = system.getPerformanceCounter();
     // check if chunks needs to be added, by checking a grid based on the visual radius around the camera
     // calculate width of a box centered on the camera pos
     int size = (VISIBLE_RADIUS * 2) + 1;
@@ -203,24 +202,30 @@ void ChunkRenderer::update() {
             auto chunk = findChunkAt(testpos);
             if(chunk == nullptr)
             {
+                did_rebuild = true;
                 //SDL_Log("No chunk found at pos %d,%d, adding one.", testpos.x, testpos.z);
                 if(!recycleList.empty())
                 {
                     std::shared_ptr<Chunk> nc = recycleList.back();
                     recycleList.pop_back();
                     nc->position = worldpos;
-                    nc->rebuild();
+                    nc->rebuild(testpos, terrain);
                     activeChunks[testpos] = nc;
                 }
                 else {
-                    auto nc = std::make_shared<Chunk>(*tileTypeDict);
+                    auto nc = std::make_shared<Chunk>(*blockTypeDict);
                     nc->position = worldpos;
-                    nc->rebuild();
+                    nc->rebuild(testpos, terrain);
                     activeChunks[testpos] = nc;
                 }
             }
         }
     }
+    auto end = system.getPerformanceCounter();
+    auto diff = end - start;
+    if(did_rebuild)
+        SDL_Log("Chunk rebuilding took %d ticks (%dms)", diff, diff / (system.getPerformanceFreq()/1000));
+
     // check if chunks need to be removed
     for (auto it = activeChunks.cbegin(); it != activeChunks.cend() /* not hoisted */; /* no increment */)
     {

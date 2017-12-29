@@ -37,26 +37,27 @@ bool IntroGameMode::init() {
     font2 = fontRenderer->addFont("bedstead12x20.png", 12, 20);
     game->getAssetLoader()->addLoadTask(fontRenderer.get());
 
+    /*
     textureAtlas = std::make_shared<TextureAtlas>(2048, 2048, false);
     quadRenderer = std::unique_ptr<QuadRenderer>(new QuadRenderer(textureAtlas));
-
     cubeRenderer = std::unique_ptr<CubeRenderer>(new CubeRenderer(textureAtlas));
-
+    */
 
     camera = std::make_shared<Camera>(glm::vec3(0.0f, 20.0f, 0.0f));
+    terrain = std::make_shared<Terrain>();
     //lightSceneRenderer = std::unique_ptr<LightSceneRenderer>(new LightSceneRenderer(*game->getSystem(), camera));
 
     //model = std::make_shared<Model>("nanosuit/nanosuit.obj", "nanosuit/");
     //lightSceneRenderer->testModel = model;
     //game->getAssetLoader()->addLoadTask(model.get());
 
-    model2 = std::make_shared<Model>("assets/grass_tile.obj", "assets/");
-    game->getAssetLoader()->addLoadTask(model2.get());
+    //model2 = std::make_shared<Model>("assets/grass_tile.obj", "assets/");
+    //game->getAssetLoader()->addLoadTask(model2.get());
 
-    modelRenderer = std::unique_ptr<ModelRenderer>(new ModelRenderer(*game->getSystem(), model2, camera));
+    //modelRenderer = std::unique_ptr<ModelRenderer>(new ModelRenderer(*game->getSystem(), model2, camera));
 
-    tileRenderer = std::unique_ptr<ChunkRenderer>(new ChunkRenderer(*game->getSystem(), camera));
-    game->getAssetLoader()->addLoadTask(tileRenderer.get());
+    chunkRenderer = std::unique_ptr<ChunkRenderer>(new ChunkRenderer(*game->getSystem(), camera, terrain));
+    game->getAssetLoader()->addLoadTask(chunkRenderer.get());
 
     game->getAssetLoader()->addLoadTask(this);
     game->getAssetLoader()->load();
@@ -70,6 +71,7 @@ bool IntroGameMode::init() {
 
 bool IntroGameMode::load(IGame &game) {
     SDL_Log("IntroGameMode::load");
+    /*
     textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("bacon1.png")));
     textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("bacon2.png")));
     textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("bacon3.png")));
@@ -77,14 +79,18 @@ bool IntroGameMode::load(IGame &game) {
     textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("container_diffuse.png")));
     textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("container_specular.png")));
     textureAtlas->build();
+     */
+    terrain->generate();
     return true;
 }
 
 bool IntroGameMode::prepare(IGame &game) {
     SDL_Log("IntroGameMode::prepare");
+    /*
     textureAtlas->upload();
     quadRenderer->buildBuffers();
     cubeRenderer->buildBuffers();
+     */
     //lightSceneRenderer->buildBuffers(textureAtlas->createOGLTexture(5), textureAtlas->createOGLTexture(6));
     return true;
 }
@@ -128,7 +134,7 @@ void IntroGameMode::update() {
     if(zoomingOut)
         camera->ProcessMouseScroll(50.0f * (float) -game->getDelta());
     //camera->P
-    tileRenderer->update();
+    chunkRenderer->update();
 }
 
 void IntroGameMode::fixedUpdate() {
@@ -153,13 +159,13 @@ void IntroGameMode::fixedUpdate() {
     game->getRenderer()->setRealViewport();
     //lightSceneRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight(), game->getTime());
     //modelRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight(), game->getTime());
-    tileRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight(), game->getTime());
+    chunkRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight(), game->getTime());
 
     game->getRenderer()->setLogicalViewport();
     fontRenderer->startFrame();
     fontRenderer->renderText(font2, 50, 50, "Use WASD and mouse look to fly around");
     fontRenderer->renderText(font2, 50, 80, "Mousewheel adjusts FOV, F12 toggles fullscreen");
-    fontRenderer->renderText(font2, 50, 1000, stringFormat("camXZ = %.2f,%.2f camChunkXZ = %d,%d  x=%.2f,%.2f Chunks: %d", camera->Position.x, camera->Position.z, tileRenderer->camChunkPos.x, tileRenderer->camChunkPos.z, tileRenderer->worldPos.x, tileRenderer->worldPos.z, tileRenderer->getActiveChunks()));
+    fontRenderer->renderText(font2, 50, 1000, stringFormat("camXYZ = %.2f,%.2f,%.2f camChunkXZ = %d,%d  x=%.2f,%.2f Chunks: %d", camera->Position.x, camera->Position.y, camera->Position.z, chunkRenderer->camChunkPos.x, chunkRenderer->camChunkPos.z, chunkRenderer->worldPos.x, chunkRenderer->worldPos.z, chunkRenderer->getActiveChunks()));
     fontRenderer->render(game->getRenderer()->getWidth(), game->getRenderer()->getHeight());
 }
 

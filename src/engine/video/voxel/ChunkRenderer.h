@@ -17,53 +17,15 @@
 #include <unordered_map>
 #include "Chunk.h"
 #include "BlockTypeDictionary.h"
+#include "Terrain.h"
+#include "ChunkPos.h"
 
-struct ChunkPos
-{
-    int32_t x;
-    int32_t z;
-    /*
-    bool operator<(const ChunkPos r)
-    {
-        if ( l.x < r.x )  return true;
-        if ( l.x > r.x )  return false;
-
-        // Otherwise a are equal
-        if ( l.z < r.z )  return true;
-        if ( l.z > r.z )  return false;
-        // Otherwise both are equal
-        return false;
-    }
-    */
-
-    bool operator<(const ChunkPos &rhs) const {
-        if (x < rhs.x)
-            return true;
-        if (rhs.x < x)
-            return false;
-        return z < rhs.z;
-    }
-
-    /*
-    bool operator>(const ChunkPos &rhs) const {
-        return rhs < *this;
-    }
-
-    bool operator<=(const ChunkPos &rhs) const {
-        return !(rhs < *this);
-    }
-
-    bool operator>=(const ChunkPos &rhs) const {
-        return !(*this < rhs);
-    }
-     */
-};
 
 class ChunkRenderer : public ILoadTask {
 public:
-    const int VISIBLE_RADIUS = 4;
+    const int VISIBLE_RADIUS = 8;
 
-    ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &camera);
+    ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain);
     void render(float screenWidth, float screenHeight, double time);
 
     bool load(IGame &game) override;
@@ -75,15 +37,15 @@ public:
 
 private:
     ISystem& system;
+    std::shared_ptr<Terrain> terrain = nullptr;
     std::shared_ptr<Camera> camera = nullptr;
     std::unique_ptr<Shader> shader = nullptr;
     std::unique_ptr<Shader> lampShader = nullptr;
-    std::unique_ptr<BlockTypeDictionary> tileTypeDict;
+    std::unique_ptr<BlockTypeDictionary> blockTypeDict;
     std::map<ChunkPos, std::shared_ptr<Chunk>> activeChunks;
     std::vector<std::shared_ptr<Chunk>> renderList;
     std::vector<std::shared_ptr<Chunk>> recycleList;
     glm::vec3 lightPos = {0.0f, 2.0f, -6.0f};
-    std::shared_ptr<Chunk> chunk;
 
     void worldToChunk(glm::vec3 &worldpos, ChunkPos &chunkpos);
     void chunkToWorld(ChunkPos &chunkpos, glm::vec3 &worldpos);

@@ -18,7 +18,59 @@ Mesh3::Mesh3(std::vector<float> vertices) : vertices(vertices) {
 
 void Mesh3::init() {
     vertices.reserve(256000);
+    /*
+    cube.insert(cube.end(),{
+            // Back face
+            -0.5f, -0.5f, -0.5f, 0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // Bottom-left
+            +0.5f, +0.5f, -0.5f, 0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // top-right
+            +0.5f, -0.5f, -0.5f, 0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-right
+            +0.5f, +0.5f, -0.5f, 0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // top-right
+            -0.5f, -0.5f, -0.5f, 0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+            -0.5f, +0.5f, -0.5f, 0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // top-left
+            // Front face
+            -0.5f, -0.5f, +0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 0.0f, // bottom-left
+            +0.5f, -0.5f, +0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 0.0f, // bottom-right
+            +0.5f, +0.5f, +0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 0.0f, // top-right
+            +0.5f, +0.5f, +0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 0.0f, // top-right
+            -0.5f, +0.5f, +0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 0.0f, // top-left
+            -0.5f, -0.5f, +0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 0.0f, // bottom-left
+            // Left face
+            -0.5f, +0.5f, +0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // top-right
+            -0.5f, +0.5f, -0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // top-left
+            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left
+            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left
+            -0.5f, -0.5f, +0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+            -0.5f, +0.5f, +0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // top-right
+            // Right face
+            +0.5f, +0.5f, +0.5f, 1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // top-left
+            +0.5f, -0.5f, -0.5f, 1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+            +0.5f, +0.5f, -0.5f, 1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // top-right
+            +0.5f, -0.5f, -0.5f, 1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+            +0.5f, +0.5f, +0.5f, 1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // top-left
+            +0.5f, -0.5f, +0.5f, 1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left
+            // Bottom face
+            -0.5f, -0.5f, -0.5f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // top-right
+            +0.5f, -0.5f, -0.5f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // top-left
+            +0.5f, -0.5f, +0.5f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-left
+            +0.5f, -0.5f, +0.5f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-left
+            -0.5f, -0.5f, +0.5f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+            -0.5f, -0.5f, -0.5f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // top-right
+            // Top face
+            -0.5f, +0.5f, -0.5f, 0.0f,  1.0f,  0.0f, 0.0f, 0.0f, // top-left
+            +0.5f, +0.5f, +0.5f, 0.0f,  1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+            +0.5f, +0.5f, -0.5f, 0.0f,  1.0f,  0.0f, 0.0f, 0.0f, // top-right
+            +0.5f, +0.5f, +0.5f, 0.0f,  1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+            -0.5f, +0.5f, -0.5f, 0.0f,  1.0f,  0.0f, 0.0f, 0.0f, // top-left
+            -0.5f, +0.5f, +0.5f, 0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left
+    });
+     */
 }
+
+/*
+void Mesh3::generateTexturedCubeAt(float x, float y, float z, UVRect &r) {
+    vertices.insert(vertices.end(), cube.begin(), cube.end());
+}
+ */
 
 void Mesh3::prepare()
 {
@@ -151,6 +203,7 @@ void Mesh3::clear() {
     vertices.clear();
     indices.clear();
 }
+
 
 void Mesh3::generateTexturedCubeAt(float x, float y, float z, UVRect &r) {
     vertices.insert(vertices.end(),{
