@@ -11,15 +11,14 @@
 #include <vector>
 #include <engine/video/TextureAtlas.h>
 #include <engine/asset/ILoadTask.h>
+#include <engine/video/Material.h>
 
-struct TileType
+struct BlockType
 {
     std::string name;
-    std::string diffuseMapFilename;
-    std::string specularMapFilename;
-    int32_t diffuseMapHandle;
-    int32_t specularMapHandle;
-    float shininess;
+    Material material;
+    std::shared_ptr<PixelBuffer> diffusePb;
+    std::shared_ptr<PixelBuffer> specularPb;
 };
 
 class BlockTypeDictionary : public ILoadTask {
@@ -27,13 +26,11 @@ public:
     BlockTypeDictionary();
     bool load(IGame &game) override;
     bool prepare(IGame &game) override;
-    void createTileType(std::string name, std::string diffuseMapFilename, std::string specularMapFilename, float shininess);
-    TileType& getTileTypeAt(int index);
-    std::unique_ptr<TextureAtlas> diffuseAtlas;
-    std::unique_ptr<TextureAtlas> specularAtlas;
+    void createBlockType(std::string name, std::string diffuseMapFilename, std::string specularMapFilename, float shininess);
+    BlockType& getBlockTypeAt(int index);
 
 private:
-    std::vector<std::unique_ptr<TileType>> tileTypes;
+    std::vector<std::unique_ptr<BlockType>> blockTypes;
 };
 
 

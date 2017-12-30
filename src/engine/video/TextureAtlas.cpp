@@ -53,6 +53,18 @@ bool TextureAtlas::build() {
             // texture space flips y axis just to piss you off :)
             uv_rect.top = remapFloat(0, (float) height, 0, 1, (float) node->rect.top);
             uv_rect.bottom = remapFloat(0, (float) height, 0, 1, (float) node->rect.bottom+1);
+
+            /*
+            if(useFiltering) {
+                // adjustment to avoid bleed when tiling with texture filtering
+                auto xoff = 1.0f/(float) width;
+                auto yoff = 1.0f/(float) height;
+                uv_rect.left += xoff;
+                uv_rect.right -= xoff;
+                uv_rect.top += yoff;
+                uv_rect.bottom -= yoff;
+            }
+             */
             textureMap[idMap[pb]] = std::unique_ptr<AtlasTexture>(new AtlasTexture(pb->getName(), node->rect, uv_rect, idMap[pb], pb->getWidth(), pb->getHeight()));
             //SDL_Log("Fitted image %s size: %dx%d in atlas", pb->getName().c_str(), pb->getWidth(), pb->getHeight());
         }

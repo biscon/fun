@@ -23,7 +23,7 @@
 
 class ChunkRenderer : public ILoadTask {
 public:
-    const int VISIBLE_RADIUS = 8;
+    const int VISIBLE_RADIUS = 16;
 
     ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain);
     void render(float screenWidth, float screenHeight, double time);

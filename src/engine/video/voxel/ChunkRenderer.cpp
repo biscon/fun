@@ -11,6 +11,7 @@
 #include <gtc/type_ptr.hpp>
 #include <SDL_log.h>
 #include <cmath>
+#include <engine/video/shaders.h>
 
 ChunkRenderer::ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain) : system(system), camera(camera), terrain(terrain) {
     auto lighting_vs = system.readTextFile("shaders/lit_tile_shader_vs.glsl");
@@ -52,9 +53,9 @@ ChunkRenderer::ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &cam
     */
 
     blockTypeDict = std::unique_ptr<BlockTypeDictionary>(new BlockTypeDictionary());
-    blockTypeDict->createTileType("grass", "assets/grass_diffuse.png", "assets/grass_specular.png", 32);
-    blockTypeDict->createTileType("stone", "assets/stone_diffuse.png", "assets/stone_specular.png", 32);
-    blockTypeDict->createTileType("wood", "assets/wood_diffuse.png", "assets/wood_specular.png", 32);
+    blockTypeDict->createBlockType("grass", "assets/grass_diffuse.png", "assets/grass_specular.png", 32);
+    blockTypeDict->createBlockType("stone", "assets/stone_diffuse.png", "assets/stone_specular.png", 32);
+    blockTypeDict->createBlockType("wood", "assets/wood_diffuse.png", "assets/wood_specular.png", 32);
 }
 
 void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
@@ -69,8 +70,9 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
     shader->setVec3("viewPos", camera->Position);
 
     // directional light
-    shader->setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-    shader->setVec3("dirLight.ambient", 0.025f, 0.025f, 0.025f);
+    //shader->setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+    shader->setVec3("dirLight.direction", 0.0f, -1.0f, 0.0f);
+    shader->setVec3("dirLight.ambient", 0.80f, 0.80f, 0.80f);
 
     /*
     shader->setVec3("dirLight.diffuse", 0.05f, 0.05f, 0.10f);
@@ -81,18 +83,19 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
     shader->setVec3("dirLight.specular", 0.30f, 0.30f, 0.30f);
     */
 
+    /*
     shader->setVec3("dirLight.diffuse", 0.3f, 0.3f, 0.3f);
     shader->setVec3("dirLight.specular", 0.4f, 0.4f, 0.4f);
-
-    /*
-    shader->setVec3("dirLight.diffuse", 0.8f, 0.8f, 0.8f);
-    shader->setVec3("dirLight.specular", 1.0f, 1.0f, 1.0f);
     */
+
+    shader->setVec3("dirLight.diffuse", 0.9f, 0.9f, 0.9f);
+    shader->setVec3("dirLight.specular", 0.0f, 0.0f, 0.0f);
+
 
     float radius = 4.0f;
     float camX = sin(0.50f * time) * radius;
     float camZ = cos(0.50f * time) * radius;
-    lightPos = glm::vec3(camX, 18.0f, camZ);
+    lightPos = glm::vec3(camX, 34.0f, camZ);
     //lightPos[1] = glm::vec3(sin(0.50f * time) * 10, cos(0.50f * time) * 6, -7.0f);
     // point light 1
     shader->setVec3("pointLights[0].position", lightPos);

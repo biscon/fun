@@ -26,6 +26,7 @@ public:
     virtual ~Mesh3();
 
     void draw(const Shader& shader);
+    void drawRange(const Shader& shader, int32_t start, int32_t count, Material* material);
     void prepare();
     void upload();
     void generateCubeAt(float x, float y, float z);

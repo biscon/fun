@@ -5,34 +5,37 @@
 #include "BlockTypeDictionary.h"
 
 BlockTypeDictionary::BlockTypeDictionary() {
-    diffuseAtlas = std::unique_ptr<TextureAtlas>(new TextureAtlas(1024, 1024, false));
-    specularAtlas = std::unique_ptr<TextureAtlas>(new TextureAtlas(1024, 1024, false));
 
 }
 
 bool BlockTypeDictionary::load(IGame &game) {
-    diffuseAtlas->build();
-    specularAtlas->build();
+    for(auto const& bt : blockTypes)
+    {
+        bt->diffusePb = std::make_shared<PixelBuffer>(bt->material.diffuseMap);
+        bt->specularPb = std::make_shared<PixelBuffer>(bt->material.specularMap);
+    }
     return true;
 }
 
 bool BlockTypeDictionary::prepare(IGame &game) {
-    diffuseAtlas->upload();
-    specularAtlas->upload();
+    for(auto const& bt : blockTypes)
+    {
+        bt->material.diffuseTexture = std::make_shared<OGLTexture>(bt->diffusePb.get(), "texture_diffuse", true);
+        bt->material.specularTexture = std::make_shared<OGLTexture>(bt->specularPb.get(), "texture_diffuse", true);
+    }
     return true;
 }
 
-void BlockTypeDictionary::createTileType(std::string name, std::string diffuseMapFilename, std::string specularMapFilename, float shininess) {
-    tileTypes.push_back(std::unique_ptr<TileType>(new TileType()));
-    auto& tt = tileTypes.back();
-    tt->name = name;
-    tt->diffuseMapFilename = diffuseMapFilename;
-    tt->specularMapFilename = specularMapFilename;
-    tt->shininess = shininess;
-    tt->diffuseMapHandle = diffuseAtlas->addBuffer(std::make_shared<PixelBuffer>(diffuseMapFilename));
-    tt->specularMapHandle = specularAtlas->addBuffer(std::make_shared<PixelBuffer>(specularMapFilename));
+void BlockTypeDictionary::createBlockType(std::string name, std::string diffuseMapFilename,
+                                          std::string specularMapFilename, float shininess) {
+    blockTypes.push_back(std::unique_ptr<BlockType>(new BlockType()));
+    auto& bt = blockTypes.back();
+    bt->name = name;
+    bt->material.shininess = shininess;
+    bt->material.diffuseMap = diffuseMapFilename;
+    bt->material.specularMap = specularMapFilename;
 }
 
-TileType &BlockTypeDictionary::getTileTypeAt(int index) {
-    return *tileTypes[index];
+BlockType &BlockTypeDictionary::getBlockTypeAt(int index) {
+    return *blockTypes[index];
 }

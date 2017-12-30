@@ -153,6 +153,37 @@ void Mesh3::draw(const Shader& shader)
     glBindVertexArray(0);
 }
 
+void Mesh3::drawRange(const Shader& shader, int32_t start, int32_t count, Material* material)
+{
+// set material uniforms
+    if(hasTexcoords) {
+        if (material->diffuseTexture != nullptr) {
+            glActiveTexture(GL_TEXTURE0);
+            shader.setInt("material.texture_diffuse1", 0);
+            glBindTexture(GL_TEXTURE_2D, material->diffuseTexture->tex);
+        }
+        if (material->specularTexture != nullptr) {
+            glActiveTexture(GL_TEXTURE1);
+            shader.setInt("material.texture_specular1", 1);
+            glBindTexture(GL_TEXTURE_2D, material->specularTexture->tex);
+        }
+    }
+    else
+    {
+        shader.setVec3("material.ambient", material->ambient[0], material->ambient[1], material->ambient[2]);
+        shader.setVec3("material.diffuse", material->diffuse[0], material->diffuse[1], material->diffuse[2]);
+        shader.setVec3("material.specular", material->specular[0], material->specular[1], material->specular[2]);
+    }
+    glActiveTexture(GL_TEXTURE0);
+
+    shader.setFloat("material.shininess", material->shininess);
+
+    // draw mesh
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, start / vertexSize, count / vertexSize);
+    glBindVertexArray(0);
+}
+
 void Mesh3::generateCubeAt(float x, float y, float z) {
     vertices.insert(vertices.end(),{
             x-0.5f, y-0.5f, z-0.5f,  0.0f,  0.0f, -1.0f,
@@ -206,6 +237,12 @@ void Mesh3::clear() {
 
 
 void Mesh3::generateTexturedCubeAt(float x, float y, float z, UVRect &r) {
+    /*
+    r.left = 0.0f;
+    r.right = 1.0f;
+    r.bottom = 0.0f;
+    r.top = 1.0f;
+     */
     vertices.insert(vertices.end(),{
             // Back face
             x-0.5f, y-0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, r.left, r.bottom, // Bottom-left

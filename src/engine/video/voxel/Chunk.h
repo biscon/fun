@@ -13,9 +13,24 @@
 #include "ChunkPos.h"
 #include "Terrain.h"
 
+struct MaterialBlock
+{
+    float x,y,z;
+    MaterialBlock(float x, float y, float z) : x(x), y(y), z(z) {}
+};
+
+struct MaterialBatch
+{
+    int blockType;
+    uint32_t start;
+    uint32_t count;
+    std::vector<MaterialBlock> blocks;
+};
+
 class Chunk {
 public:
     static const int32_t CHUNK_SIZE = 16;
+    static const int32_t CHUNK_HEIGHT = 32;
     Chunk(BlockTypeDictionary &blockTypeDict);
 
     virtual ~Chunk();
@@ -28,6 +43,7 @@ public:
 private:
     BlockTypeDictionary& blockTypeDict;
     std::unique_ptr<Mesh3> mesh;
+    std::map<int32_t, std::unique_ptr<MaterialBatch>> materialBatchMap;
 
     bool isBlockActiveAt(int32_t x, int32_t y, int32_t z);
 
