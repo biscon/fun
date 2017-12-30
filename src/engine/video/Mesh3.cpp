@@ -155,17 +155,19 @@ void Mesh3::draw(const Shader& shader)
 
 void Mesh3::drawRange(const Shader& shader, int32_t start, int32_t count, Material* material)
 {
-// set material uniforms
+    // set material uniforms
     if(hasTexcoords) {
         if (material->diffuseTexture != nullptr) {
             glActiveTexture(GL_TEXTURE0);
             shader.setInt("material.texture_diffuse1", 0);
             glBindTexture(GL_TEXTURE_2D, material->diffuseTexture->tex);
+            //SDL_Log("Binding diffuse tex %s glId = %d", material->diffuseMap.c_str(), material->diffuseTexture->tex);
         }
         if (material->specularTexture != nullptr) {
             glActiveTexture(GL_TEXTURE1);
             shader.setInt("material.texture_specular1", 1);
             glBindTexture(GL_TEXTURE_2D, material->specularTexture->tex);
+            //SDL_Log("Binding specular tex %s glId = %d", material->specularMap.c_str(), material->specularTexture->tex);
         }
     }
     else
@@ -177,11 +179,10 @@ void Mesh3::drawRange(const Shader& shader, int32_t start, int32_t count, Materi
     glActiveTexture(GL_TEXTURE0);
 
     shader.setFloat("material.shininess", material->shininess);
-
-    // draw mesh
     glBindVertexArray(VAO);
+    // draw mesh
     glDrawArrays(GL_TRIANGLES, start / vertexSize, count / vertexSize);
-    glBindVertexArray(0);
+    //glBindVertexArray(0);
 }
 
 void Mesh3::generateCubeAt(float x, float y, float z) {

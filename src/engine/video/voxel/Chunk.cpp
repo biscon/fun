@@ -43,18 +43,19 @@ void Chunk::randomizeHeights()
     {
         for(int x = 0; x < CHUNK_SIZE; x++)
         {
-            auto top = 10 + (rand() % 6);
-            for(int y = 0; y < CHUNK_SIZE; y++)
-            {
-                if(y < top)
-                {
-                    blocks[x][y][z].active = true;
-                    if(y < 13)
-                        blocks[x][y][z].type = Block::STONE;
-                }
-                else
-                    blocks[x][y][z].active = false;
-            }
+            blocks[x][0][z].active = true;
+            blocks[x][0][z].type = Block::STONE;
+            blocks[x][5][z].active = true;
+            blocks[x][5][z].type = Block::GRASS;
+            blocks[x][10][z].active = true;
+            blocks[x][10][z].type = Block::WATER;
+
+            blocks[x][15][z].active = true;
+            blocks[x][15][z].type = 3;
+            blocks[x][20][z].active = true;
+            blocks[x][20][z].type = 4;
+            blocks[x][25][z].active = true;
+            blocks[x][25][z].type = 5;
         }
     }
 }
@@ -76,18 +77,25 @@ void Chunk::setupFromTerrain(const ChunkPos& position, const std::shared_ptr<Ter
         {
             auto map_x = chk_map_x + x - half_chunk_size;
             auto map_z = chk_map_z + z - half_chunk_size;
-            auto height = (int) floor(terrain->getHeightMap()->getSampleWrap(map_x, map_z) * fchunk_height);
+            auto height = (int) ceil(terrain->getHeightMap()->getSampleWrap(map_x, map_z) * fchunk_height);
             //SDL_Log("Sampled height %d at map pos %d,%d", height, map_x, map_z);
             for(int y = 0; y < CHUNK_HEIGHT; y++)
             {
+                blocks[x][y][z].active = false;
+                blocks[x][y][z].type = Block::GRASS;
                 if(y <= height)
                 {
                     blocks[x][y][z].active = true;
-                    if(y < 5)
+                    blocks[x][y][z].type = Block::GRASS;
+                    if(y >= 0 && y <= 8)
                         blocks[x][y][z].type = Block::STONE;
+
                 }
-                else
-                    blocks[x][y][z].active = false;
+                if(y > height && y <= 4)
+                {
+                    blocks[x][y][z].active = true;
+                    blocks[x][y][z].type = Block::WATER;
+                }
             }
         }
     }
@@ -107,6 +115,7 @@ void Chunk::rebuild(const ChunkPos& position, const std::shared_ptr<Terrain>& te
         mesh->clear();
 
     setupFromTerrain(position, terrain);
+    //randomizeHeights();
     materialBatchMap.clear();
 
     auto m = glm::mat4();
@@ -144,7 +153,6 @@ void Chunk::rebuild(const ChunkPos& position, const std::shared_ptr<Terrain>& te
                         }
                         else
                             batch->second->blocks.emplace_back(pos.x, pos.y, pos.z);
-                        //mesh->generateTexturedCubeAt(pos.x, pos.y, pos.z, blockTypeDict.diffuseAtlas->getUVRect(blockType.diffuseMapHandle));
                     }
                 }
                 y_m = glm::translate(y_m, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -166,7 +174,7 @@ void Chunk::rebuild(const ChunkPos& position, const std::shared_ptr<Terrain>& te
         {
             mesh->generateTexturedCubeAt(mb.x, mb.y, mb.z, uvRect);
         }
-        kv.second->count = mesh->vertices.size();
+        kv.second->count = mesh->vertices.size() - kv.second->start;
     }
     if(first_build)
         mesh->prepare();
@@ -177,12 +185,14 @@ void Chunk::rebuild(const ChunkPos& position, const std::shared_ptr<Terrain>& te
 void Chunk::draw(const Shader &shader) {
     //SDL_Log("Rendering %d batches", materialBatchMap.size());
     //mesh->drawRange(shader, 0, mesh->vertices.size());
+    //auto sum = 0;
     for(auto const& kv : materialBatchMap)
     {
-        //SDL_Log("Rendering batch: blocks = %d, start = %d, count = %d", kv.second->blocks.size(), kv.second->start, kv.second->count);
+        //sum += kv.second->count;
+        //SDL_Log("Rendering batch: blocks = %d, start = %d, count = %d, blockType = %d", kv.second->blocks.size(), kv.second->start, kv.second->count, kv.first);
         mesh->drawRange(shader, kv.second->start, kv.second->count, &blockTypeDict.getBlockTypeAt(kv.first).material);
     }
-    //mesh->draw(shader);
+    //SDL_Log("Sum of batch counts = %d, size of mesh = %d", sum, mesh->vertices.size());
 }
 
 bool Chunk::isBlockActiveAt(int32_t x, int32_t y, int32_t z)

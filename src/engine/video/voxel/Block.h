@@ -8,11 +8,11 @@
 #include <cstdint>
 
 struct Block {
-    static const int GRASS = 0;
-    static const int STONE = 1;
-    static const int DIRT = 2;
+    static const int STONE = 0;
+    static const int GRASS = 1;
+    static const int WATER = 2;
     uint32_t type = 0;
-    bool active = true;
+    bool active = false;
 };
 
 

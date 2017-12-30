@@ -11,8 +11,11 @@ BlockTypeDictionary::BlockTypeDictionary() {
 bool BlockTypeDictionary::load(IGame &game) {
     for(auto const& bt : blockTypes)
     {
-        bt->diffusePb = std::make_shared<PixelBuffer>(bt->material.diffuseMap);
-        bt->specularPb = std::make_shared<PixelBuffer>(bt->material.specularMap);
+        if(!bt->material.diffuseMap.empty())
+            bt->diffusePb = std::make_shared<PixelBuffer>(bt->material.diffuseMap);
+        if(!bt->material.specularMap.empty())
+            bt->specularPb = std::make_shared<PixelBuffer>(bt->material.specularMap);
+        //SDL_Log("Loading textures for block = %s, diffuse = %s, spec = %s", bt->name.c_str(), bt->material.diffuseMap.c_str(), bt->material.specularMap.c_str());
     }
     return true;
 }
@@ -20,8 +23,11 @@ bool BlockTypeDictionary::load(IGame &game) {
 bool BlockTypeDictionary::prepare(IGame &game) {
     for(auto const& bt : blockTypes)
     {
-        bt->material.diffuseTexture = std::make_shared<OGLTexture>(bt->diffusePb.get(), "texture_diffuse", true);
-        bt->material.specularTexture = std::make_shared<OGLTexture>(bt->specularPb.get(), "texture_diffuse", true);
+        if(bt->diffusePb != nullptr)
+            bt->material.diffuseTexture = std::make_shared<OGLTexture>(bt->diffusePb.get(), "texture_diffuse", true);
+        if(bt->specularPb != nullptr)
+            bt->material.specularTexture = std::make_shared<OGLTexture>(bt->specularPb.get(), "texture_specular", true);
+        //SDL_Log("Uploading Block = %s, diffusemap = %s (id %d), specmap = %s (id %d)", bt->name.c_str(), bt->material.diffuseMap.c_str(), bt->material.diffuseTexture->tex, bt->material.specularMap.c_str(), bt->material.specularTexture->tex);
     }
     return true;
 }

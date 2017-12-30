@@ -53,9 +53,9 @@ ChunkRenderer::ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &cam
     */
 
     blockTypeDict = std::unique_ptr<BlockTypeDictionary>(new BlockTypeDictionary());
-    blockTypeDict->createBlockType("grass", "assets/grass_diffuse.png", "assets/grass_specular.png", 32);
     blockTypeDict->createBlockType("stone", "assets/stone_diffuse.png", "assets/stone_specular.png", 32);
-    blockTypeDict->createBlockType("wood", "assets/wood_diffuse.png", "assets/wood_specular.png", 32);
+    blockTypeDict->createBlockType("grass", "assets/grass_diffuse.png", "assets/grass_specular.png", 4);
+    blockTypeDict->createBlockType("water", "assets/water_diffuse.png", "assets/water_specular.png", 64);
 }
 
 void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
@@ -72,7 +72,7 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
     // directional light
     //shader->setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
     shader->setVec3("dirLight.direction", 0.0f, -1.0f, 0.0f);
-    shader->setVec3("dirLight.ambient", 0.80f, 0.80f, 0.80f);
+    shader->setVec3("dirLight.ambient", 0.65f, 0.65f, 0.65f);
 
     /*
     shader->setVec3("dirLight.diffuse", 0.05f, 0.05f, 0.10f);
@@ -88,8 +88,8 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
     shader->setVec3("dirLight.specular", 0.4f, 0.4f, 0.4f);
     */
 
-    shader->setVec3("dirLight.diffuse", 0.9f, 0.9f, 0.9f);
-    shader->setVec3("dirLight.specular", 0.0f, 0.0f, 0.0f);
+    shader->setVec3("dirLight.diffuse", 0.95f, 0.95f, 0.95f);
+    shader->setVec3("dirLight.specular", 0.15f, 0.15f, 0.15f);
 
 
     float radius = 4.0f;
@@ -183,8 +183,7 @@ bool ChunkRenderer::posInVisibleRadius(ChunkPos& pos)
            && pos.z >= z1 && pos.z <= z2;
 }
 
-// TODO make circular tile loading instead to save chunks
-// make chunk building incremental over several frames
+// TODO make chunk building incremental over several frames
 void ChunkRenderer::update() {
     worldToChunk(camera->Position, camChunkPos);
     chunkToWorld(camChunkPos, worldPos);
@@ -255,8 +254,7 @@ void ChunkRenderer::update() {
     }
 }
 
-// TODO make circular tile loading instead to save chunks
-// make chunk building incremental over several frames
+// TODO make chunk building incremental over several frames
 void ChunkRenderer::update2() {
     worldToChunk(camera->Position, camChunkPos);
     chunkToWorld(camChunkPos, worldPos);

@@ -30,7 +30,7 @@ struct MaterialBatch
 class Chunk {
 public:
     static const int32_t CHUNK_SIZE = 16;
-    static const int32_t CHUNK_HEIGHT = 32;
+    static const int32_t CHUNK_HEIGHT = 64;
     Chunk(BlockTypeDictionary &blockTypeDict);
 
     virtual ~Chunk();
