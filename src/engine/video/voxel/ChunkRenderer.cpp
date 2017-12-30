@@ -183,7 +183,81 @@ bool ChunkRenderer::posInVisibleRadius(ChunkPos& pos)
            && pos.z >= z1 && pos.z <= z2;
 }
 
+// TODO make circular tile loading instead to save chunks
+// make chunk building incremental over several frames
 void ChunkRenderer::update() {
+    worldToChunk(camera->Position, camChunkPos);
+    chunkToWorld(camChunkPos, worldPos);
+
+    bool did_rebuild = false;
+    auto start = system.getPerformanceCounter();
+    // check if chunks needs to be added, by checking a grid based on the visual radius around the camera
+    // calculate width of a box centered on the camera pos
+    int size = (VISIBLE_RADIUS * 2) + 1;
+    auto m = glm::mat4();
+
+
+    int radius = VISIBLE_RADIUS;
+    for(int z=-radius; z<=radius; z++) {
+        for (int x = -radius; x <= radius; x++) {
+            if (x * x + z * z <= radius * radius)
+            {
+                ChunkPos testpos;
+                glm::vec3 worldpos = {0, 0.5f, 0};
+                testpos.x = camChunkPos.x + x;
+                testpos.z = camChunkPos.z + z;
+                chunkToWorld(testpos, worldpos);
+                auto chunk = findChunkAt(testpos);
+                if(chunk == nullptr)
+                {
+                    did_rebuild = true;
+                    //SDL_Log("No chunk found at pos %d,%d, adding one.", testpos.x, testpos.z);
+                    if(!recycleList.empty())
+                    {
+                        std::shared_ptr<Chunk> nc = recycleList.back();
+                        recycleList.pop_back();
+                        nc->position = worldpos;
+                        nc->rebuild(testpos, terrain);
+                        activeChunks[testpos] = nc;
+                    }
+                    else {
+                        auto nc = std::make_shared<Chunk>(*blockTypeDict);
+                        nc->position = worldpos;
+                        nc->rebuild(testpos, terrain);
+                        activeChunks[testpos] = nc;
+                    }
+                }
+            }
+        }
+    }
+
+    auto end = system.getPerformanceCounter();
+    auto diff = end - start;
+    if(did_rebuild)
+        SDL_Log("Chunk rebuilding took %d ticks (%dms)", diff, diff / (system.getPerformanceFreq()/1000));
+
+    // check if chunks need to be removed
+    for (auto it = activeChunks.cbegin(); it != activeChunks.cend() /* not hoisted */; /* no increment */)
+    {
+        auto tilepos = (*it).first;
+        auto dist = distance(camChunkPos.x, camChunkPos.z, tilepos.x, tilepos.z);
+        //auto visible = posInVisibleRadius(tilepos);
+        if (dist > VISIBLE_RADIUS)
+        {
+            auto chunk = (*it).second;
+            recycleList.push_back(chunk);
+            activeChunks.erase(it++);    // or "it = m.erase(it)" since C++11
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+
+// TODO make circular tile loading instead to save chunks
+// make chunk building incremental over several frames
+void ChunkRenderer::update2() {
     worldToChunk(camera->Position, camChunkPos);
     chunkToWorld(camChunkPos, worldPos);
 

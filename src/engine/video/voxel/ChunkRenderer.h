@@ -23,7 +23,7 @@
 
 class ChunkRenderer : public ILoadTask {
 public:
-    const int VISIBLE_RADIUS = 16;
+    const int VISIBLE_RADIUS = 18;
 
     ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain);
     void render(float screenWidth, float screenHeight, double time);
@@ -31,6 +31,7 @@ public:
     bool load(IGame &game) override;
     bool prepare(IGame &game) override;
     void update();
+    void update2();
     int32_t getActiveChunks();
     ChunkPos camChunkPos;
     glm::vec3 worldPos;

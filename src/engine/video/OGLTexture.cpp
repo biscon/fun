@@ -44,7 +44,7 @@ bool OGLTexture::init(PixelBuffer *pb, bool filtering) {
     else
     {
         // anisotropic filtering
-        float aniso = 8.0f;
+        float aniso = 16.0f;
         glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
 
