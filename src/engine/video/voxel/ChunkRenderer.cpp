@@ -175,27 +175,35 @@ static int distance(int x1, int y1, int x2, int y2)
 
 bool ChunkRenderer::posInVisibleRadius(ChunkPos& pos)
 {
-    auto x1 = camChunkPos.x - VISIBLE_RADIUS;
-    auto x2 = camChunkPos.x + VISIBLE_RADIUS;
-    auto z1 = camChunkPos.z - VISIBLE_RADIUS;
-    auto z2 = camChunkPos.z + VISIBLE_RADIUS;
-    return pos.x >= x1 && pos.x <= x2
-           && pos.z >= z1 && pos.z <= z2;
+    return distance(camChunkPos.x, camChunkPos.z, pos.x, pos.z) <= VISIBLE_RADIUS;
 }
 
-// TODO make chunk building incremental over several frames
+void ChunkRenderer::runIncrementalChunkBuild()
+{
+    int32_t count = 0;
+    while(!buildChunks.empty() && count < CHUNKS_BUILD_PER_FRAME)
+    {
+        auto chunk_it = buildChunks.begin();
+        chunk_it->second->rebuild(chunk_it->first, terrain);
+        activeChunks[chunk_it->first] = chunk_it->second;
+        buildChunks.erase(chunk_it);
+        count++;
+    }
+    //SDL_Log("Rebuild %d chunks this frame", count);
+}
+
 void ChunkRenderer::update() {
     worldToChunk(camera->Position, camChunkPos);
     chunkToWorld(camChunkPos, worldPos);
 
     bool did_rebuild = false;
-    auto start = system.getPerformanceCounter();
     // check if chunks needs to be added, by checking a grid based on the visual radius around the camera
     // calculate width of a box centered on the camera pos
     int size = (VISIBLE_RADIUS * 2) + 1;
     auto m = glm::mat4();
 
-
+    int chunks_allocated = 0;
+    int chunks_recycled = 0;
     int radius = VISIBLE_RADIUS;
     for(int z=-radius; z<=radius; z++) {
         for (int x = -radius; x <= radius; x++) {
@@ -206,105 +214,48 @@ void ChunkRenderer::update() {
                 testpos.x = camChunkPos.x + x;
                 testpos.z = camChunkPos.z + z;
                 chunkToWorld(testpos, worldpos);
-                auto chunk = findChunkAt(testpos);
-                if(chunk == nullptr)
+                auto chunk = findChunkAt(activeChunks, testpos);
+                auto build_chunk = findChunkAt(buildChunks, testpos);
+                if(chunk == nullptr && build_chunk == nullptr)
                 {
                     did_rebuild = true;
                     //SDL_Log("No chunk found at pos %d,%d, adding one.", testpos.x, testpos.z);
                     if(!recycleList.empty())
                     {
+                        chunks_recycled++;
                         std::shared_ptr<Chunk> nc = recycleList.back();
                         recycleList.pop_back();
                         nc->position = worldpos;
-                        nc->rebuild(testpos, terrain);
-                        activeChunks[testpos] = nc;
+                        buildChunks[testpos] = nc;
                     }
                     else {
+                        chunks_allocated++;
                         auto nc = std::make_shared<Chunk>(*blockTypeDict);
                         nc->position = worldpos;
-                        nc->rebuild(testpos, terrain);
-                        activeChunks[testpos] = nc;
+                        buildChunks[testpos] = nc;
                     }
                 }
             }
         }
     }
 
-    auto end = system.getPerformanceCounter();
-    auto diff = end - start;
+    if(!buildChunks.empty())
+    {
+        auto start = system.getPerformanceCounter();
+        runIncrementalChunkBuild();
+        auto end = system.getPerformanceCounter();
+        auto diff = end - start;
+        //SDL_Log("Incremental chunk building took %d ms this frame (%d chunks built)", diff / (system.getPerformanceFreq()/1000), CHUNKS_BUILD_PER_FRAME);
+    }
+
     if(did_rebuild)
-        SDL_Log("Chunk rebuilding took %d ticks (%dms)", diff, diff / (system.getPerformanceFreq()/1000));
+        SDL_Log("Started rebuilding %d chunks. new = %d, recycled = %d", chunks_recycled+chunks_allocated, chunks_allocated, chunks_recycled);
 
     // check if chunks need to be removed
     for (auto it = activeChunks.cbegin(); it != activeChunks.cend() /* not hoisted */; /* no increment */)
     {
         auto tilepos = (*it).first;
-        auto dist = distance(camChunkPos.x, camChunkPos.z, tilepos.x, tilepos.z);
-        //auto visible = posInVisibleRadius(tilepos);
-        if (dist > VISIBLE_RADIUS)
-        {
-            auto chunk = (*it).second;
-            recycleList.push_back(chunk);
-            activeChunks.erase(it++);    // or "it = m.erase(it)" since C++11
-        }
-        else
-        {
-            ++it;
-        }
-    }
-}
-
-// TODO make chunk building incremental over several frames
-void ChunkRenderer::update2() {
-    worldToChunk(camera->Position, camChunkPos);
-    chunkToWorld(camChunkPos, worldPos);
-
-    bool did_rebuild = false;
-    auto start = system.getPerformanceCounter();
-    // check if chunks needs to be added, by checking a grid based on the visual radius around the camera
-    // calculate width of a box centered on the camera pos
-    int size = (VISIBLE_RADIUS * 2) + 1;
-    auto m = glm::mat4();
-    for(int z = 0; z < size; z++)
-    {
-        for(int x = 0; x < size; x++)
-        {
-            ChunkPos testpos;
-            glm::vec3 worldpos = {0, 0.5f, 0};
-            testpos.x = camChunkPos.x + (x - VISIBLE_RADIUS);
-            testpos.z = camChunkPos.z + (z - VISIBLE_RADIUS);
-            chunkToWorld(testpos, worldpos);
-            auto chunk = findChunkAt(testpos);
-            if(chunk == nullptr)
-            {
-                did_rebuild = true;
-                //SDL_Log("No chunk found at pos %d,%d, adding one.", testpos.x, testpos.z);
-                if(!recycleList.empty())
-                {
-                    std::shared_ptr<Chunk> nc = recycleList.back();
-                    recycleList.pop_back();
-                    nc->position = worldpos;
-                    nc->rebuild(testpos, terrain);
-                    activeChunks[testpos] = nc;
-                }
-                else {
-                    auto nc = std::make_shared<Chunk>(*blockTypeDict);
-                    nc->position = worldpos;
-                    nc->rebuild(testpos, terrain);
-                    activeChunks[testpos] = nc;
-                }
-            }
-        }
-    }
-    auto end = system.getPerformanceCounter();
-    auto diff = end - start;
-    if(did_rebuild)
-        SDL_Log("Chunk rebuilding took %d ticks (%dms)", diff, diff / (system.getPerformanceFreq()/1000));
-
-    // check if chunks need to be removed
-    for (auto it = activeChunks.cbegin(); it != activeChunks.cend() /* not hoisted */; /* no increment */)
-    {
-        auto tilepos = (*it).first;
+        //auto dist = distance(camChunkPos.x, camChunkPos.z, tilepos.x, tilepos.z);
         auto visible = posInVisibleRadius(tilepos);
         if (!visible)
         {
@@ -336,9 +287,9 @@ void ChunkRenderer::chunkToWorld(ChunkPos &chunkpos, glm::vec3 &worldpos) {
     worldpos.z = chunkpos.z * Chunk::CHUNK_SIZE;
 }
 
-Chunk *ChunkRenderer::findChunkAt(const ChunkPos &pos) {
-    auto it = activeChunks.find(pos);
-    if(it != activeChunks.end())
+Chunk *ChunkRenderer::findChunkAt(const std::map<ChunkPos, std::shared_ptr<Chunk>>&chunk_map, const ChunkPos &pos) {
+    auto it = chunk_map.find(pos);
+    if(it != chunk_map.end())
         return (*it).second.get();
 
     return nullptr;
@@ -347,16 +298,3 @@ Chunk *ChunkRenderer::findChunkAt(const ChunkPos &pos) {
 int32_t ChunkRenderer::getActiveChunks() {
     return static_cast<int32_t>(activeChunks.size());
 }
-
-/*
-Chunk *ChunkRenderer::findChunkAt(const std::vector<std::shared_ptr<Chunk>> &tilelist, const ChunkPos &pos) {
-    ChunkPos curpos;
-    for(auto &tile : tilelist)
-    {
-        worldToChunk(tile->position, curpos);
-        if(curpos.x == pos.x && curpos.z == pos.z)
-            return tile.get();
-    }
-    return nullptr;
-}
-*/

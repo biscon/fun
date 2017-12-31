@@ -24,6 +24,7 @@
 class ChunkRenderer : public ILoadTask {
 public:
     const int VISIBLE_RADIUS = 16;
+    const int CHUNKS_BUILD_PER_FRAME = 1;
 
     ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain);
     void render(float screenWidth, float screenHeight, double time);
@@ -31,7 +32,6 @@ public:
     bool load(IGame &game) override;
     bool prepare(IGame &game) override;
     void update();
-    void update2();
     int32_t getActiveChunks();
     ChunkPos camChunkPos;
     glm::vec3 worldPos;
@@ -44,16 +44,18 @@ private:
     std::unique_ptr<Shader> lampShader = nullptr;
     std::unique_ptr<BlockTypeDictionary> blockTypeDict;
     std::map<ChunkPos, std::shared_ptr<Chunk>> activeChunks;
+    std::map<ChunkPos, std::shared_ptr<Chunk>> buildChunks;
     std::vector<std::shared_ptr<Chunk>> renderList;
     std::vector<std::shared_ptr<Chunk>> recycleList;
     glm::vec3 lightPos = {0.0f, 2.0f, -6.0f};
 
     void worldToChunk(glm::vec3 &worldpos, ChunkPos &chunkpos);
     void chunkToWorld(ChunkPos &chunkpos, glm::vec3 &worldpos);
-    //Chunk* findChunkAt(const std::vector<std::shared_ptr<Chunk>>& tilelist, const ChunkPos& pos);
-    Chunk* findChunkAt(const ChunkPos& pos);
+    Chunk* findChunkAt(const std::map<ChunkPos, std::shared_ptr<Chunk>>&chunk_map, const ChunkPos& pos);
 
     bool posInVisibleRadius(ChunkPos &pos);
+
+    void runIncrementalChunkBuild();
 };
 
 
