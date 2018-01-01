@@ -184,14 +184,15 @@ void Chunk::rebuild(const ChunkPos& position, const std::shared_ptr<Terrain>& te
 
 void Chunk::draw(const Shader &shader) {
     //SDL_Log("Rendering %d batches", materialBatchMap.size());
-    //mesh->drawRange(shader, 0, mesh->vertices.size());
-    //auto sum = 0;
+    //mesh->drawRange(shader, 0, mesh->vertices.size(), &blockTypeDict.getBlockTypeAt(0).material);
+
     for(auto const& kv : materialBatchMap)
     {
         //sum += kv.second->count;
         //SDL_Log("Rendering batch: blocks = %d, start = %d, count = %d, blockType = %d", kv.second->blocks.size(), kv.second->start, kv.second->count, kv.first);
         mesh->drawRange(shader, kv.second->start, kv.second->count, &blockTypeDict.getBlockTypeAt(kv.first).material);
     }
+
     //SDL_Log("Sum of batch counts = %d, size of mesh = %d", sum, mesh->vertices.size());
 }
 

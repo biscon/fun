@@ -13,6 +13,7 @@
 #include <engine/video/Camera.h>
 #include <engine/video/MaterialDictionary.h>
 #include <engine/asset/ILoadTask.h>
+#include <engine/video/frustrum/FrustumG.h>
 #include <map>
 #include <unordered_map>
 #include "Chunk.h"
@@ -23,7 +24,7 @@
 
 class ChunkRenderer : public ILoadTask {
 public:
-    const int VISIBLE_RADIUS = 16;
+    const int VISIBLE_RADIUS = 18;
     const int CHUNKS_BUILD_PER_FRAME = 1;
 
     ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain);
@@ -33,6 +34,7 @@ public:
     bool prepare(IGame &game) override;
     void update();
     int32_t getActiveChunks();
+    int32_t getRenderedChunks();
     ChunkPos camChunkPos;
     glm::vec3 worldPos;
 
@@ -48,13 +50,13 @@ private:
     std::vector<std::shared_ptr<Chunk>> renderList;
     std::vector<std::shared_ptr<Chunk>> recycleList;
     glm::vec3 lightPos = {0.0f, 2.0f, -6.0f};
+    std::unique_ptr<FrustumG> viewFrustrum;
+    int32_t renderedChunks = 0;
 
     void worldToChunk(glm::vec3 &worldpos, ChunkPos &chunkpos);
     void chunkToWorld(ChunkPos &chunkpos, glm::vec3 &worldpos);
     Chunk* findChunkAt(const std::map<ChunkPos, std::shared_ptr<Chunk>>&chunk_map, const ChunkPos& pos);
-
     bool posInVisibleRadius(ChunkPos &pos);
-
     void runIncrementalChunkBuild();
 };
 

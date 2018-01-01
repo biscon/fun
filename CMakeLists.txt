@@ -122,7 +122,17 @@ set(SOURCE_FILES
         src/engine/video/voxel/HeightMap.h
         src/engine/video/voxel/HeightMap.cpp
         src/engine/video/voxel/Terrain.h
-        src/engine/video/voxel/Terrain.cpp src/engine/video/voxel/ChunkPos.h)
+        src/engine/video/voxel/Terrain.cpp
+        src/engine/video/voxel/ChunkPos.h
+        src/engine/video/frustrum/Vec3.cpp
+        src/engine/video/frustrum/Vec3.h
+        src/engine/video/frustrum/AABox.cpp
+        src/engine/video/frustrum/AABox.h
+        src/engine/video/frustrum/Plane.cpp
+        src/engine/video/frustrum/Plane.h
+        src/engine/video/frustrum/FrustumG.cpp
+        src/engine/video/frustrum/FrustumG.h
+        )
 add_executable(game ${SOURCE_FILES})
 
 target_link_libraries(game ${GLEW_LIBRARY} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY})

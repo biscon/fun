@@ -14,6 +14,8 @@
 #include <engine/video/shaders.h>
 
 ChunkRenderer::ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain) : system(system), camera(camera), terrain(terrain) {
+    viewFrustrum = std::unique_ptr<FrustumG>(new FrustumG());
+
     auto lighting_vs = system.readTextFile("shaders/lit_tile_shader_vs.glsl");
     auto lighting_fs = system.readTextFile("shaders/lit_tile_shader_fs.glsl");
 
@@ -123,35 +125,52 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
     glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), screenWidth / screenHeight, 0.1f, 800.0f);
     glm::mat4 view = camera->GetViewMatrix();
 
+    viewFrustrum->setCamInternals(camera->Zoom, screenWidth / screenHeight, 0.1f, 800.0f);
+
+    Vec3 cam_pos(camera->Position.x, camera->Position.y, camera->Position.z);
+    Vec3 cam_front(camera->Front.x, camera->Front.y, camera->Front.z);
+    Vec3 cam_up(camera->Up.x, camera->Up.y, camera->Up.z);
+    Vec3 cam_dir = cam_pos + cam_front;
+    viewFrustrum->setCamDef(cam_pos, cam_dir, cam_up);
+
     shader->setMat4("projection", projection);
     shader->setMat4("view", view);
 
-    // draw model
-    /*
-    glm::mat4 model_m;
-    model_m = glm::translate(model_m, chunk->position); // translate it down so it's at the center of the scene
-    shader->setMat4("model", model_m);
-    for(int i = 0; i < 1500; i++)
-        chunk->draw(*shader);
-    */
-
+    renderList.clear();
+    AABox chunkbox;
+    float half_chunk_size = (float) Chunk::CHUNK_SIZE/2;
+    float half_chunk_height = (float) Chunk::CHUNK_HEIGHT/2;
+    Vec3 corner;
     for(auto& chunk : activeChunks) {
-        glm::mat4 model_m;
-        model_m = glm::translate(model_m, chunk.second->position);
-        shader->setMat4("model", model_m);
-        chunk.second->draw(*shader);
+        corner.x = chunk.second->position.x;
+        corner.y = chunk.second->position.y;
+        corner.z = chunk.second->position.z;
+
+
+        corner.x -= half_chunk_size;
+        //corner.y -= half_chunk_height;
+        corner.z -= half_chunk_size;
+
+        chunkbox.setBox(corner, Chunk::CHUNK_SIZE, Chunk::CHUNK_HEIGHT, Chunk::CHUNK_SIZE);
+        //SDL_Log("Chunk pos %.2f,%.2f,%.2f", chunk.second->position.x, chunk.second->position.y, chunk.second->position.z);
+        //SDL_Log("Box Corner pos %.2f,%.2f,%.2f, xyz = %.2f,%.2f,%.2f", chunkbox.corner.x, chunkbox.corner.y, chunkbox.corner.z, chunkbox.x, chunkbox.y, chunkbox.z);
+        if(viewFrustrum->boxInFrustum(chunkbox) != FrustumG::OUTSIDE )
+            renderList.push_back(chunk.second);
+        //if(viewFrustrum->pointInFrustum(corner) != FrustumG::OUTSIDE)
+
     }
 
-    /*
-    lampShader->use();
-    lampShader->setMat4("projection", projection);
-    lampShader->setMat4("view", view);
-    model_m = glm::mat4();
-    model_m = glm::translate(model_m, lightPos);
-    model_m = glm::scale(model_m, glm::vec3(0.2f)); // a smaller cube
-    lampShader->setMat4("model", model_m);
-    model->draw(*lampShader);
-    */
+    //exit(-1);
+    renderedChunks = renderList.size();
+    for(auto& chunk : renderList)
+    {
+        glm::mat4 model_m;
+        model_m = glm::translate(model_m, chunk->position);
+        shader->setMat4("model", model_m);
+        chunk->draw(*shader);
+    }
+
+
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 }
@@ -297,4 +316,8 @@ Chunk *ChunkRenderer::findChunkAt(const std::map<ChunkPos, std::shared_ptr<Chunk
 
 int32_t ChunkRenderer::getActiveChunks() {
     return static_cast<int32_t>(activeChunks.size());
+}
+
+int32_t ChunkRenderer::getRenderedChunks() {
+    return renderedChunks;
 }
