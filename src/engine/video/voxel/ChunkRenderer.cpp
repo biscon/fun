@@ -14,7 +14,7 @@
 #include <engine/video/shaders.h>
 
 ChunkRenderer::ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain) : system(system), camera(camera), terrain(terrain) {
-    viewFrustrum = std::unique_ptr<FrustumG>(new FrustumG());
+    viewFrustrum = std::unique_ptr<ViewFrustum>(new ViewFrustum());
 
     auto lighting_vs = system.readTextFile("shaders/lit_tile_shader_vs.glsl");
     auto lighting_fs = system.readTextFile("shaders/lit_tile_shader_fs.glsl");
@@ -26,6 +26,8 @@ ChunkRenderer::ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &cam
     auto lamp_vs = system.readTextFile("shaders/lamp_shader_vs.glsl");
     auto lamp_fs = system.readTextFile("shaders/lamp_shader_fs.glsl");
     lampShader = std::unique_ptr<Shader>(new Shader(lamp_vs.c_str(), lamp_fs.c_str(), nullptr));
+
+    skybox = std::unique_ptr<Skybox>(new Skybox(system, camera));
 
     /*
     materialDict = std::unique_ptr<MaterialDictionary>(new MaterialDictionary());
@@ -58,6 +60,11 @@ ChunkRenderer::ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &cam
     blockTypeDict->createBlockType("stone", "assets/stone_diffuse.png", "assets/stone_specular.png", 32);
     blockTypeDict->createBlockType("grass", "assets/grass_diffuse.png", "assets/grass_specular.png", 4);
     blockTypeDict->createBlockType("water", "assets/water_diffuse.png", "assets/water_specular.png", 64);
+
+    //glm::vec3 color = glm::vec3(135.0f/255.0f, 206.0f/255.0f, 250.0f/255.0f);
+    glm::vec3 color = glm::vec3(0.3294f, 0.92157f, 1.0f);
+    //fog = std::unique_ptr<Fog>(new Fog(color, 0.0075f, true));
+    fog = std::unique_ptr<Fog>(new Fog(color, 0.0125f, true));
 }
 
 void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
@@ -67,9 +74,17 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
+    // view/projection transformations
+    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), screenWidth / screenHeight, 0.1f, 800.0f);
+    glm::mat4 view = camera->GetViewMatrix();
+    viewFrustrum->setCamInternals(camera->Zoom, screenWidth / screenHeight, 0.1f, 800.0f);
+
+    skybox->render(view, projection);
+
     // be sure to activate shader when setting uniforms/drawing objects
     shader->use();
     shader->setVec3("viewPos", camera->Position);
+    fog->applyShader(*shader);
 
     // directional light
     //shader->setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
@@ -121,11 +136,6 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
     shader->setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
     shader->setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
 
-    // view/projection transformations
-    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), screenWidth / screenHeight, 0.1f, 800.0f);
-    glm::mat4 view = camera->GetViewMatrix();
-
-    viewFrustrum->setCamInternals(camera->Zoom, screenWidth / screenHeight, 0.1f, 800.0f);
 
     Vec3 cam_pos(camera->Position.x, camera->Position.y, camera->Position.z);
     Vec3 cam_front(camera->Front.x, camera->Front.y, camera->Front.z);
@@ -154,22 +164,18 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
         chunkbox.setBox(corner, Chunk::CHUNK_SIZE, Chunk::CHUNK_HEIGHT, Chunk::CHUNK_SIZE);
         //SDL_Log("Chunk pos %.2f,%.2f,%.2f", chunk.second->position.x, chunk.second->position.y, chunk.second->position.z);
         //SDL_Log("Box Corner pos %.2f,%.2f,%.2f, xyz = %.2f,%.2f,%.2f", chunkbox.corner.x, chunkbox.corner.y, chunkbox.corner.z, chunkbox.x, chunkbox.y, chunkbox.z);
-        if(viewFrustrum->boxInFrustum(chunkbox) != FrustumG::OUTSIDE )
-            renderList.push_back(chunk.second);
-        //if(viewFrustrum->pointInFrustum(corner) != FrustumG::OUTSIDE)
-
+        if(viewFrustrum->boxInFrustum(chunkbox) != ViewFrustum::OUTSIDE )
+            renderList.push_back(chunk.second.get());
     }
 
-    //exit(-1);
     renderedChunks = renderList.size();
-    for(auto& chunk : renderList)
+    for(auto chunk : renderList)
     {
         glm::mat4 model_m;
         model_m = glm::translate(model_m, chunk->position);
         shader->setMat4("model", model_m);
         chunk->draw(*shader);
     }
-
 
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
@@ -182,6 +188,7 @@ bool ChunkRenderer::load(IGame &game) {
 
 bool ChunkRenderer::prepare(IGame &game) {
     blockTypeDict->prepare(game);
+    skybox->prepare();
     return true;
 }
 

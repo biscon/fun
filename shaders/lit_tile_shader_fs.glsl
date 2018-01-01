@@ -42,6 +42,13 @@ struct SpotLight {
     vec3 specular;
 };
 
+struct Fog
+{
+    int is_active;
+    vec3 color;
+    float density;
+};
+
 #define NR_POINT_LIGHTS 1
 
 in vec3 FragPos;
@@ -53,11 +60,22 @@ uniform DirLight dirLight;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform SpotLight spotLight;
 uniform Material material;
+uniform Fog fog;
 
 // function prototypes
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
+
+vec4 calcFog(vec3 pos, vec4 color, Fog fog)
+{
+    float distance = length(pos)/2;
+    float fogFactor = 1.0 / exp( (distance * fog.density)* (distance * fog.density));
+    fogFactor = clamp( fogFactor, 0.0, 1.0 );
+
+    vec3 resultColor = mix(fog.color, color.xyz, fogFactor);
+    return vec4(resultColor.xyz, color.w);
+}
 
 void main()
 {
@@ -89,6 +107,11 @@ void main()
     //FragColor = texture(material.texture_diffuse1, TexCoords);
     //FragColor.a = 1.0;
     FragColor = vec4(result, 1.0);
+
+    if( fog.is_active == 1)
+    {
+        FragColor = calcFog(viewPos - FragPos, FragColor, fog);
+    }
 
     // apply gamma correction
     //float gamma = 2.2;

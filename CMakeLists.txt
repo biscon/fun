@@ -130,9 +130,9 @@ set(SOURCE_FILES
         src/engine/video/frustrum/AABox.h
         src/engine/video/frustrum/Plane.cpp
         src/engine/video/frustrum/Plane.h
-        src/engine/video/frustrum/FrustumG.cpp
-        src/engine/video/frustrum/FrustumG.h
-        )
+        src/engine/video/frustrum/ViewFrustum.cpp
+        src/engine/video/frustrum/ViewFrustum.h
+        src/engine/video/Fog.h src/engine/video/Skybox.cpp src/engine/video/Skybox.h)
 add_executable(game ${SOURCE_FILES})
 
 target_link_libraries(game ${GLEW_LIBRARY} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY})

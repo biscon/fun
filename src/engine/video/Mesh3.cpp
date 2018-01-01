@@ -121,28 +121,26 @@ void Mesh3::upload()
 void Mesh3::draw(const Shader& shader)
 {
     // set material uniforms
-    if(hasTexcoords) {
-        if (material->diffuseTexture != nullptr) {
-            glActiveTexture(GL_TEXTURE0);
-            shader.setInt("material.texture_diffuse1", 0);
-            glBindTexture(GL_TEXTURE_2D, material->diffuseTexture->tex);
+    if(material != nullptr) {
+        if (hasTexcoords) {
+            if (material->diffuseTexture != nullptr) {
+                glActiveTexture(GL_TEXTURE0);
+                shader.setInt("material.texture_diffuse1", 0);
+                glBindTexture(GL_TEXTURE_2D, material->diffuseTexture->tex);
+            }
+            if (material->specularTexture != nullptr) {
+                glActiveTexture(GL_TEXTURE1);
+                shader.setInt("material.texture_specular1", 1);
+                glBindTexture(GL_TEXTURE_2D, material->specularTexture->tex);
+            }
+        } else {
+            shader.setVec3("material.ambient", material->ambient[0], material->ambient[1], material->ambient[2]);
+            shader.setVec3("material.diffuse", material->diffuse[0], material->diffuse[1], material->diffuse[2]);
+            shader.setVec3("material.specular", material->specular[0], material->specular[1], material->specular[2]);
         }
-        if (material->specularTexture != nullptr) {
-            glActiveTexture(GL_TEXTURE1);
-            shader.setInt("material.texture_specular1", 1);
-            glBindTexture(GL_TEXTURE_2D, material->specularTexture->tex);
-        }
+        glActiveTexture(GL_TEXTURE0);
+        shader.setFloat("material.shininess", material->shininess);
     }
-    else
-    {
-        shader.setVec3("material.ambient", material->ambient[0], material->ambient[1], material->ambient[2]);
-        shader.setVec3("material.diffuse", material->diffuse[0], material->diffuse[1], material->diffuse[2]);
-        shader.setVec3("material.specular", material->specular[0], material->specular[1], material->specular[2]);
-    }
-    glActiveTexture(GL_TEXTURE0);
-
-    shader.setFloat("material.shininess", material->shininess);
-
 
     // draw mesh
     glBindVertexArray(VAO);
@@ -184,6 +182,7 @@ void Mesh3::drawRange(const Shader& shader, int32_t start, int32_t count, Materi
 }
 
 void Mesh3::generateCubeAt(float x, float y, float z) {
+    /*
     vertices.insert(vertices.end(),{
             x-0.5f, y-0.5f, z-0.5f,  0.0f,  0.0f, -1.0f,
             x+0.5f, y-0.5f, z-0.5f,  0.0f,  0.0f, -1.0f,
@@ -226,6 +225,52 @@ void Mesh3::generateCubeAt(float x, float y, float z) {
             x+0.5f, y+0.5f, z+0.5f,  0.0f,  1.0f,  0.0f,
             x-0.5f, y+0.5f, z+0.5f,  0.0f,  1.0f,  0.0f,
             x-0.5f, y+0.5f, z-0.5f,  0.0f,  1.0f,  0.0f
+    });
+    */
+
+    vertices.insert(vertices.end(),{
+            // Back face
+            x-0.5f, y-0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, // Bottom-left
+            x+0.5f, y+0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, // top-right
+            x+0.5f, y-0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, // bottom-right
+            x+0.5f, y+0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, // top-right
+            x-0.5f, y-0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, // bottom-left
+            x-0.5f, y+0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, // top-left
+            // Front face
+            x-0.5f, y-0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, // bottom-left
+            x+0.5f, y-0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, // bottom-right
+            x+0.5f, y+0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, // top-right
+            x+0.5f, y+0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, // top-right
+            x-0.5f, y+0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, // top-left
+            x-0.5f, y-0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, // bottom-left
+            // Left face
+            x-0.5f, y+0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, // top-right
+            x-0.5f, y+0.5f, z-0.5f, -1.0f,  0.0f,  0.0f,  // top-left
+            x-0.5f, y-0.5f, z-0.5f, -1.0f,  0.0f,  0.0f,  // bottom-left
+            x-0.5f, y-0.5f, z-0.5f, -1.0f,  0.0f,  0.0f, // bottom-left
+            x-0.5f, y-0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, // bottom-right
+            x-0.5f, y+0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, // top-right
+            // Right face
+            x+0.5f, y+0.5f, z+0.5f, 1.0f,  0.0f,  0.0f, // top-left
+            x+0.5f, y-0.5f, z-0.5f, 1.0f,  0.0f,  0.0f, // bottom-right
+            x+0.5f, y+0.5f, z-0.5f, 1.0f,  0.0f,  0.0f, // top-right
+            x+0.5f, y-0.5f, z-0.5f, 1.0f,  0.0f,  0.0f, // bottom-right
+            x+0.5f, y+0.5f, z+0.5f, 1.0f,  0.0f,  0.0f, // top-left
+            x+0.5f, y-0.5f, z+0.5f, 1.0f,  0.0f,  0.0f, // bottom-left
+            // Bottom face
+            x-0.5f, y-0.5f, z-0.5f, 0.0f, -1.0f,  0.0f, // top-right
+            x+0.5f, y-0.5f, z-0.5f, 0.0f, -1.0f,  0.0f, // top-left
+            x+0.5f, y-0.5f, z+0.5f, 0.0f, -1.0f,  0.0f, // bottom-left
+            x+0.5f, y-0.5f, z+0.5f, 0.0f, -1.0f,  0.0f, // bottom-left
+            x-0.5f, y-0.5f, z+0.5f, 0.0f, -1.0f,  0.0f, // bottom-right
+            x-0.5f, y-0.5f, z-0.5f, 0.0f, -1.0f,  0.0f, // top-right
+            // Top face
+            x-0.5f, y+0.5f, z-0.5f, 0.0f,  1.0f,  0.0f, // top-left
+            x+0.5f, y+0.5f, z+0.5f, 0.0f,  1.0f,  0.0f, // bottom-right
+            x+0.5f, y+0.5f, z-0.5f, 0.0f,  1.0f,  0.0f, // top-right
+            x+0.5f, y+0.5f, z+0.5f, 0.0f,  1.0f,  0.0f, // bottom-right
+            x-0.5f, y+0.5f, z-0.5f, 0.0f,  1.0f,  0.0f, // top-left
+            x-0.5f, y+0.5f, z+0.5f, 0.0f,  1.0f,  0.0f, // bottom-left
     });
 }
 

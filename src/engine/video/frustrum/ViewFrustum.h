@@ -29,7 +29,7 @@ class AABox;
 
 
 
-class FrustumG 
+class ViewFrustum
 {
 private:
 
@@ -54,8 +54,8 @@ public:
 	float nearD, farD, ratio, angle,tang;
 	float nw,nh,fw,fh;
 
-	FrustumG();
-	~FrustumG();
+	ViewFrustum();
+	~ViewFrustum();
 
 	void setCamInternals(float angle, float ratio, float nearD, float farD);
 	void setCamDef(Vec3 &p, Vec3 &l, Vec3 &u);

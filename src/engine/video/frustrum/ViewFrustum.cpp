@@ -4,7 +4,7 @@
 
   -----------------------------------------------------*/
 
-#include "FrustumG.h"
+#include "ViewFrustum.h"
 #include <math.h>
 #include <SDL_log.h>
 
@@ -12,11 +12,11 @@
 
 
 
-FrustumG::FrustumG() {}
+ViewFrustum::ViewFrustum() {}
 
-FrustumG::~FrustumG() {}
+ViewFrustum::~ViewFrustum() {}
 
-void FrustumG::setCamInternals(float angle, float ratio, float nearD, float farD) {
+void ViewFrustum::setCamInternals(float angle, float ratio, float nearD, float farD) {
 
 	this->ratio = ratio;
 	this->angle = angle;
@@ -33,7 +33,7 @@ void FrustumG::setCamInternals(float angle, float ratio, float nearD, float farD
 }
 
 
-void FrustumG::setCamDef(Vec3 &p, Vec3 &l, Vec3 &u) {
+void ViewFrustum::setCamDef(Vec3 &p, Vec3 &l, Vec3 &u) {
 
 	Vec3 dir,nc,fc,X,Y,Z;
 
@@ -98,7 +98,7 @@ void FrustumG::setCamDef(Vec3 &p, Vec3 &l, Vec3 &u) {
 }
 
 
-int FrustumG::pointInFrustum(Vec3 &p) {
+int ViewFrustum::pointInFrustum(Vec3 &p) {
 
 	int result = INSIDE;
 	for(int i=0; i < 6; i++) {
@@ -112,7 +112,7 @@ int FrustumG::pointInFrustum(Vec3 &p) {
 }
 
 
-int FrustumG::sphereInFrustum(Vec3 &p, float raio) {
+int ViewFrustum::sphereInFrustum(Vec3 &p, float raio) {
 
 	int result = INSIDE;
 	float distance;
@@ -129,7 +129,7 @@ int FrustumG::sphereInFrustum(Vec3 &p, float raio) {
 }
 
 
-int FrustumG::boxInFrustum(AABox &b) {
+int ViewFrustum::boxInFrustum(AABox &b) {
 
 	int result = INSIDE;
 	for(int i=0; i < 6; i++) {
