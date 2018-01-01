@@ -67,13 +67,15 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
-vec4 calcFog(vec3 pos, vec4 color, Fog fog)
+vec4 calcFog(vec3 pos, vec4 color, Fog fog, DirLight dirLight)
 {
+    vec3 fogColor = fog.color * dirLight.diffuse;
+
     float distance = length(pos)/2;
     float fogFactor = 1.0 / exp( (distance * fog.density)* (distance * fog.density));
     fogFactor = clamp( fogFactor, 0.0, 1.0 );
 
-    vec3 resultColor = mix(fog.color, color.xyz, fogFactor);
+    vec3 resultColor = mix(fogColor, color.xyz, fogFactor);
     return vec4(resultColor.xyz, color.w);
 }
 
@@ -110,7 +112,7 @@ void main()
 
     if( fog.is_active == 1)
     {
-        FragColor = calcFog(viewPos - FragPos, FragColor, fog);
+        FragColor = calcFog(viewPos - FragPos, FragColor, fog, dirLight);
     }
 
     // apply gamma correction

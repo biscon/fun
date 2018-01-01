@@ -78,7 +78,7 @@ void Terrain::generate() {
         moistureMap = new HeightMap(size, size);
 
     // generate height map
-    heightMap->generate(128);
+    heightMap->generate(256);
     heightMap->normalize();
     heightMap->applyCircularMask();
 

@@ -26,7 +26,7 @@
 
 class ChunkRenderer : public ILoadTask {
 public:
-    const int VISIBLE_RADIUS = 24;
+    const int VISIBLE_RADIUS = 20;
     const int CHUNKS_BUILD_PER_FRAME = 2;
 
     ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain);
