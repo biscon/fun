@@ -16,8 +16,8 @@
 ChunkRenderer::ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain) : system(system), camera(camera), terrain(terrain) {
     viewFrustrum = std::unique_ptr<ViewFrustum>(new ViewFrustum());
 
-    auto lighting_vs = system.readTextFile("shaders/lit_tile_shader_vs.glsl");
-    auto lighting_fs = system.readTextFile("shaders/lit_tile_shader_fs.glsl");
+    auto lighting_vs = system.readTextFile("shaders/voxel_shader_vs.glsl");
+    auto lighting_fs = system.readTextFile("shaders/voxel_shader_fs.glsl");
 
     //auto lighting_fs = system.readTextFile("shaders/lamp_shader_fs.glsl");
 
@@ -58,13 +58,14 @@ ChunkRenderer::ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &cam
 
     blockTypeDict = std::unique_ptr<BlockTypeDictionary>(new BlockTypeDictionary());
     blockTypeDict->createBlockType("stone", "assets/stone_diffuse.png", "assets/stone_specular.png", 32);
-    blockTypeDict->createBlockType("grass", "assets/grass_diffuse.png", "assets/grass_specular.png", 4);
+    blockTypeDict->createBlockType("grass", "assets/grass_diffuse.png", "assets/grass_specular.png", 8);
     blockTypeDict->createBlockType("water", "assets/water_diffuse.png", "assets/water_specular.png", 64);
 
     //glm::vec3 color = glm::vec3(135.0f/255.0f, 206.0f/255.0f, 250.0f/255.0f);
     glm::vec3 color = glm::vec3(0.3294f, 0.92157f, 1.0f);
     //fog = std::unique_ptr<Fog>(new Fog(color, 0.0075f, true));
-    fog = std::unique_ptr<Fog>(new Fog(color, 0.0125f, true));
+    fog = std::unique_ptr<Fog>(new Fog(color, 0.0035f, true));
+    directionalLight = std::unique_ptr<DirectionalLight>(new DirectionalLight());
 }
 
 void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
@@ -75,66 +76,40 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
     glFrontFace(GL_CCW);
 
     // view/projection transformations
-    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), screenWidth / screenHeight, 0.1f, 800.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), screenWidth / screenHeight, 0.1f, 500.0f);
     glm::mat4 view = camera->GetViewMatrix();
-    viewFrustrum->setCamInternals(camera->Zoom, screenWidth / screenHeight, 0.1f, 800.0f);
+    viewFrustrum->setCamInternals(camera->Zoom, screenWidth / screenHeight, 0.1f, 500.0f);
 
-    skybox->render(view, projection);
+    // update directional light
+    updateDirectionalLight();
+
+    skybox->render(view, projection, directionalLight->intensity);
 
     // be sure to activate shader when setting uniforms/drawing objects
     shader->use();
-    shader->setVec3("viewPos", camera->Position);
+    shader->setVec3("camPos", camera->Position);
+    fog->color = directionalLight->intensity * glm::vec3(0.3294f, 0.92157f, 1.0f);
     fog->applyShader(*shader);
 
+    // ambient light
+    shader->setVec3("ambientLight", 0.15f, 0.15f, 0.15f);
+
     // directional light
-    //shader->setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-    shader->setVec3("dirLight.direction", 0.0f, -1.0f, 0.0f);
-    shader->setVec3("dirLight.ambient", 0.65f, 0.65f, 0.65f);
 
-    /*
-    shader->setVec3("dirLight.diffuse", 0.05f, 0.05f, 0.10f);
-    shader->setVec3("dirLight.specular", 0.0f, 0.0f, 0.0f);
-     */
-    /*
-    shader->setVec3("dirLight.diffuse", 0.25f, 0.25f, 0.25f);
-    shader->setVec3("dirLight.specular", 0.30f, 0.30f, 0.30f);
-    */
+    directionalLight->applyShader(*shader);
 
-    /*
-    shader->setVec3("dirLight.diffuse", 0.3f, 0.3f, 0.3f);
-    shader->setVec3("dirLight.specular", 0.4f, 0.4f, 0.4f);
-    */
-
-    shader->setVec3("dirLight.diffuse", 0.95f, 0.95f, 0.95f);
-    shader->setVec3("dirLight.specular", 0.15f, 0.15f, 0.15f);
-
-
+    // point light
     float radius = 4.0f;
     float camX = sin(0.50f * time) * radius;
     float camZ = cos(0.50f * time) * radius;
     lightPos = glm::vec3(camX, 34.0f, camZ);
-    //lightPos[1] = glm::vec3(sin(0.50f * time) * 10, cos(0.50f * time) * 6, -7.0f);
-    // point light 1
-    shader->setVec3("pointLights[0].position", lightPos);
-    shader->setVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
-    shader->setVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
-    shader->setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
-    shader->setFloat("pointLights[0].constant", 1.0f);
-    //shader->setFloat("pointLights[0].linear", 0.022f);
-    //shader->setFloat("pointLights[0].quadratic", 0.0019f);
-    shader->setFloat("pointLights[0].linear", 0.09);
-    shader->setFloat("pointLights[0].quadratic", 0.032);
-    // spotLight
-    shader->setVec3("spotLight.position", camera->Position);
-    shader->setVec3("spotLight.direction", camera->Front);
-    shader->setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
-    shader->setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
-    shader->setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
-    shader->setFloat("spotLight.constant", 1.0f);
-    shader->setFloat("spotLight.linear", 0.09);
-    shader->setFloat("spotLight.quadratic", 0.032);
-    shader->setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-    shader->setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
+    // point light
+    shader->setVec3("pointLight.position", lightPos);
+    shader->setVec3("pointLight.color", 1.0f, 1.0f, 1.0f);
+    shader->setFloat("pointLight.intensity", 1.0f);
+    shader->setFloat("pointLight.att.constant", 1.0f);
+    shader->setFloat("pointLight.att.linear", 0.09f);
+    shader->setFloat("pointLight.att.exponent", 0.032f);
 
 
     Vec3 cam_pos(camera->Position.x, camera->Position.y, camera->Position.z);
@@ -327,4 +302,35 @@ int32_t ChunkRenderer::getActiveChunks() {
 
 int32_t ChunkRenderer::getRenderedChunks() {
     return renderedChunks;
+}
+
+void ChunkRenderer::updateDirectionalLight() {
+// Update directional light direction, intensity and colour
+
+    if (lightAngle > 90) {
+        lightAngle += 0.25f;
+        directionalLight->intensity = 0;
+        if (lightAngle >= 360) {
+            lightAngle = -90;
+        }
+    } else if (lightAngle <= -80 || lightAngle >= 80) {
+        lightAngle += 0.01f;
+        float factor = 1 - (abs(lightAngle) - 80)/ 10.0f;
+        directionalLight->intensity = factor;
+        directionalLight->color.y = std::max(factor, 0.9f);
+        directionalLight->color.z = std::max(factor, 0.5f);
+    } else {
+        lightAngle += 0.25f;
+        directionalLight->intensity = 1.0f;
+        directionalLight->color.x = 1.0f;
+        directionalLight->color.y = 1.0f;
+        directionalLight->color.z = 1.0f;
+    }
+    double angRad = glm::radians(lightAngle);
+    directionalLight->direction.x = (float) sin(angRad);
+    directionalLight->direction.y = -1.0f * (float) cos(angRad);
+    //directionalLight->intensity = 1.0f;
+    //SDL_Log("Light angle %.2f intensity %.2f", lightAngle, directionalLight->intensity);
+    if(lightAngle > 100)
+        lightAngle = -90;
 }

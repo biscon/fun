@@ -93,9 +93,9 @@ bool Model::loadOBJ() {
         SDL_Log("Processing material %s", mat.name.c_str());
 
         materialDictionary->createMaterial(mat.name,
-                                           glm::vec3(mat.ambient[0], mat.ambient[1], mat.ambient[2]),
-                                           glm::vec3(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2]),
-                                           glm::vec3(mat.specular[0], mat.specular[1], mat.specular[2]),
+                                           glm::vec4(mat.ambient[0], mat.ambient[1], mat.ambient[2], 1.0f),
+                                           glm::vec4(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2], 1.0f),
+                                           glm::vec4(mat.specular[0], mat.specular[1], mat.specular[2], 1.0f),
                                            mat.diffuse_texname, mat.specular_texname, mat.shininess);
 
         SDL_Log("Building submesh %s containing %d vertices", shapes[s].name.c_str(), vertices.size());

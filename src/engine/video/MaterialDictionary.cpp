@@ -5,7 +5,7 @@
 #include <SDL_log.h>
 #include "MaterialDictionary.h"
 
-void MaterialDictionary::createMaterial(std::string name, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular,
+void MaterialDictionary::createMaterial(std::string name, glm::vec4 ambient, glm::vec4 diffuse, glm::vec4 specular,
                                         std::string diffuseMap, std::string specularMap, float shininess) {
     auto material = std::make_shared<Material>();
     material->name = name;

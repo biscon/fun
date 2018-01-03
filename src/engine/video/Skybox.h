@@ -15,7 +15,7 @@
 class Skybox {
 public:
     Skybox(ISystem &system, const std::shared_ptr<Camera> &camera);
-    void render(glm::mat4 view, glm::mat4 projection);
+    void render(glm::mat4 view, glm::mat4 projection, float intensity);
     void prepare();
 
 private:

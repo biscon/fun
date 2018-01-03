@@ -18,6 +18,7 @@
 #include <unordered_map>
 #include <engine/video/Fog.h>
 #include <engine/video/Skybox.h>
+#include <engine/video/DirectionalLight.h>
 #include "Chunk.h"
 #include "BlockTypeDictionary.h"
 #include "Terrain.h"
@@ -26,7 +27,7 @@
 
 class ChunkRenderer : public ILoadTask {
 public:
-    const int VISIBLE_RADIUS = 20;
+    const int VISIBLE_RADIUS = 24;
     const int CHUNKS_BUILD_PER_FRAME = 2;
 
     ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain);
@@ -55,6 +56,8 @@ private:
     std::unique_ptr<ViewFrustum> viewFrustrum;
     std::unique_ptr<Fog> fog;
     std::unique_ptr<Skybox> skybox;
+    std::unique_ptr<DirectionalLight> directionalLight;
+    float lightAngle = -90.0f;
     int32_t renderedChunks = 0;
 
     void worldToChunk(glm::vec3 &worldpos, ChunkPos &chunkpos);
@@ -62,6 +65,7 @@ private:
     Chunk* findChunkAt(const std::map<ChunkPos, std::shared_ptr<Chunk>>&chunk_map, const ChunkPos& pos);
     bool posInVisibleRadius(ChunkPos &pos);
     void runIncrementalChunkBuild();
+    void updateDirectionalLight();
 };
 
 

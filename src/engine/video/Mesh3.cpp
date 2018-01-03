@@ -122,24 +122,7 @@ void Mesh3::draw(const Shader& shader)
 {
     // set material uniforms
     if(material != nullptr) {
-        if (hasTexcoords) {
-            if (material->diffuseTexture != nullptr) {
-                glActiveTexture(GL_TEXTURE0);
-                shader.setInt("material.texture_diffuse1", 0);
-                glBindTexture(GL_TEXTURE_2D, material->diffuseTexture->tex);
-            }
-            if (material->specularTexture != nullptr) {
-                glActiveTexture(GL_TEXTURE1);
-                shader.setInt("material.texture_specular1", 1);
-                glBindTexture(GL_TEXTURE_2D, material->specularTexture->tex);
-            }
-        } else {
-            shader.setVec3("material.ambient", material->ambient[0], material->ambient[1], material->ambient[2]);
-            shader.setVec3("material.diffuse", material->diffuse[0], material->diffuse[1], material->diffuse[2]);
-            shader.setVec3("material.specular", material->specular[0], material->specular[1], material->specular[2]);
-        }
-        glActiveTexture(GL_TEXTURE0);
-        shader.setFloat("material.shininess", material->shininess);
+       material->applyShader(shader);
     }
 
     // draw mesh
@@ -153,28 +136,11 @@ void Mesh3::draw(const Shader& shader)
 
 void Mesh3::drawRange(const Shader& shader, int32_t start, int32_t count, Material* material)
 {
-    // set material uniforms
-    if (hasTexcoords) {
-        if (material->diffuseTexture != nullptr) {
-            glActiveTexture(GL_TEXTURE0);
-            shader.setInt("material.texture_diffuse1", 0);
-            glBindTexture(GL_TEXTURE_2D, material->diffuseTexture->tex);
-            //SDL_Log("Binding diffuse tex %s glId = %d", material->diffuseMap.c_str(), material->diffuseTexture->tex);
-        }
-        if (material->specularTexture != nullptr) {
-            glActiveTexture(GL_TEXTURE1);
-            shader.setInt("material.texture_specular1", 1);
-            glBindTexture(GL_TEXTURE_2D, material->specularTexture->tex);
-            //SDL_Log("Binding specular tex %s glId = %d", material->specularMap.c_str(), material->specularTexture->tex);
-        }
-    } else {
-        shader.setVec3("material.ambient", material->ambient[0], material->ambient[1], material->ambient[2]);
-        shader.setVec3("material.diffuse", material->diffuse[0], material->diffuse[1], material->diffuse[2]);
-        shader.setVec3("material.specular", material->specular[0], material->specular[1], material->specular[2]);
+    if(material != nullptr) {
+        material->applyShader(shader);
+        glActiveTexture(GL_TEXTURE0);
     }
-    glActiveTexture(GL_TEXTURE0);
 
-    shader.setFloat("material.shininess", material->shininess);
     glBindVertexArray(VAO);
     // draw mesh
     glDrawArrays(GL_TRIANGLES, start / vertexSize, count / vertexSize);

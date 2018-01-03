@@ -23,7 +23,7 @@ struct TextureBufferItem
 
 class MaterialDictionary {
 public:
-    void createMaterial(std::string name, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, std::string diffuseMap, std::string specularMap, float shininess);
+    void createMaterial(std::string name, glm::vec4 ambient, glm::vec4 diffuse, glm::vec4 specular, std::string diffuseMap, std::string specularMap, float shininess);
     bool load(std::string basepath);
     bool prepare();
     std::shared_ptr<Material> getMaterial(const std::string& name);

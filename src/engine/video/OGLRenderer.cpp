@@ -26,7 +26,7 @@ bool OGLRenderer::init(uint32 screenWidth, uint32 screenHeight) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
     glEnable(GL_MULTISAMPLE);
 
@@ -42,8 +42,8 @@ bool OGLRenderer::init(uint32 screenWidth, uint32 screenHeight) {
 
     onViewportChanged(realWidth, realHeight);
 
-    //glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    glClearColor(135.0f/255.0f, 206.0f/255.0f, 250.0f/255.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    //glClearColor(135.0f/255.0f, 206.0f/255.0f, 250.0f/255.0f, 1.0f);
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     //glEnable(GL_DEPTH_TEST);

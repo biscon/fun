@@ -71,7 +71,7 @@ vec4 calcFog(vec3 pos, vec4 color, Fog fog, DirLight dirLight)
 {
     vec3 fogColor = fog.color * dirLight.diffuse;
 
-    float distance = length(pos)/2;
+    float distance = length(pos);
     float fogFactor = 1.0 / exp( (distance * fog.density)* (distance * fog.density));
     fogFactor = clamp( fogFactor, 0.0, 1.0 );
 

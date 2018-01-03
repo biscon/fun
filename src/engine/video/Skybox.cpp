@@ -13,7 +13,7 @@ Skybox::Skybox(ISystem &system, const std::shared_ptr<Camera> &camera) : system(
     mesh->generateCubeAt(0,0,0);
 }
 
-void Skybox::render(glm::mat4 view, glm::mat4 projection) {
+void Skybox::render(glm::mat4 view, glm::mat4 projection, float intensity) {
     glm::mat4 model;
     shader->use();
     shader->setMat4("projection", projection);
@@ -21,6 +21,7 @@ void Skybox::render(glm::mat4 view, glm::mat4 projection) {
     view[3][0] = 0.0f;
     view[3][1] = 0.0f;
     view[3][2] = 0.0f;
+    shader->setFloat("intensity", intensity);
     shader->setMat4("view", view);
     shader->setMat4("model", model);
     glDisable(GL_DEPTH_TEST);

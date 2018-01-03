@@ -9,11 +9,10 @@
 #include "Shader.h"
 
 class Fog {
+public:
     glm::vec3 color;
     float density;
     bool active;
-
-public:
     Fog() {
         color = glm::vec3(0,0,0);
         active = false;
