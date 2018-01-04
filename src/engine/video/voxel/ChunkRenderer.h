@@ -28,8 +28,8 @@
 // unique_ptr's on the other hand should optimize to bare pointers
 class ChunkRenderer : public ILoadTask {
 public:
-    const int VISIBLE_RADIUS = 24;
-    const int CHUNKS_BUILD_PER_FRAME = 2;
+    const int VISIBLE_RADIUS = 32;
+    const int CHUNKS_BUILD_PER_FRAME = 4;
 
     ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain);
     void render(float screenWidth, float screenHeight, double time);
@@ -49,7 +49,7 @@ private:
     std::unique_ptr<Shader> shader = nullptr;
     std::unique_ptr<Shader> lampShader = nullptr;
     std::unique_ptr<BlockTypeDictionary> blockTypeDict;
-    // TODO make these into vectors by flattening the x,y,z chunk integer coords or use a proper hashmap (unordered_map), this currently does a binary tree search for each lookup
+    // TODO make these into vectors by flattening the x,z chunk integer coords or use a proper hashmap (unordered_map), this currently does a binary tree search for each lookup
     std::map<ChunkPos, std::shared_ptr<Chunk>> activeChunks;
     std::map<ChunkPos, std::shared_ptr<Chunk>> buildChunks;
     std::vector<Chunk*> renderList;
@@ -68,6 +68,10 @@ private:
     bool posInVisibleRadius(ChunkPos &pos);
     void runIncrementalChunkBuild();
     void updateDirectionalLight();
+    inline int32_t posToIndex(int32_t x, int32_t z)
+    {
+        return z * CHUNK_SIZE + x;
+    }
 };
 
 

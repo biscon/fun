@@ -42,6 +42,9 @@ Chunk::~Chunk() {
 // cache friendly order y,z,x
 Chunk::Chunk(BlockTypeDictionary &blockTypeDict) : blockTypeDict(blockTypeDict) {
 
+    blocks = (Block*) malloc(CHUNK_HEIGHT*CHUNK_SIZE*CHUNK_SIZE*sizeof(Block));
+    memset(blocks, 0, sizeof(blocks));
+    /*
     blocks = new Block**[CHUNK_HEIGHT];
     for(int y = 0; y < CHUNK_HEIGHT; y++)
     {
@@ -51,12 +54,15 @@ Chunk::Chunk(BlockTypeDictionary &blockTypeDict) : blockTypeDict(blockTypeDict) 
             blocks[y][z] = new Block[CHUNK_SIZE];
         }
     }
+    */
     // clear lightmap
     memset(lightMap, 0, sizeof(lightMap));
 }
 
 Chunk::~Chunk() {
     // Delete the blocks
+    free(blocks);
+    /*
     for (int y = 0; y < CHUNK_HEIGHT; ++y)
     {
         for (int z = 0; z < CHUNK_SIZE; ++z)
@@ -67,6 +73,7 @@ Chunk::~Chunk() {
         delete [] blocks[y];
     }
     delete [] blocks;
+    */
 }
 
 /* debug crap
@@ -117,20 +124,21 @@ void Chunk::setupFromTerrain(const ChunkPos& position, const std::shared_ptr<Ter
                 auto map_z = chk_map_z + z - half_chunk_size;
                 auto height = (int) ceil(terrain->getHeightMap()->getSampleWrap(map_x, map_z) * fchunk_height);
 
-                blocks[y][z][x].active = false;
-                blocks[y][z][x].type = BLOCK_GRASS;
+                //SDL_Log("(%d,%d,%d) Index = %d", y, z, x, POS_TO_INDEX(y,z,x));
+                blocks[POS_TO_INDEX(y,z,x)].active = false;
+                blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_GRASS;
                 if(y <= height)
                 {
-                    blocks[y][z][x].active = true;
-                    blocks[y][z][x].type = BLOCK_GRASS;
+                    blocks[POS_TO_INDEX(y,z,x)].active = true;
+                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_GRASS;
                     if(y >= 0 && y <= 8)
-                        blocks[y][z][x].type = BLOCK_STONE;
+                        blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_STONE;
 
                 }
                 if(y > height && y <= 4)
                 {
-                    blocks[y][z][x].active = true;
-                    blocks[y][z][x].type = BLOCK_WATER;
+                    blocks[POS_TO_INDEX(y,z,x)].active = true;
+                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_WATER;
                 }
             }
         }
@@ -169,7 +177,7 @@ void Chunk::rebuild(const ChunkPos& position, const std::shared_ptr<Terrain>& te
             m = glm::translate(m, glm::vec3(0.0f, 0.0f, 1.0f));
             auto z_m = m;
             for(int x = 0; x < CHUNK_SIZE; x++) {
-                Block &block = blocks[y][z][x];
+                Block &block = blocks[POS_TO_INDEX(y,z,x)];
                 if(block.active) {
                     auto pos = z_m * origin;
                     bool should_mesh = false;

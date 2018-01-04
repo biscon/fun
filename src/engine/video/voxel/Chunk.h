@@ -14,6 +14,10 @@
 
 #define CHUNK_SIZE 16
 #define CHUNK_HEIGHT 64
+// flatten coords to index
+// (z * CHUNK_SIZE * CHUNK_HEIGHT) + (y * CHUNK_SIZE) + x
+// (y * CHUNK_SIZE) + (z * CHUNK_SIZE * CHUNK_HEIGHT) + x
+#define POS_TO_INDEX(y,z,x) (y*CHUNK_SIZE)+(z*CHUNK_SIZE*CHUNK_HEIGHT)+x
 
 // TODO optimize this to use Data Oriented Design at some point
 // eg invert so that maerial block stores vectors of members instead of one vector with material blocks
@@ -41,7 +45,8 @@ public:
     void draw(const Shader& shader);
     glm::vec3 position;
     // cache friendly order y,z,x
-    Block*** blocks;
+    //Block*** blocks;
+    Block *blocks;
     unsigned char lightMap[CHUNK_HEIGHT][CHUNK_SIZE][CHUNK_SIZE];
 
 private:
@@ -57,7 +62,7 @@ private:
             return false;
         if(z < 0 || z >= CHUNK_SIZE)
             return false;
-        return blocks[y][z][x].active;
+        return blocks[POS_TO_INDEX(y,z,x)].active;
     }
 
     //void randomizeHeights();
@@ -82,6 +87,15 @@ private:
     inline void setTorchlight(int x, int y, int z, int val) {
         lightMap[y][z][x] = (lightMap[y][z][x] & 0xF0) | val;
     }
+
+    // flatten coords to index
+    /*
+    inline int32_t POS_TO_INDEX(int32_t y, int32_t z, int32_t x)
+    {
+        return (y*CHUNK_SIZE)+(z*CHUNK_SIZE*CHUNK_HEIGHT)+x;
+    }
+     */
+
 };
 
 
