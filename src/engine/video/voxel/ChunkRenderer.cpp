@@ -174,11 +174,6 @@ static int distance(int x1, int y1, int x2, int y2)
     return sqrt(dx*dx + dy*dy);
 }
 
-bool ChunkRenderer::posInVisibleRadius(ChunkPos& pos)
-{
-    return distance(camChunkPos.x, camChunkPos.z, pos.x, pos.z) <= VISIBLE_RADIUS;
-}
-
 void ChunkRenderer::runIncrementalChunkBuild()
 {
     int32_t count = 0;
@@ -186,7 +181,7 @@ void ChunkRenderer::runIncrementalChunkBuild()
     {
         auto chunk_it = buildChunks.begin();
         chunk_it->second->rebuild(chunk_it->first, terrain);
-        activeChunks[chunk_it->first] = chunk_it->second;
+        activeChunks[chunk_it->first] = std::move(chunk_it->second);
         buildChunks.erase(chunk_it);
         count++;
     }
@@ -224,16 +219,15 @@ void ChunkRenderer::update() {
                     if(!recycleList.empty())
                     {
                         chunks_recycled++;
-                        std::shared_ptr<Chunk> nc = recycleList.back();
+                        std::unique_ptr<Chunk> nc = std::move(recycleList.back());
                         recycleList.pop_back();
                         nc->position = worldpos;
-                        buildChunks[testpos] = nc;
+                        buildChunks[testpos] = std::move(nc);
                     }
                     else {
                         chunks_allocated++;
-                        auto nc = std::make_shared<Chunk>(*blockTypeDict);
-                        nc->position = worldpos;
-                        buildChunks[testpos] = nc;
+                        buildChunks[testpos] = std::unique_ptr<Chunk>(new Chunk(*blockTypeDict));
+                        buildChunks[testpos]->position = worldpos;
                     }
                 }
             }
@@ -253,15 +247,14 @@ void ChunkRenderer::update() {
         SDL_Log("Started rebuilding %d chunks. new = %d, recycled = %d", chunks_recycled+chunks_allocated, chunks_allocated, chunks_recycled);
 
     // check if chunks need to be removed
-    for (auto it = activeChunks.cbegin(); it != activeChunks.cend() /* not hoisted */; /* no increment */)
+    for (auto it = activeChunks.begin(); it != activeChunks.end() /* not hoisted */; /* no increment */)
     {
         auto tilepos = (*it).first;
         //auto dist = distance(camChunkPos.x, camChunkPos.z, tilepos.x, tilepos.z);
         auto visible = posInVisibleRadius(tilepos);
         if (!visible)
         {
-            auto chunk = (*it).second;
-            recycleList.push_back(chunk);
+            recycleList.push_back(std::move((*it).second));
             activeChunks.erase(it++);    // or "it = m.erase(it)" since C++11
         }
         else
@@ -286,14 +279,6 @@ void ChunkRenderer::worldToChunk(glm::vec3& worldpos, ChunkPos& chunkpos)
 void ChunkRenderer::chunkToWorld(ChunkPos &chunkpos, glm::vec3 &worldpos) {
     worldpos.x = chunkpos.x * CHUNK_SIZE;
     worldpos.z = chunkpos.z * CHUNK_SIZE;
-}
-
-Chunk *ChunkRenderer::findChunkAt(const std::map<ChunkPos, std::shared_ptr<Chunk>>&chunk_map, const ChunkPos &pos) {
-    auto it = chunk_map.find(pos);
-    if(it != chunk_map.end())
-        return (*it).second.get();
-
-    return nullptr;
 }
 
 int32_t ChunkRenderer::getActiveChunks() {
