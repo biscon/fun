@@ -11,6 +11,7 @@
 #include <gtc/type_ptr.hpp>
 #include <SDL_log.h>
 
+/*
 Chunk::Chunk(BlockTypeDictionary &blockTypeDict) : blockTypeDict(blockTypeDict) {
     blocks = new Block**[CHUNK_SIZE];
     for(int x = 0; x < CHUNK_SIZE; x++)
@@ -33,6 +34,37 @@ Chunk::~Chunk() {
         }
 
         delete [] blocks[x];
+    }
+    delete [] blocks;
+}
+ */
+
+// cache friendly order y,z,x
+Chunk::Chunk(BlockTypeDictionary &blockTypeDict) : blockTypeDict(blockTypeDict) {
+
+    blocks = new Block**[CHUNK_HEIGHT];
+    for(int y = 0; y < CHUNK_HEIGHT; y++)
+    {
+        blocks[y] = new Block*[CHUNK_SIZE];
+        for(int z = 0; z < CHUNK_SIZE; z++)
+        {
+            blocks[y][z] = new Block[CHUNK_SIZE];
+        }
+    }
+    // clear lightmap
+    memset(lightMap, 0, sizeof(lightMap));
+}
+
+Chunk::~Chunk() {
+    // Delete the blocks
+    for (int y = 0; y < CHUNK_HEIGHT; ++y)
+    {
+        for (int z = 0; z < CHUNK_SIZE; ++z)
+        {
+            delete [] blocks[y][z];
+        }
+
+        delete [] blocks[y];
     }
     delete [] blocks;
 }
@@ -60,6 +92,7 @@ void Chunk::randomizeHeights()
     }
 }
 
+// cache friendly order y,z,x
 void Chunk::setupFromTerrain(const ChunkPos& position, const std::shared_ptr<Terrain>& terrain)
 {
     int half_terrain_size = terrain->getHeightMap()->getWidth()/2;
@@ -71,37 +104,42 @@ void Chunk::setupFromTerrain(const ChunkPos& position, const std::shared_ptr<Ter
     auto chk_map_z = (position.z * CHUNK_SIZE) + half_terrain_size;
     //SDL_Log("Chunkpos %d,%d mapped to chunk map pos %d,%d", position.x, position.z, chk_map_x, chk_map_z);
 
-    for(int z = 0; z < CHUNK_SIZE; z++)
+    for(int y = 0; y < CHUNK_HEIGHT; y++)
     {
-        for(int x = 0; x < CHUNK_SIZE; x++)
+        for(int z = 0; z < CHUNK_SIZE; z++)
         {
-            auto map_x = chk_map_x + x - half_chunk_size;
-            auto map_z = chk_map_z + z - half_chunk_size;
-            auto height = (int) ceil(terrain->getHeightMap()->getSampleWrap(map_x, map_z) * fchunk_height);
             //SDL_Log("Sampled height %d at map pos %d,%d", height, map_x, map_z);
-            for(int y = 0; y < CHUNK_HEIGHT; y++)
+            for(int x = 0; x < CHUNK_SIZE; x++)
             {
-                blocks[x][y][z].active = false;
-                blocks[x][y][z].type = Block::GRASS;
+                auto map_x = chk_map_x + x - half_chunk_size;
+                auto map_z = chk_map_z + z - half_chunk_size;
+                auto height = (int) ceil(terrain->getHeightMap()->getSampleWrap(map_x, map_z) * fchunk_height);
+
+                blocks[y][z][x].active = false;
+                blocks[y][z][x].type = Block::GRASS;
                 if(y <= height)
                 {
-                    blocks[x][y][z].active = true;
-                    blocks[x][y][z].type = Block::GRASS;
+                    blocks[y][z][x].active = true;
+                    blocks[y][z][x].type = Block::GRASS;
                     if(y >= 0 && y <= 8)
-                        blocks[x][y][z].type = Block::STONE;
+                        blocks[y][z][x].type = Block::STONE;
 
                 }
                 if(y > height && y <= 4)
                 {
-                    blocks[x][y][z].active = true;
-                    blocks[x][y][z].type = Block::WATER;
+                    blocks[y][z][x].active = true;
+                    blocks[y][z][x].type = Block::WATER;
                 }
             }
         }
     }
 }
 
+// cache friendly order y,z,x
 void Chunk::rebuild(const ChunkPos& position, const std::shared_ptr<Terrain>& terrain) {
+    // clear lightmap
+    memset(lightMap, 0, sizeof(lightMap));
+
     bool first_build = false;
     if(mesh == nullptr) {
         first_build = true;
@@ -121,18 +159,17 @@ void Chunk::rebuild(const ChunkPos& position, const std::shared_ptr<Terrain>& te
     auto m = glm::mat4();
     auto origin = glm::vec4(0,0,0,1);
     m = glm::translate(m, glm::vec3(-0.5*CHUNK_SIZE, 0.5f, -0.5*CHUNK_SIZE));
-    for(int z = 0; z < CHUNK_SIZE; z++)
+    for(int y = 0; y < CHUNK_HEIGHT; y++)
     {
         glm::mat4 old = m;
-        for(int x = 0; x < CHUNK_SIZE; x++)
+        for(int z = 0; z < CHUNK_SIZE; z++)
         {
-            m = glm::translate(m, glm::vec3(1.0f, 0.0f, 0.0f));
-            auto y_m = m;
-            for(int y = 0; y < CHUNK_HEIGHT; y++) {
-                Block &block = blocks[x][y][z];
+            m = glm::translate(m, glm::vec3(0.0f, 0.0f, 1.0f));
+            auto z_m = m;
+            for(int x = 0; x < CHUNK_SIZE; x++) {
+                Block &block = blocks[y][z][x];
                 if(block.active) {
-                    //auto blockType = blockTypeDict.getBlockTypeAt(block.type);
-                    auto pos = y_m * origin;
+                    auto pos = z_m * origin;
                     bool should_mesh = false;
 
                     // Check if each of the cubes side is not active, if then we need to mesh it
@@ -155,12 +192,12 @@ void Chunk::rebuild(const ChunkPos& position, const std::shared_ptr<Terrain>& te
                             batch->second->blocks.emplace_back(pos.x, pos.y, pos.z);
                     }
                 }
-                y_m = glm::translate(y_m, glm::vec3(0.0f, 1.0f, 0.0f));
+                z_m = glm::translate(z_m, glm::vec3(1.0f, 0.0f, 0.0f));
             }
             //SDL_Log("Generated cube at %.2f,%.2f,%.2f", pos.x, pos.y, pos.z);
         }
         m = old;
-        m = glm::translate(m, glm::vec3(0.0f, 0.0f, 1.0f));
+        m = glm::translate(m, glm::vec3(0.0f, 1.0f, 0.0f));
     }
     UVRect uvRect;
     uvRect.left = 0.0f;
@@ -196,6 +233,7 @@ void Chunk::draw(const Shader &shader) {
     //SDL_Log("Sum of batch counts = %d, size of mesh = %d", sum, mesh->vertices.size());
 }
 
+// cache friendly order y,z,x
 bool Chunk::isBlockActiveAt(int32_t x, int32_t y, int32_t z)
 {
     if(x < 0 || x >= CHUNK_SIZE)
@@ -204,5 +242,5 @@ bool Chunk::isBlockActiveAt(int32_t x, int32_t y, int32_t z)
         return false;
     if(z < 0 || z >= CHUNK_SIZE)
         return false;
-    return blocks[x][y][z].active;
+    return blocks[y][z][x].active;
 }

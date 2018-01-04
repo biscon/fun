@@ -38,7 +38,9 @@ public:
     void rebuild(const ChunkPos& position, const std::shared_ptr<Terrain>& terrain);
     void draw(const Shader& shader);
     glm::vec3 position;
+    // cache friendly order y,z,x
     Block*** blocks;
+    unsigned char lightMap[CHUNK_HEIGHT][CHUNK_SIZE][CHUNK_SIZE];
 
 private:
     BlockTypeDictionary& blockTypeDict;
@@ -46,10 +48,28 @@ private:
     std::map<int32_t, std::unique_ptr<MaterialBatch>> materialBatchMap;
 
     bool isBlockActiveAt(int32_t x, int32_t y, int32_t z);
-
     void randomizeHeights();
-
     void setupFromTerrain(const ChunkPos &position, const std::shared_ptr<Terrain> &terrain);
+
+    // Get the bits XXXX0000
+    inline int getSunlight(int x, int y, int z) {
+        return (lightMap[y][z][x] >> 4) & 0xF;
+    }
+
+    // Set the bits XXXX0000
+    inline void setSunlight(int x, int y, int z, int val) {
+        lightMap[y][z][x] = (lightMap[y][z][x] & 0xF) | (val << 4);
+    }
+
+    // Get the bits 0000XXXX
+    inline int getTorchlight(int x, int y, int z) {
+        return lightMap[y][z][x] & 0xF;
+    }
+
+    // Set the bits 0000XXXX
+    inline void setTorchlight(int x, int y, int z, int val) {
+        lightMap[y][z][x] = (lightMap[y][z][x] & 0xF0) | val;
+    }
 };
 
 
