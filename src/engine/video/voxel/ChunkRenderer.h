@@ -24,7 +24,8 @@
 #include "Terrain.h"
 #include "ChunkPos.h"
 
-
+// Do not copy shared_ptr's in inner loops (they incur reference and synchronization overhead)
+// unique_ptr's on the other hand should optimize to bare pointers
 class ChunkRenderer : public ILoadTask {
 public:
     const int VISIBLE_RADIUS = 24;
