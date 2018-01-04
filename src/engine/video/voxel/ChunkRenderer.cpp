@@ -123,8 +123,8 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
 
     renderList.clear();
     AABox chunkbox;
-    float half_chunk_size = (float) Chunk::CHUNK_SIZE/2;
-    float half_chunk_height = (float) Chunk::CHUNK_HEIGHT/2;
+    float half_chunk_size = (float) CHUNK_SIZE/2;
+    float half_chunk_height = (float) CHUNK_HEIGHT/2;
     Vec3 corner;
     for(auto& chunk : activeChunks) {
         corner.x = chunk.second->position.x;
@@ -136,7 +136,7 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
         //corner.y -= half_chunk_height;
         corner.z -= half_chunk_size;
 
-        chunkbox.setBox(corner, Chunk::CHUNK_SIZE, Chunk::CHUNK_HEIGHT, Chunk::CHUNK_SIZE);
+        chunkbox.setBox(corner, CHUNK_SIZE, CHUNK_HEIGHT, CHUNK_SIZE);
         //SDL_Log("Chunk pos %.2f,%.2f,%.2f", chunk.second->position.x, chunk.second->position.y, chunk.second->position.z);
         //SDL_Log("Box Corner pos %.2f,%.2f,%.2f, xyz = %.2f,%.2f,%.2f", chunkbox.corner.x, chunkbox.corner.y, chunkbox.corner.z, chunkbox.x, chunkbox.y, chunkbox.z);
         if(viewFrustrum->boxInFrustum(chunkbox) != ViewFrustum::OUTSIDE )
@@ -273,19 +273,19 @@ void ChunkRenderer::update() {
 
 void ChunkRenderer::worldToChunk(glm::vec3& worldpos, ChunkPos& chunkpos)
 {
-    auto xoffset = (float) Chunk::CHUNK_SIZE/2;
-    auto zoffset = (float) Chunk::CHUNK_SIZE/2;
+    auto xoffset = (float) CHUNK_SIZE/2;
+    auto zoffset = (float) CHUNK_SIZE/2;
     if(worldpos.x < 0)
         xoffset *= -1;
     if(worldpos.z < 0)
         zoffset *= -1;
-    chunkpos.x = (int) ((worldpos.x + xoffset) / (float) Chunk::CHUNK_SIZE);
-    chunkpos.z = (int) ((worldpos.z + zoffset) / (float) Chunk::CHUNK_SIZE);
+    chunkpos.x = (int) ((worldpos.x + xoffset) / (float) CHUNK_SIZE);
+    chunkpos.z = (int) ((worldpos.z + zoffset) / (float) CHUNK_SIZE);
 }
 
 void ChunkRenderer::chunkToWorld(ChunkPos &chunkpos, glm::vec3 &worldpos) {
-    worldpos.x = chunkpos.x * Chunk::CHUNK_SIZE;
-    worldpos.z = chunkpos.z * Chunk::CHUNK_SIZE;
+    worldpos.x = chunkpos.x * CHUNK_SIZE;
+    worldpos.z = chunkpos.z * CHUNK_SIZE;
 }
 
 Chunk *ChunkRenderer::findChunkAt(const std::map<ChunkPos, std::shared_ptr<Chunk>>&chunk_map, const ChunkPos &pos) {

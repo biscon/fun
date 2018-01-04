@@ -1,7 +1,6 @@
 //
 // Created by bison on 26-12-2017.
 //
-
 #ifndef GAME_TILECHUNK_H
 #define GAME_TILECHUNK_H
 
@@ -13,6 +12,11 @@
 #include "ChunkPos.h"
 #include "Terrain.h"
 
+#define CHUNK_SIZE 16
+#define CHUNK_HEIGHT 64
+
+// TODO optimize this to use Data Oriented Design at some point
+// eg invert so that maerial block stores vectors of members instead of one vector with material blocks
 struct MaterialBlock
 {
     float x,y,z;
@@ -29,8 +33,6 @@ struct MaterialBatch
 
 class Chunk {
 public:
-    static const int32_t CHUNK_SIZE = 16;
-    static const int32_t CHUNK_HEIGHT = 64;
     Chunk(BlockTypeDictionary &blockTypeDict);
 
     virtual ~Chunk();
@@ -47,8 +49,18 @@ private:
     std::unique_ptr<Mesh3> mesh;
     std::map<int32_t, std::unique_ptr<MaterialBatch>> materialBatchMap;
 
-    bool isBlockActiveAt(int32_t x, int32_t y, int32_t z);
-    void randomizeHeights();
+    inline bool isBlockActiveAt(int32_t x, int32_t y, int32_t z)
+    {
+        if(x < 0 || x >= CHUNK_SIZE)
+            return false;
+        if(y < 0 || y >= CHUNK_HEIGHT)
+            return false;
+        if(z < 0 || z >= CHUNK_SIZE)
+            return false;
+        return blocks[y][z][x].active;
+    }
+
+    //void randomizeHeights();
     void setupFromTerrain(const ChunkPos &position, const std::shared_ptr<Terrain> &terrain);
 
     // Get the bits XXXX0000

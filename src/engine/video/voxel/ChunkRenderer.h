@@ -48,6 +48,7 @@ private:
     std::unique_ptr<Shader> shader = nullptr;
     std::unique_ptr<Shader> lampShader = nullptr;
     std::unique_ptr<BlockTypeDictionary> blockTypeDict;
+    // TODO make these into vectors by flattening the x,y,z chunk integer coords or use a proper hashmap (unordered_map), this currently does a binary tree search for each lookup
     std::map<ChunkPos, std::shared_ptr<Chunk>> activeChunks;
     std::map<ChunkPos, std::shared_ptr<Chunk>> buildChunks;
     std::vector<Chunk*> renderList;

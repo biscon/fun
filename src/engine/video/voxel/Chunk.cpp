@@ -69,6 +69,7 @@ Chunk::~Chunk() {
     delete [] blocks;
 }
 
+/* debug crap
 void Chunk::randomizeHeights()
 {
     for(int z = 0; z < CHUNK_SIZE; z++)
@@ -91,6 +92,7 @@ void Chunk::randomizeHeights()
         }
     }
 }
+*/
 
 // cache friendly order y,z,x
 void Chunk::setupFromTerrain(const ChunkPos& position, const std::shared_ptr<Terrain>& terrain)
@@ -116,19 +118,19 @@ void Chunk::setupFromTerrain(const ChunkPos& position, const std::shared_ptr<Ter
                 auto height = (int) ceil(terrain->getHeightMap()->getSampleWrap(map_x, map_z) * fchunk_height);
 
                 blocks[y][z][x].active = false;
-                blocks[y][z][x].type = Block::GRASS;
+                blocks[y][z][x].type = BLOCK_GRASS;
                 if(y <= height)
                 {
                     blocks[y][z][x].active = true;
-                    blocks[y][z][x].type = Block::GRASS;
+                    blocks[y][z][x].type = BLOCK_GRASS;
                     if(y >= 0 && y <= 8)
-                        blocks[y][z][x].type = Block::STONE;
+                        blocks[y][z][x].type = BLOCK_STONE;
 
                 }
                 if(y > height && y <= 4)
                 {
                     blocks[y][z][x].active = true;
-                    blocks[y][z][x].type = Block::WATER;
+                    blocks[y][z][x].type = BLOCK_WATER;
                 }
             }
         }
@@ -233,14 +235,3 @@ void Chunk::draw(const Shader &shader) {
     //SDL_Log("Sum of batch counts = %d, size of mesh = %d", sum, mesh->vertices.size());
 }
 
-// cache friendly order y,z,x
-bool Chunk::isBlockActiveAt(int32_t x, int32_t y, int32_t z)
-{
-    if(x < 0 || x >= CHUNK_SIZE)
-        return false;
-    if(y < 0 || y >= CHUNK_HEIGHT)
-        return false;
-    if(z < 0 || z >= CHUNK_SIZE)
-        return false;
-    return blocks[y][z][x].active;
-}

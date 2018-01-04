@@ -21,14 +21,20 @@ bool OGLRenderer::init(uint32 screenWidth, uint32 screenHeight) {
     realHeight = screenHeight;
 
     SDL_Init(SDL_INIT_VIDEO);
+    // request a GL context 3.3 core profile
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    // stencil size 8, so far we don't use it
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+    // request 4x MSAA
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
+    // this crash on osx immediately for some reason
+#ifdef __WIN32__
     glEnable(GL_MULTISAMPLE);
+#endif
 
     window = SDL_CreateWindow("OpenGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screenWidth, screenHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE );
     context = SDL_GL_CreateContext(window);
