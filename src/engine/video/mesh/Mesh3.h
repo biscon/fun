@@ -35,8 +35,7 @@ public:
     void generateTexturedCubeAt(float x, float y, float z, UVRect& r);
 
     void clear();
-
-
+    
     /*  Mesh Data  */
     std::vector<float> vertices;
     //std::vector<float> cube;
