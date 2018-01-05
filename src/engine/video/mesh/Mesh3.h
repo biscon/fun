@@ -35,7 +35,7 @@ public:
     void generateTexturedCubeAt(float x, float y, float z, UVRect& r);
 
     void clear();
-    
+
     /*  Mesh Data  */
     std::vector<float> vertices;
     //std::vector<float> cube;
@@ -47,6 +47,11 @@ public:
     bool hasNormals = true;
     bool hasTexcoords = false;
     MeshUpdateType type = MeshUpdateType::STATIC;
+
+    inline size_t getMeshSizeBytes()
+    {
+        return vertices.size() * sizeof(float);
+    }
 
 private:
     void init();

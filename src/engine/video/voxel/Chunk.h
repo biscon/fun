@@ -43,9 +43,13 @@ public:
     void draw(const Shader& shader);
     glm::vec3 position;
     // cache friendly order y,z,x
-    //Block*** blocks;
     Block *blocks;
     unsigned char lightMap[CHUNK_HEIGHT][CHUNK_SIZE][CHUNK_SIZE];
+
+    inline size_t getMeshSizeBytes()
+    {
+        return mesh->getMeshSizeBytes();
+    }
 
 private:
     BlockTypeDictionary& blockTypeDict;

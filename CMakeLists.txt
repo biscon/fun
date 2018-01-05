@@ -102,6 +102,8 @@ set(SOURCE_FILES
         src/engine/video/mesh/Mesh2.h
         src/engine/video/mesh/Mesh3.cpp
         src/engine/video/mesh/Mesh3.h
+        src/engine/video/mesh/BlockMesh.cpp
+        src/engine/video/mesh/BlockMesh.h
         src/engine/video/model/Model.cpp
         src/engine/video/model/Model.h
         src/engine/video/shader/Material.h

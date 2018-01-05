@@ -13,9 +13,10 @@
 #include <cmath>
 #include <engine/video/shader/shaders.h>
 
-ChunkRenderer::ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain) : system(system), camera(camera), terrain(terrain) {
+ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain) : game(game), camera(camera), terrain(terrain) {
     viewFrustrum = std::unique_ptr<ViewFrustum>(new ViewFrustum());
 
+    auto& system = *game.getSystem();
     auto lighting_vs = system.readTextFile("shaders/voxel_shader_vs.glsl");
     auto lighting_fs = system.readTextFile("shaders/voxel_shader_fs.glsl");
 
@@ -81,7 +82,7 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
     viewFrustrum->setCamInternals(camera->Zoom, screenWidth / screenHeight, 0.1f, 500.0f);
 
     // update directional light
-    updateDirectionalLight();
+    updateDirectionalLight((float) game.getDelta());
 
     skybox->render(view, projection, directionalLight->intensity);
 
@@ -261,9 +262,9 @@ void ChunkRenderer::update() {
 
     if(!buildChunks.empty())
     {
-        auto start = system.getPerformanceCounter();
+        auto start = game.getSystem()->getPerformanceCounter();
         runIncrementalChunkBuild();
-        auto end = system.getPerformanceCounter();
+        auto end = game.getSystem()->getPerformanceCounter();
         auto diff = end - start;
         //SDL_Log("Incremental chunk building took %d ms this frame (%d chunks built)", diff / (system.getPerformanceFreq()/1000), CHUNKS_BUILD_PER_FRAME);
     }
@@ -271,6 +272,7 @@ void ChunkRenderer::update() {
     if(did_rebuild)
         SDL_Log("Started rebuilding %d chunks. new = %d, recycled = %d", chunks_recycled+chunks_allocated, chunks_allocated, chunks_recycled);
 
+    totalMeshSizeBytes = 0;
     // check if chunks need to be removed
     for (auto it = activeChunks.begin(); it != activeChunks.end() /* not hoisted */; /* no increment */)
     {
@@ -284,6 +286,7 @@ void ChunkRenderer::update() {
         }
         else
         {
+            totalMeshSizeBytes += (*it).second->getMeshSizeBytes();
             ++it;
         }
     }
@@ -314,23 +317,24 @@ i32 ChunkRenderer::getRenderedChunks() {
     return renderedChunks;
 }
 
-void ChunkRenderer::updateDirectionalLight() {
+void ChunkRenderer::updateDirectionalLight(float delta) {
 // Update directional light direction, intensity and colour
-
+    float fast = 2.0f;
+    float slow = 1.0f;
     if (lightAngle > 90) {
-        lightAngle += 0.25f;
+        lightAngle += fast * delta;
         directionalLight->intensity = 0;
         if (lightAngle >= 360) {
             lightAngle = -90;
         }
     } else if (lightAngle <= -80 || lightAngle >= 80) {
-        lightAngle += 0.01f;
+        lightAngle += slow * delta;
         float factor = 1 - (abs(lightAngle) - 80)/ 10.0f;
         directionalLight->intensity = factor;
         directionalLight->color.y = std::max(factor, 0.9f);
         directionalLight->color.z = std::max(factor, 0.5f);
     } else {
-        lightAngle += 0.25f;
+        lightAngle += fast + delta;
         directionalLight->intensity = 1.0f;
         directionalLight->color.x = 1.0f;
         directionalLight->color.y = 1.0f;
