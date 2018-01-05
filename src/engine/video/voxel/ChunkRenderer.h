@@ -33,9 +33,9 @@
 // unique_ptr's on the other hand should optimize to bare pointers
 class ChunkRenderer : public ILoadTask {
 public:
-    const int VISIBLE_RADIUS = 16;
-    const int CHUNKS_SETUP_PER_FRAME = 4;
-    const int CHUNKS_BUILD_PER_FRAME = 4;
+    const int VISIBLE_RADIUS = 24;
+    const int CHUNKS_SETUP_PER_FRAME = 2;
+    const int CHUNKS_BUILD_PER_FRAME = 2;
 
     ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain);
     void render(float screenWidth, float screenHeight, double time);
