@@ -17,6 +17,8 @@
 #include "Material.h"
 #include "TextureAtlas.h"
 
+// make use indexed rendering
+
 class Mesh3 {
 public:
     Mesh3();

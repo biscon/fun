@@ -176,14 +176,33 @@ static int distance(int x1, int y1, int x2, int y2)
 
 void ChunkRenderer::runIncrementalChunkBuild()
 {
-    int32_t count = 0;
-    while(!buildChunks.empty() && count < CHUNKS_BUILD_PER_FRAME)
+    if(buildStage == CHUNK_STAGE_SETUP)
     {
-        auto chunk_it = buildChunks.begin();
-        chunk_it->second->rebuild(chunk_it->first, terrain);
-        activeChunks[chunk_it->first] = std::move(chunk_it->second);
-        buildChunks.erase(chunk_it);
-        count++;
+        for(int i = 0; i < CHUNKS_SETUP_PER_FRAME; i++)
+        {
+            if(setupIterator == buildChunks.end())
+            {
+                buildStage = CHUNK_STAGE_BUILD;
+                return;
+            }
+            else
+            {
+                setupIterator->second->setupFromTerrain(setupIterator->first, terrain);
+            }
+            setupIterator++;
+        }
+    }
+    if(buildStage == CHUNK_STAGE_BUILD)
+    {
+        int32_t count = 0;
+        while(!buildChunks.empty() && count < CHUNKS_BUILD_PER_FRAME)
+        {
+            auto chunk_it = buildChunks.begin();
+            chunk_it->second->rebuild(chunk_it->first, terrain);
+            activeChunks[chunk_it->first] = std::move(chunk_it->second);
+            buildChunks.erase(chunk_it);
+            count++;
+        }
     }
     //SDL_Log("Rebuild %d chunks this frame", count);
 }
@@ -232,6 +251,12 @@ void ChunkRenderer::update() {
                 }
             }
         }
+    }
+
+    if(did_rebuild)
+    {
+        buildStage = CHUNK_STAGE_SETUP;
+        setupIterator = buildChunks.begin();
     }
 
     if(!buildChunks.empty())

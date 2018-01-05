@@ -19,8 +19,6 @@
 // (y * CHUNK_SIZE) + (z * CHUNK_SIZE * CHUNK_HEIGHT) + x
 #define POS_TO_INDEX(y,z,x) (y*CHUNK_SIZE)+(z*CHUNK_SIZE*CHUNK_HEIGHT)+x
 
-// TODO optimize this to use Data Oriented Design at some point
-// eg invert so that maerial block stores vectors of members instead of one vector with material blocks
 struct MaterialBlock
 {
     float x,y,z;
@@ -40,7 +38,7 @@ public:
     Chunk(BlockTypeDictionary &blockTypeDict);
 
     virtual ~Chunk();
-
+    void setupFromTerrain(const ChunkPos &position, const std::shared_ptr<Terrain> &terrain);
     void rebuild(const ChunkPos& position, const std::shared_ptr<Terrain>& terrain);
     void draw(const Shader& shader);
     glm::vec3 position;
@@ -64,9 +62,6 @@ private:
             return false;
         return blocks[POS_TO_INDEX(y,z,x)].active;
     }
-
-    //void randomizeHeights();
-    void setupFromTerrain(const ChunkPos &position, const std::shared_ptr<Terrain> &terrain);
 
     // Get the bits XXXX0000
     inline int getSunlight(int x, int y, int z) {

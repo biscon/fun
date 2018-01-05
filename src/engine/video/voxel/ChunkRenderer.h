@@ -24,12 +24,18 @@
 #include "Terrain.h"
 #include "ChunkPos.h"
 
+#define CHUNK_STAGE_SETUP 0
+#define CHUNK_STAGE_BUILD 1
+
+// TODO refactor parts into a chunkmap object to pass to individual chunks and to break up this big class, allow chunks to query their neighbours
+
 // Do not copy shared_ptr's in inner loops (they incur reference and synchronization overhead)
 // unique_ptr's on the other hand should optimize to bare pointers
 class ChunkRenderer : public ILoadTask {
 public:
-    const int VISIBLE_RADIUS = 32;
-    const int CHUNKS_BUILD_PER_FRAME = 2;
+    const int VISIBLE_RADIUS = 24;
+    const int CHUNKS_SETUP_PER_FRAME = 4;
+    const int CHUNKS_BUILD_PER_FRAME = 4;
 
     ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain);
     void render(float screenWidth, float screenHeight, double time);
@@ -60,6 +66,9 @@ private:
     std::unique_ptr<DirectionalLight> directionalLight;
     float lightAngle = -90.0f;
     int32_t renderedChunks = 0;
+
+    int32_t buildStage = 0;
+    std::map<ChunkPos, std::unique_ptr<Chunk>>::iterator setupIterator;
 
     void worldToChunk(glm::vec3 &worldpos, ChunkPos &chunkpos);
     void chunkToWorld(ChunkPos &chunkpos, glm::vec3 &worldpos);

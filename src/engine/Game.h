@@ -54,7 +54,7 @@ private:
     std::shared_ptr<IInput> input;
     std::shared_ptr<IAssetLoader> assetLoader;
     std::shared_ptr<ISystem> system;
-    const uint32 TARGET_FPS = 60;
+    const uint32 TARGET_FPS = 100;
     const uint32 MAX_FRAMESKIP = 10;
     uint64 skipTicks;
     bool shouldQuit;

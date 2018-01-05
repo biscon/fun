@@ -299,6 +299,20 @@ void Mesh3::generateTexturedCubeAt(float x, float y, float z, UVRect &r) {
     });
 }
 
+/*
+vertices.insert(vertices.end(), {
+            left, top, 1.0f, 1.0f, 1.0f, 1.0f, uvRect.left, uvRect.top,
+            right, top, 1.0f, 1.0f, 1.0f, 1.0f, uvRect.right, uvRect.top,
+            right, bottom, 1.0f, 1.0f, 1.0f, 1.0f, uvRect.right, uvRect.bottom,
+            left, bottom, 1.0f, 1.0f, 1.0f, 1.0f, uvRect.left, uvRect.bottom
+    });
+    GLuint off = (vertices.size()/8) - 4;
+    elements.insert(elements.end(), {
+            off, off + 1, off + 2,
+            off + 2, off + 3, off
+    });
+ */
+
 Mesh3::~Mesh3() {
     if(VBO > 0)
         glDeleteBuffers(1, &VBO);

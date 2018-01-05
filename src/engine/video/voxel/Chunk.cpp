@@ -43,18 +43,7 @@ Chunk::~Chunk() {
 Chunk::Chunk(BlockTypeDictionary &blockTypeDict) : blockTypeDict(blockTypeDict) {
 
     blocks = (Block*) malloc(CHUNK_HEIGHT*CHUNK_SIZE*CHUNK_SIZE*sizeof(Block));
-    memset(blocks, 0, sizeof(blocks));
-    /*
-    blocks = new Block**[CHUNK_HEIGHT];
-    for(int y = 0; y < CHUNK_HEIGHT; y++)
-    {
-        blocks[y] = new Block*[CHUNK_SIZE];
-        for(int z = 0; z < CHUNK_SIZE; z++)
-        {
-            blocks[y][z] = new Block[CHUNK_SIZE];
-        }
-    }
-    */
+    //memset(blocks, 0, sizeof(blocks));
     // clear lightmap
     memset(lightMap, 0, sizeof(lightMap));
 }
@@ -62,44 +51,7 @@ Chunk::Chunk(BlockTypeDictionary &blockTypeDict) : blockTypeDict(blockTypeDict) 
 Chunk::~Chunk() {
     // Delete the blocks
     free(blocks);
-    /*
-    for (int y = 0; y < CHUNK_HEIGHT; ++y)
-    {
-        for (int z = 0; z < CHUNK_SIZE; ++z)
-        {
-            delete [] blocks[y][z];
-        }
-
-        delete [] blocks[y];
-    }
-    delete [] blocks;
-    */
 }
-
-/* debug crap
-void Chunk::randomizeHeights()
-{
-    for(int z = 0; z < CHUNK_SIZE; z++)
-    {
-        for(int x = 0; x < CHUNK_SIZE; x++)
-        {
-            blocks[x][0][z].active = true;
-            blocks[x][0][z].type = Block::STONE;
-            blocks[x][5][z].active = true;
-            blocks[x][5][z].type = Block::GRASS;
-            blocks[x][10][z].active = true;
-            blocks[x][10][z].type = Block::WATER;
-
-            blocks[x][15][z].active = true;
-            blocks[x][15][z].type = 3;
-            blocks[x][20][z].active = true;
-            blocks[x][20][z].type = 4;
-            blocks[x][25][z].active = true;
-            blocks[x][25][z].type = 5;
-        }
-    }
-}
-*/
 
 // cache friendly order y,z,x
 void Chunk::setupFromTerrain(const ChunkPos& position, const std::shared_ptr<Terrain>& terrain)
@@ -162,7 +114,7 @@ void Chunk::rebuild(const ChunkPos& position, const std::shared_ptr<Terrain>& te
     if(!first_build)
         mesh->clear();
 
-    setupFromTerrain(position, terrain);
+    //setupFromTerrain(position, terrain);
     //randomizeHeights();
     materialBatchMap.clear();
 

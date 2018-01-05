@@ -21,6 +21,7 @@ bool OGLRenderer::init(uint32 screenWidth, uint32 screenHeight) {
     realHeight = screenHeight;
 
     SDL_Init(SDL_INIT_VIDEO);
+
     // request a GL context 3.3 core profile
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -38,6 +39,9 @@ bool OGLRenderer::init(uint32 screenWidth, uint32 screenHeight) {
 
     window = SDL_CreateWindow("OpenGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screenWidth, screenHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE );
     context = SDL_GL_CreateContext(window);
+
+    // turn off vsync
+    SDL_GL_SetSwapInterval(0);
 
     glewExperimental = GL_TRUE;
     glewInit();
