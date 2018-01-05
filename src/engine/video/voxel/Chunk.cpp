@@ -9,34 +9,6 @@
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 
-/*
-Chunk::Chunk(BlockTypeDictionary &blockTypeDict) : blockTypeDict(blockTypeDict) {
-    blocks = new Block**[CHUNK_SIZE];
-    for(int x = 0; x < CHUNK_SIZE; x++)
-    {
-        blocks[x] = new Block*[CHUNK_HEIGHT];
-        for(int y = 0; y < CHUNK_HEIGHT; y++)
-        {
-            blocks[x][y] = new Block[CHUNK_SIZE];
-        }
-    }
-}
-
-Chunk::~Chunk() {
-    // Delete the blocks
-    for (int x = 0; x < CHUNK_SIZE; ++x)
-    {
-        for (int y = 0; y < CHUNK_HEIGHT; ++y)
-        {
-            delete [] blocks[x][y];
-        }
-
-        delete [] blocks[x];
-    }
-    delete [] blocks;
-}
- */
-
 // cache friendly order y,z,x
 Chunk::Chunk(BlockTypeDictionary &blockTypeDict) : blockTypeDict(blockTypeDict) {
 

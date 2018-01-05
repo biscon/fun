@@ -33,11 +33,11 @@
 // unique_ptr's on the other hand should optimize to bare pointers
 class ChunkRenderer : public ILoadTask {
 public:
-    const int VISIBLE_RADIUS = 4;
+    const int VISIBLE_RADIUS = 16;
     const int CHUNKS_SETUP_PER_FRAME = 4;
     const int CHUNKS_BUILD_PER_FRAME = 4;
 
-    ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain);
+    ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain);
     void render(float screenWidth, float screenHeight, double time);
 
     bool load(IGame &game) override;
@@ -48,8 +48,10 @@ public:
     ChunkPos camChunkPos;
     glm::vec3 worldPos;
 
+    size_t totalMeshSizeBytes = 0;
+
 private:
-    ISystem& system;
+    IGame& game;
     std::shared_ptr<Terrain> terrain = nullptr;
     std::shared_ptr<Camera> camera = nullptr;
     std::unique_ptr<Shader> shader = nullptr;
@@ -75,7 +77,7 @@ private:
     //Chunk* findChunkAt(const std::map<ChunkPos, std::unique_ptr<Chunk>>& chunk_map, const ChunkPos& pos);
     //bool posInVisibleRadius(ChunkPos &pos);
     void runIncrementalChunkBuild();
-    void updateDirectionalLight();
+    void updateDirectionalLight(float delta);
 
     inline bool posInVisibleRadius(ChunkPos& pos)
     {

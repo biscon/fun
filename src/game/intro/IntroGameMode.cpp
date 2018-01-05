@@ -56,7 +56,7 @@ bool IntroGameMode::init() {
 
     //modelRenderer = std::unique_ptr<ModelRenderer>(new ModelRenderer(*game->getSystem(), model2, camera));
 
-    chunkRenderer = std::unique_ptr<ChunkRenderer>(new ChunkRenderer(*game->getSystem(), camera, terrain));
+    chunkRenderer = std::unique_ptr<ChunkRenderer>(new ChunkRenderer(*game, camera, terrain));
     game->getAssetLoader()->addLoadTask(chunkRenderer.get());
 
     game->getAssetLoader()->addLoadTask(this);
@@ -132,10 +132,10 @@ void IntroGameMode::fixedUpdate() {
     fontRenderer->startFrame();
     fontRenderer->renderText(font2, 50, 50, "Use WASD and mouse look to fly around");
     fontRenderer->renderText(font2, 50, 80, "Mousewheel adjusts FOV, F12 toggles fullscreen");
-    fontRenderer->renderText(font2, 50, 1000, stringFormat("pos = %.2f,%.2f,%.2f chunkPosXZ = %d,%d activeChunks: %d visChunks: %d",
+    fontRenderer->renderText(font2, 50, 1000, stringFormat("pos = %.2f,%.2f,%.2f chunkPosXZ = %d,%d activeChunks: %d visChunks: %d voxMeshSize: %d MB",
                                                            camera->Position.x, camera->Position.y, camera->Position.z,
                                                            chunkRenderer->camChunkPos.x, chunkRenderer->camChunkPos.z,
-                                                           chunkRenderer->getActiveChunks(), chunkRenderer->getRenderedChunks()));
+                                                           chunkRenderer->getActiveChunks(), chunkRenderer->getRenderedChunks(), (chunkRenderer->totalMeshSizeBytes / 1024) / 1024));
     fontRenderer->render(game->getRenderer()->getWidth(), game->getRenderer()->getHeight());
 }
 
