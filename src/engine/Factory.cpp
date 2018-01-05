@@ -3,9 +3,9 @@
 //
 
 #include "Factory.h"
-#include "SDLSystem.h"
+#include "engine/system/SDLSystem.h"
 #include "input/SDLInput.h"
-#include "video/OGLRenderer.h"
+#include "engine/video/Renderer.h"
 #include "../game/menu/MenuGameMode.h"
 #include "../game/intro/IntroGameMode.h"
 #include "engine/asset/AssetLoader.h"
@@ -27,7 +27,7 @@ std::shared_ptr<IInput> Factory::createInput() {
 }
 
 std::shared_ptr<IRenderer> Factory::createRenderer() {
-    return std::make_shared<OGLRenderer>();
+    return std::make_shared<Renderer>();
 }
 
 std::shared_ptr<IGameMode> Factory::createIntroGameMode(std::shared_ptr<IGame> game) {

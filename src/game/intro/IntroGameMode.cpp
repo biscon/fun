@@ -69,29 +69,16 @@ bool IntroGameMode::init() {
     return true;
 }
 
+// this runs on the loader thread when loading async, do not issue gl calls
 bool IntroGameMode::load(IGame &game) {
     SDL_Log("IntroGameMode::load");
-    /*
-    textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("bacon1.png")));
-    textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("bacon2.png")));
-    textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("bacon3.png")));
-    textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("bacon4.png")));
-    textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("container_diffuse.png")));
-    textures.push_back(textureAtlas->addBuffer(std::make_shared<PixelBuffer>("container_specular.png")));
-    textureAtlas->build();
-     */
     terrain->generate();
     return true;
 }
 
+// this runs on the mainthread after loading (use it to upload data and set state with gl)
 bool IntroGameMode::prepare(IGame &game) {
     SDL_Log("IntroGameMode::prepare");
-    /*
-    textureAtlas->upload();
-    quadRenderer->buildBuffers();
-    cubeRenderer->buildBuffers();
-     */
-    //lightSceneRenderer->buildBuffers(textureAtlas->createOGLTexture(5), textureAtlas->createOGLTexture(6));
     return true;
 }
 
@@ -138,27 +125,7 @@ void IntroGameMode::update() {
 }
 
 void IntroGameMode::fixedUpdate() {
-    /*
-    quadRenderer->startFrame();
-
-    int index = 0;
-    for(int i = 0; i < 10000; i++) {
-        int x = (rand() % 1280)+1;
-        int y = (rand() % 720)+1;
-        int w = (rand() % 300)+1;
-        int h = (rand() % 300)+1;
-
-        quadRenderer->drawTexturedQuad(textures.at(index), x, y, x+w, y+h, 0);
-        index++;
-        if(index > 3)
-            index = 0;
-    }
-    quadRenderer->render(1280, 720);
-    */
-    //cubeRenderer->render(1280, 720, game->getTime());
     game->getRenderer()->setRealViewport();
-    //lightSceneRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight(), game->getTime());
-    //modelRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight(), game->getTime());
     chunkRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight(), game->getTime());
 
     game->getRenderer()->setLogicalViewport();

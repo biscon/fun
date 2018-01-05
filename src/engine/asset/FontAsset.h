@@ -8,8 +8,8 @@
 #include <string>
 #include <map>
 #include <memory>
-#include "../video/PixelBuffer.h"
-#include "../video/TextureAtlas.h"
+#include "engine/video/raster/PixelBuffer.h"
+#include "engine/video/texture/TextureAtlas.h"
 
 class FontAsset {
 public:

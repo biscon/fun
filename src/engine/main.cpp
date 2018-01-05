@@ -4,52 +4,15 @@
 #include "Game.h"
 #include "Factory.h"
 
-#ifdef WIN32
+// needed because mingw's c++11 thread implementation isn't complete on windows (gcc on osx and linux are fine ofc)
+#ifdef __WIN32__
     #include "mingw.thread.h"
 #endif
 
-/*
-#ifdef __cplusplus
-extern "C"
-#endif
-*/
-
-// workaround for missing WinMain bullshit
+// workaround for missing WinMain bullshit (SDL encapsulates the program entry point since it differs on platforms)
 #ifdef main
 # undef main
 #endif /* main */
-
-/*
-int main(int argc, char *argv[]) {
-    auto assetLoader = Factory::createAssetLoader();
-
-    assetLoader->addLoadTask([](IGame* g){
-        SDL_Log("LoadTask1 blocking load");
-    }, [](IGame* g) {
-        SDL_Log("LoadTask1 blocking prepare");
-    });
-    assetLoader->loadBlocking();
-
-
-
-    assetLoader->addLoadTask([](IGame* g){
-        SDL_Log("LoadTask load");
-    }, [](IGame* g) {
-        SDL_Log("LoadTask prepare");
-    });
-
-    assetLoader->load();
-    //std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    SDL_Log("mtefw loading = %d", assetLoader->isLoading());
-    while(assetLoader->isLoading())
-    {
-        SDL_Log("mt loop");
-        assetLoader->update();
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-
-}
- */
 
 int main(int argc, char *argv[]) {
     SDL_Log("Initializing...\n");

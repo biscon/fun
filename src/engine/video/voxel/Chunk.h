@@ -5,8 +5,8 @@
 #define GAME_TILECHUNK_H
 
 #include <memory>
-#include <engine/video/Mesh3.h>
-#include <engine/video/TextureAtlas.h>
+#include <engine/video/mesh/Mesh3.h>
+#include <engine/video/texture/TextureAtlas.h>
 #include "BlockTypeDictionary.h"
 #include "Block.h"
 #include "ChunkPos.h"

@@ -3,7 +3,7 @@
 //
 
 #include <cstring>
-#include <engine/video/PixelBuffer.h>
+#include <engine/video/raster/PixelBuffer.h>
 #include "Terrain.h"
 
 Terrain::Terrain() {

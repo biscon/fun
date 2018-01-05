@@ -9,12 +9,12 @@
 #include <vector>
 #include <engine/IGameMode.h>
 #include <engine/asset/FontAsset.h>
-#include <engine/video/QuadRenderer.h>
-#include <engine/video/FontRenderer.h>
-#include <engine/video/CubeRenderer.h>
-#include <engine/video/LightSceneRenderer.h>
-#include <engine/video/Model.h>
-#include <engine/video/ModelRenderer.h>
+#include <engine/video/ui/QuadRenderer.h>
+#include <engine/video/font/FontRenderer.h>
+#include <engine/video/other/CubeRenderer.h>
+#include <engine/video/other/LightSceneRenderer.h>
+#include <engine/video/model/Model.h>
+#include <engine/video/model/ModelRenderer.h>
 #include <engine/video/voxel/ChunkRenderer.h>
 #include <engine/video/voxel/Terrain.h>
 

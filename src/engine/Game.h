@@ -16,9 +16,9 @@
 #include "input/IInput.h"
 #include "video/IRenderer.h"
 #include "asset/FontAsset.h"
-#include "ISystem.h"
-#include "FPSCounter.h"
-#include "video/FontRenderer.h"
+#include "engine/system/ISystem.h"
+#include "engine/system/FPSCounter.h"
+#include "engine/video/font/FontRenderer.h"
 
 class Game : public IGame, public IQuitEventListener, public IKeyboardEventListener, public IWindowEventListener {
 public:

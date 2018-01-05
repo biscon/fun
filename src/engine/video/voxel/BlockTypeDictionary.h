@@ -9,9 +9,9 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <engine/video/TextureAtlas.h>
+#include <engine/video/texture/TextureAtlas.h>
 #include <engine/asset/ILoadTask.h>
-#include <engine/video/Material.h>
+#include <engine/video/shader/Material.h>
 
 struct BlockType
 {

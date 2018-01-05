@@ -27,8 +27,8 @@ find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIR} ${GLEW_INCLUDE_DIR} ${GLM_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/src/)
 
 set(SOURCE_FILES
-        src/engine/video/lodepng.h
-        src/engine/video/lodepng.cpp
+        src/engine/asset/lodepng.h
+        src/engine/asset/lodepng.cpp
         src/engine/main.cpp
         src/defs.h
         src/game/Simulation.cpp
@@ -49,68 +49,68 @@ set(SOURCE_FILES
         src/game/intro/IntroGameMode.h
         src/game/menu/MenuGameMode.cpp
         src/game/menu/MenuGameMode.h
-        src/engine/video/PixelBuffer.cpp
-        src/engine/video/PixelBuffer.h
-        src/engine/video/ITexture.h
+        src/engine/video/raster/PixelBuffer.cpp
+        src/engine/video/raster/PixelBuffer.h
+        src/engine/video/texture/ITexture.h
         src/engine/asset/IAssetLoader.h
         src/engine/util/Rect2D.cpp
         src/engine/util/Rect2D.h
         src/engine/asset/FontAsset.cpp
         src/engine/asset/FontAsset.h
-        src/engine/ISystem.h
-        src/engine/SDLSystem.cpp
-        src/engine/SDLSystem.h
-        src/engine/FPSCounter.cpp
-        src/engine/FPSCounter.h
+        src/engine/system/ISystem.h
+        src/engine/system/SDLSystem.cpp
+        src/engine/system/SDLSystem.h
+        src/engine/system/FPSCounter.cpp
+        src/engine/system/FPSCounter.h
         src/engine/util/math_util.cpp
         src/engine/util/math_util.h
         src/engine/util/Point2D.cpp
         src/engine/util/Point2D.h
         src/engine/util/string_util.cpp
         src/engine/util/string_util.h
-        src/engine/video/OGLRenderer.cpp
-        src/engine/video/OGLRenderer.h
-        src/engine/video/IndexedMesh.cpp
-        src/engine/video/IndexedMesh.h
-        src/engine/video/Mesh.cpp
-        src/engine/video/Mesh.h
-        src/engine/video/shaders.h
-        src/engine/video/OGLTexture.cpp
-        src/engine/video/OGLTexture.h
-        src/engine/video/TextureAtlas.cpp
-        src/engine/video/TextureAtlas.h
-        src/engine/video/QuadRenderer.cpp
-        src/engine/video/QuadRenderer.h
-        src/engine/video/CubeRenderer.cpp
-        src/engine/video/CubeRenderer.h
+        src/engine/video/Renderer.cpp
+        src/engine/video/Renderer.h
+        src/engine/video/mesh/IndexedMesh.cpp
+        src/engine/video/mesh/IndexedMesh.h
+        src/engine/video/mesh/Mesh.cpp
+        src/engine/video/mesh/Mesh.h
+        src/engine/video/shader/shaders.h
+        src/engine/video/texture/OGLTexture.cpp
+        src/engine/video/texture/OGLTexture.h
+        src/engine/video/texture/TextureAtlas.cpp
+        src/engine/video/texture/TextureAtlas.h
+        src/engine/video/ui/QuadRenderer.cpp
+        src/engine/video/ui/QuadRenderer.h
+        src/engine/video/other/CubeRenderer.cpp
+        src/engine/video/other/CubeRenderer.h
         src/engine/video/voxel/TileMap.cpp
         src/engine/video/voxel/TileMap.h
         src/engine/asset/ILoadTask.h
         src/engine/asset/AssetLoader.cpp
         src/engine/asset/AssetLoader.h
-        src/engine/video/FontRenderer.cpp
-        src/engine/video/FontRenderer.h
-        src/engine/video/Shader.cpp
-        src/engine/video/Shader.h
-        src/engine/video/MeshUpdateType.h
-        src/engine/video/Camera.h
+        src/engine/video/font/FontRenderer.cpp
+        src/engine/video/font/FontRenderer.h
+        src/engine/video/shader/Shader.cpp
+        src/engine/video/shader/Shader.h
+        src/engine/video/mesh/MeshUpdateType.h
+        src/engine/video/camera/Camera.h
         src/engine/asset/tiny_obj_loader.cpp
-        src/engine/video/LightSceneRenderer.cpp
-        src/engine/video/LightSceneRenderer.h
+        src/engine/video/other/LightSceneRenderer.cpp
+        src/engine/video/other/LightSceneRenderer.h
         src/engine/input/IMouseEventListener.h
-        src/engine/video/Mesh2.cpp
-        src/engine/video/Mesh2.h
-        src/engine/video/Mesh3.cpp
-        src/engine/video/Mesh3.h
-        src/engine/video/Model.cpp
-        src/engine/video/Model.h
-        src/engine/video/Material.h
-        src/engine/video/MaterialDictionary.cpp
-        src/engine/video/MaterialDictionary.h
+        src/engine/video/mesh/Mesh2.cpp
+        src/engine/video/mesh/Mesh2.h
+        src/engine/video/mesh/Mesh3.cpp
+        src/engine/video/mesh/Mesh3.h
+        src/engine/video/model/Model.cpp
+        src/engine/video/model/Model.h
+        src/engine/video/shader/Material.h
+        src/engine/video/model/MaterialDictionary.cpp
+        src/engine/video/model/MaterialDictionary.h
         src/engine/video/voxel/Block.cpp
         src/engine/video/voxel/Block.h
-        src/engine/video/ModelRenderer.cpp
-        src/engine/video/ModelRenderer.h
+        src/engine/video/model/ModelRenderer.cpp
+        src/engine/video/model/ModelRenderer.h
         src/engine/video/voxel/ChunkRenderer.cpp
         src/engine/video/voxel/ChunkRenderer.h
         src/engine/video/voxel/Chunk.cpp
@@ -132,10 +132,10 @@ set(SOURCE_FILES
         src/engine/video/frustrum/Plane.h
         src/engine/video/frustrum/ViewFrustum.cpp
         src/engine/video/frustrum/ViewFrustum.h
-        src/engine/video/Fog.h
-        src/engine/video/Skybox.cpp
-        src/engine/video/Skybox.h
-        src/engine/video/DirectionalLight.h)
+        src/engine/video/shader/Fog.h
+        src/engine/video/sky/Skybox.cpp
+        src/engine/video/sky/Skybox.h
+        src/engine/video/shader/DirectionalLight.h)
 add_executable(game ${SOURCE_FILES})
 
 target_link_libraries(game ${GLEW_LIBRARY} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY})

@@ -11,7 +11,7 @@
 #include <gtc/type_ptr.hpp>
 #include <SDL_log.h>
 #include <cmath>
-#include <engine/video/shaders.h>
+#include <engine/video/shader/shaders.h>
 
 ChunkRenderer::ChunkRenderer(ISystem &system, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain) : system(system), camera(camera), terrain(terrain) {
     viewFrustrum = std::unique_ptr<ViewFrustum>(new ViewFrustum());

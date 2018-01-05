@@ -9,7 +9,7 @@
 #include "video/IRenderer.h"
 #include "input/IInput.h"
 #include "asset/IAssetLoader.h"
-#include "ISystem.h"
+#include "engine/system/ISystem.h"
 #include <string>
 #include <memory>
 

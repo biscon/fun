@@ -6,19 +6,19 @@
 #define GAME_TILERENDERER_H
 
 #include <memory>
-#include <engine/ISystem.h>
+#include <engine/system/ISystem.h>
 #include <array>
-#include <engine/video/Shader.h>
-#include <engine/video/Mesh3.h>
-#include <engine/video/Camera.h>
-#include <engine/video/MaterialDictionary.h>
+#include <engine/video/shader/Shader.h>
+#include <engine/video/mesh/Mesh3.h>
+#include <engine/video/camera/Camera.h>
+#include <engine/video/model/MaterialDictionary.h>
 #include <engine/asset/ILoadTask.h>
 #include <engine/video/frustrum/ViewFrustum.h>
 #include <map>
 #include <unordered_map>
-#include <engine/video/Fog.h>
-#include <engine/video/Skybox.h>
-#include <engine/video/DirectionalLight.h>
+#include <engine/video/shader/Fog.h>
+#include <engine/video/sky/Skybox.h>
+#include <engine/video/shader/DirectionalLight.h>
 #include "Chunk.h"
 #include "BlockTypeDictionary.h"
 #include "Terrain.h"

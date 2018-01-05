@@ -6,8 +6,8 @@
 #define CRPG_IRENDERER_H
 
 #include "../../defs.h"
-#include "PixelBuffer.h"
-#include "ITexture.h"
+#include "engine/video/raster/PixelBuffer.h"
+#include "engine/video/texture/ITexture.h"
 #include "../asset/FontAsset.h"
 
 class IRenderer
