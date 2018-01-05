@@ -28,8 +28,8 @@ struct MaterialBlock
 struct MaterialBatch
 {
     int blockType;
-    uint32_t start;
-    uint32_t count;
+    u32 start;
+    u32 count;
     std::vector<MaterialBlock> blocks;
 };
 
@@ -50,9 +50,9 @@ public:
 private:
     BlockTypeDictionary& blockTypeDict;
     std::unique_ptr<Mesh3> mesh;
-    std::map<int32_t, std::unique_ptr<MaterialBatch>> materialBatchMap;
+    std::map<i32, std::unique_ptr<MaterialBatch>> materialBatchMap;
 
-    inline bool isBlockActiveAt(int32_t x, int32_t y, int32_t z)
+    inline bool isBlockActiveAt(i32 x, i32 y, i32 z)
     {
         if(x < 0 || x >= CHUNK_SIZE)
             return false;
@@ -85,7 +85,7 @@ private:
 
     // flatten coords to index
     /*
-    inline int32_t POS_TO_INDEX(int32_t y, int32_t z, int32_t x)
+    inline i32 POS_TO_INDEX(i32 y, i32 z, i32 x)
     {
         return (y*CHUNK_SIZE)+(z*CHUNK_SIZE*CHUNK_HEIGHT)+x;
     }

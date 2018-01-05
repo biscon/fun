@@ -134,7 +134,7 @@ void Mesh3::draw(const Shader& shader)
     glBindVertexArray(0);
 }
 
-void Mesh3::drawRange(const Shader& shader, int32_t start, int32_t count, Material* material)
+void Mesh3::drawRange(const Shader& shader, i32 start, i32 count, Material* material)
 {
     if(material != nullptr) {
         material->applyShader(shader);

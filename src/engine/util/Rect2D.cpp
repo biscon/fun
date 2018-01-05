@@ -6,5 +6,5 @@
 
 Rect2D::Rect2D() : x(0), y(0), width(0), height(0){}
 
-Rect2D::Rect2D(int32 x, int32 y, int32 width, int32 height) : x(x), y(y), width(width), height(height) {}
+Rect2D::Rect2D(i32 x, i32 y, i32 width, i32 height) : x(x), y(y), width(width), height(height) {}
 

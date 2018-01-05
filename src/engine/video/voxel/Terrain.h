@@ -13,7 +13,7 @@
 class Terrain {
 public:
     const double WATER_LEVEL = 0.20;
-    int32_t size = 1024;
+    i32 size = 1024;
 
     Terrain();
 
@@ -29,13 +29,13 @@ public:
         return moistureMap;
     }
 
-    int32_t getSize() const;
+    i32 getSize() const;
 
     BiomeType* lookupBiomeType(double height, double moisture);
 
     BiomeType **getBiomeMap() const;
-    BiomeType *getBiomeAt(int32_t x, int32_t y);
-    bool isBiomeBorderAt(int32_t x, int32_t y);
+    BiomeType *getBiomeAt(i32 x, i32 y);
+    bool isBiomeBorderAt(i32 x, i32 y);
 
 private:
     HeightMap *heightMap = nullptr;

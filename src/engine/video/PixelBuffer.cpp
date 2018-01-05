@@ -21,7 +21,7 @@ PixelBuffer::PixelBuffer() {
     GY[2][0] = -1; GY[2][1] =-2; GY[2][2] =  -1;
 }
 
-PixelBuffer::PixelBuffer(uint32_t width, uint32_t height) : width(width), height(height) {
+PixelBuffer::PixelBuffer(u32 width, u32 height) : width(width), height(height) {
     init(width, height);
 }
 
@@ -34,13 +34,13 @@ PixelBuffer::~PixelBuffer() {
         free(pixels);
 }
 
-bool PixelBuffer::init(uint32_t width, uint32_t height)
+bool PixelBuffer::init(u32 width, u32 height)
 {
     this->width = width;
     this->height = height;
     this->pitch = width * 4;
     this->cacheId = -1;
-    pixels = (uint32_t*) malloc(height * pitch);
+    pixels = (u32*) malloc(height * pitch);
     clear(0);
     return true;
 }
@@ -68,22 +68,22 @@ bool PixelBuffer::loadFromPNG(std::string filename) {
     return init(filename);
 }
 
-bool PixelBuffer::copy(PixelBuffer* src, Rect2D *src_rect, uint32 dst_x, uint32 dst_y)
+bool PixelBuffer::copy(PixelBuffer* src, Rect2D *src_rect, u32 dst_x, u32 dst_y)
 {
-    uint32 w = (uint32) src_rect->width;
-    uint32 h = (uint32) src_rect->height;
+    u32 w = (u32) src_rect->width;
+    u32 h = (u32) src_rect->height;
 
-    uint32 *src_ptr = src->pixels;
+    u32 *src_ptr = src->pixels;
     src_ptr += (src_rect->y * src->width) + src_rect->x;
-    uint32 *dst_ptr = pixels;
+    u32 *dst_ptr = pixels;
     dst_ptr += (dst_y * width) + dst_x;
-    uint32 src_inc = src->width;
-    uint32 dst_inc = width;
+    u32 src_inc = src->width;
+    u32 dst_inc = width;
 
     //SDL_Log("width = %d, height = %d, pitch = %d", width, height, pitch);
-    for(uint32 y = 0; y < h; ++y)
+    for(u32 y = 0; y < h; ++y)
     {
-        for(uint32 x = 0; x < w; ++x)
+        for(u32 x = 0; x < w; ++x)
         {
             //if(*(src_ptr+x) != 0)
             //{
@@ -95,20 +95,20 @@ bool PixelBuffer::copy(PixelBuffer* src, Rect2D *src_rect, uint32 dst_x, uint32 
     }
 }
 
-bool PixelBuffer::copyToBuffer(void* dst, int32 dst_pitch)
+bool PixelBuffer::copyToBuffer(void* dst, i32 dst_pitch)
 {
-    uint32 w = (uint32) width;
-    uint32 h = (uint32) height;
+    u32 w = (u32) width;
+    u32 h = (u32) height;
 
-    uint32 *src_ptr = pixels;
-    uint32 *dst_ptr = (uint32*) dst;
-    uint32 src_inc = width;
-    uint32 dst_inc = width;
+    u32 *src_ptr = pixels;
+    u32 *dst_ptr = (u32*) dst;
+    u32 src_inc = width;
+    u32 dst_inc = width;
 
     //SDL_Log("width = %d, height = %d, pitch = %d", width, height, pitch);
-    for(uint32 y = 0; y < h; ++y)
+    for(u32 y = 0; y < h; ++y)
     {
-        for(uint32 x = 0; x < w; ++x)
+        for(u32 x = 0; x < w; ++x)
         {
             *(dst_ptr+x) = *(src_ptr+x);
         }
@@ -117,13 +117,13 @@ bool PixelBuffer::copyToBuffer(void* dst, int32 dst_pitch)
     }
 }
 
-void PixelBuffer::clear(uint32_t color)
+void PixelBuffer::clear(u32 color)
 {
     if(pixels != nullptr)
         memset(pixels, color, height * pitch);
 }
 
-static inline uint32_t getPixelWrapAround(uint32_t *buffer, int32_t x, int32_t y, uint32_t width, uint32_t height)
+static inline u32 getPixelWrapAround(u32 *buffer, i32 x, i32 y, u32 width, u32 height)
 {
     if(x < 0)
         x += width;
@@ -134,26 +134,26 @@ static inline uint32_t getPixelWrapAround(uint32_t *buffer, int32_t x, int32_t y
 
 void PixelBuffer::blur(PixelBuffer *src)
 {
-    uint32_t *buffer = src->pixels;
+    u32 *buffer = src->pixels;
     uint8_t *row = (uint8_t*) buffer;
     int displacement = 0;
-    uint32_t width = src->width;
-    uint32_t height = src->height;
-    uint32_t pitch = src->pitch;
+    u32 width = src->width;
+    u32 height = src->height;
+    u32 pitch = src->pitch;
 
-    for(int32_t y = 0; y < height; ++y)
+    for(i32 y = 0; y < height; ++y)
     {
-        uint32_t *pixel = (uint32_t *) row;
-        for(int32_t x = 0; x < width; ++x)
+        u32 *pixel = (u32 *) row;
+        for(i32 x = 0; x < width; ++x)
         {
-            uint32_t p1 = getPixelWrapAround(buffer, x-1, y-1, width, height);
-            uint32_t p2 = getPixelWrapAround(buffer, x, y-1, width, height);
-            uint32_t p3 = getPixelWrapAround(buffer, x+1, y-1, width, height);
-            uint32_t p4 = getPixelWrapAround(buffer, x-1, y, width, height);
-            uint32_t p5 = getPixelWrapAround(buffer, x+1, y, width, height);
-            uint32_t p6 = getPixelWrapAround(buffer, x-1, y+1, width, height);
-            uint32_t p7 = getPixelWrapAround(buffer, x, y+1, width, height);
-            uint32_t p8 = getPixelWrapAround(buffer, x+1, y+1, width, height);
+            u32 p1 = getPixelWrapAround(buffer, x-1, y-1, width, height);
+            u32 p2 = getPixelWrapAround(buffer, x, y-1, width, height);
+            u32 p3 = getPixelWrapAround(buffer, x+1, y-1, width, height);
+            u32 p4 = getPixelWrapAround(buffer, x-1, y, width, height);
+            u32 p5 = getPixelWrapAround(buffer, x+1, y, width, height);
+            u32 p6 = getPixelWrapAround(buffer, x-1, y+1, width, height);
+            u32 p7 = getPixelWrapAround(buffer, x, y+1, width, height);
+            u32 p8 = getPixelWrapAround(buffer, x+1, y+1, width, height);
 
             uint8_t r = (RED(p1) + RED(p2) + RED(p3) + RED(p4) + RED(p5) + RED(p6) + RED(p7) + RED(p8)) >> 3;
             uint8_t g = (GREEN(p1) + GREEN(p2) + GREEN(p3) + GREEN(p4) + GREEN(p5) + GREEN(p6) + GREEN(p7) + GREEN(p8)) >> 3;
@@ -168,12 +168,12 @@ void PixelBuffer::blur(PixelBuffer *src)
 void PixelBuffer::convertToGreyScale()
 {
     auto *row = (uint8_t*) pixels;
-    uint32_t *pixel = nullptr;
-    uint32_t px = 0;
+    u32 *pixel = nullptr;
+    u32 px = 0;
     uint8_t col = 0;
-    for(int32_t y = 0; y < height; ++y) {
-        pixel = (uint32_t *) row;
-        for (int32_t x = 0; x < width; ++x) {
+    for(i32 y = 0; y < height; ++y) {
+        pixel = (u32 *) row;
+        for (i32 x = 0; x < width; ++x) {
             px = *pixel;
             col = (uint8_t) ((RED(px) + GREEN(px) + BLUE(px))/3);
             *pixel++ = ARGB(OPAQUE, col, col, col);
@@ -185,13 +185,13 @@ void PixelBuffer::convertToGreyScale()
 void PixelBuffer::sobelEdgeDetection()
 {
     auto *row = (uint8_t*) pixels;
-    uint32_t *pixel = nullptr;
+    u32 *pixel = nullptr;
     uint8_t col = 0;
     unsigned int valX, valY = 0;
-    for(int32_t i = 0; i < height; ++i)
+    for(i32 i = 0; i < height; ++i)
     {
-        pixel = (uint32_t *) row;
-        for (int32_t j = 0; j < width; ++j)
+        pixel = (u32 *) row;
+        for (i32 j = 0; j < width; ++j)
         {
             //setting the pixels around the border to 0,
             //because the Sobel kernel cannot be allied to them
@@ -224,17 +224,17 @@ void PixelBuffer::sobelEdgeDetection()
     }
 }
 
-uint32_t PixelBuffer::blurAt(int32_t x, int32_t y)
+u32 PixelBuffer::blurAt(i32 x, i32 y)
 {
-    uint32_t p1 = getPixelWrapAround(pixels, x-1, y-1, width, height);
-    uint32_t p2 = getPixelWrapAround(pixels, x, y-1, width, height);
-    uint32_t p3 = getPixelWrapAround(pixels, x+1, y-1, width, height);
-    uint32_t p4 = getPixelWrapAround(pixels, x-1, y, width, height);
-    uint32_t p5 = getPixelWrapAround(pixels, x+1, y, width, height);
-    uint32_t p6 = getPixelWrapAround(pixels, x-1, y+1, width, height);
-    uint32_t p7 = getPixelWrapAround(pixels, x, y+1, width, height);
-    uint32_t p8 = getPixelWrapAround(pixels, x+1, y+1, width, height);
-    uint32_t p9 = getPixelWrapAround(pixels, x, y, width, height);
+    u32 p1 = getPixelWrapAround(pixels, x-1, y-1, width, height);
+    u32 p2 = getPixelWrapAround(pixels, x, y-1, width, height);
+    u32 p3 = getPixelWrapAround(pixels, x+1, y-1, width, height);
+    u32 p4 = getPixelWrapAround(pixels, x-1, y, width, height);
+    u32 p5 = getPixelWrapAround(pixels, x+1, y, width, height);
+    u32 p6 = getPixelWrapAround(pixels, x-1, y+1, width, height);
+    u32 p7 = getPixelWrapAround(pixels, x, y+1, width, height);
+    u32 p8 = getPixelWrapAround(pixels, x+1, y+1, width, height);
+    u32 p9 = getPixelWrapAround(pixels, x, y, width, height);
 
     uint8_t r = (uint8_t) ((RED(p1) + RED(p2) + RED(p3) + RED(p4) + RED(p5) + RED(p6) + RED(p7) + RED(p8) + RED(p9)) / 9);
     uint8_t g = (uint8_t) ((GREEN(p1) + GREEN(p2) + GREEN(p3) + GREEN(p4) + GREEN(p5) + GREEN(p6) + GREEN(p7) + GREEN(p8) + GREEN(p9)) / 9);
@@ -250,7 +250,7 @@ PixelBuffer *PixelBuffer::clone() {
 }
 
 bool PixelBuffer::saveToPNG(std::string filename) {
-    uint32_t error = lodepng_encode32_file(filename.c_str(), (unsigned char*) pixels, width, height);
+    u32 error = lodepng_encode32_file(filename.c_str(), (unsigned char*) pixels, width, height);
     if(error) {
         SDL_Log("error %u: %s\n", error, lodepng_error_text(error));
         return false;

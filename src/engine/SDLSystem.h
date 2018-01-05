@@ -10,9 +10,9 @@
 
 class SDLSystem : public ISystem {
 public:
-    uint64 getPerformanceFreq() override;
-    uint64 getPerformanceCounter() override;
-    std::shared_ptr<std::vector<uint8>> readFile(std::string path) override;
+    u64 getPerformanceFreq() override;
+    u64 getPerformanceCounter() override;
+    std::shared_ptr<std::vector<u8>> readFile(std::string path) override;
     std::string readTextFile(std::string path) override;
 };
 

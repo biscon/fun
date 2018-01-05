@@ -45,7 +45,7 @@ void AssetLoader::loadBlocking() {
         loadTask->load(*game.get());
         loadTask->prepare(*game.get());
     }
-    SDL_Log("AssetLoader: Done executing %d load tasks", loadTasks.size());
+    SDL_Log("AssetLoader: Done executing %lu load tasks", loadTasks.size());
     loadTasks.clear();
 }
 
@@ -90,7 +90,7 @@ void AssetLoader::loadAsync()
         }
         //SDL_Log("Preparation done");
     }
-    SDL_Log("AssetLoaderThread: Done executing %d load tasks", loadTasks.size());
+    SDL_Log("AssetLoaderThread: Done executing %lu load tasks", loadTasks.size());
     loadTasks.clear();
 }
 

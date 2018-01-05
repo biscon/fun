@@ -14,7 +14,7 @@
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 
-bool OGLRenderer::init(uint32 screenWidth, uint32 screenHeight) {
+bool OGLRenderer::init(u32 screenWidth, u32 screenHeight) {
     this->screenWidth = screenWidth;
     this->screenHeight = screenHeight;
     realWidth = screenWidth;
@@ -86,27 +86,27 @@ void OGLRenderer::renderDefaultLoadScreen(double progress) {
 
 }
 
-int32_t OGLRenderer::getWidth() {
+i32 OGLRenderer::getWidth() {
     return screenWidth;
 }
 
-int32_t OGLRenderer::getHeight() {
+i32 OGLRenderer::getHeight() {
     return screenHeight;
 }
 
-int32_t OGLRenderer::getRealWidth() {
+i32 OGLRenderer::getRealWidth() {
     return realWidth;
 }
 
-int32_t OGLRenderer::getRealHeight() {
+i32 OGLRenderer::getRealHeight() {
     return realHeight;
 }
 
-void OGLRenderer::onViewportChanged(int32_t newWidth, int32_t newHeight) {
+void OGLRenderer::onViewportChanged(i32 newWidth, i32 newHeight) {
     SDL_Log("Viewport resize to %d,%d", newWidth, newHeight);
 
-    realWidth = static_cast<uint32_t>(newWidth);
-    realHeight = static_cast<uint32_t>(newHeight);
+    realWidth = static_cast<u32>(newWidth);
+    realHeight = static_cast<u32>(newHeight);
 
     float want_aspect;
     float real_aspect;

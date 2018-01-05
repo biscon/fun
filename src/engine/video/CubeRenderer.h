@@ -17,7 +17,7 @@ public:
     void render(float screenWidth, float screenHeight, double time);
     void buildBuffers();
 
-    uint32_t getVertexCount() const {
+    u32 getVertexCount() const {
         return vertexCount/7;
     }
 
@@ -27,7 +27,7 @@ private:
     std::unique_ptr<Mesh> mesh = nullptr;
     std::shared_ptr<TextureAtlas> textureAtlas;
 
-    uint32_t vertexCount = 0;
+    u32 vertexCount = 0;
 };
 
 

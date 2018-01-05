@@ -15,16 +15,16 @@ class IRenderer
 public:
     IRenderer(){}
     virtual ~IRenderer(){}
-    virtual bool init(uint32 screenWidth, uint32 screenHeight)=0;
+    virtual bool init(u32 screenWidth, u32 screenHeight)=0;
     virtual void shutdown()=0;
     virtual void fixedUpdate()=0;
     virtual void startFrame()=0;
     virtual void renderDefaultLoadScreen(double progress)=0;
-    virtual int32 getWidth()=0;
-    virtual int32 getHeight()=0;
-    virtual int32 getRealWidth()=0;
-    virtual int32 getRealHeight()=0;
-    virtual void onViewportChanged(int32_t newWidth, int32_t newHeight)=0;
+    virtual i32 getWidth()=0;
+    virtual i32 getHeight()=0;
+    virtual i32 getRealWidth()=0;
+    virtual i32 getRealHeight()=0;
+    virtual void onViewportChanged(i32 newWidth, i32 newHeight)=0;
     virtual void setLogicalViewport()=0;
     virtual void setRealViewport()=0;
     virtual void setWindowBordered(bool bordered)=0;

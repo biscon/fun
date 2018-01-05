@@ -6,18 +6,18 @@
 #define CRPG_BIOMETYPE_H
 
 
-#include <cstdint>
+#include "defs.h"
 #include <string>
 
 class BiomeType {
 public:
     BiomeType();
 
-    BiomeType(const std::string &name, uint32_t color, double minHeight, double maxHeight, double minMoisture,
+    BiomeType(const std::string &name, u32 color, double minHeight, double maxHeight, double minMoisture,
               double maxMoisture);
 
     std::string name;
-    uint32_t color;
+    u32 color;
     double minHeight;
     double maxHeight;
     double minMoisture;

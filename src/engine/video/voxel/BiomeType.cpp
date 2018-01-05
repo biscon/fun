@@ -4,7 +4,7 @@
 
 #include "BiomeType.h"
 
-BiomeType::BiomeType(const std::string &name, uint32_t color, double minHeight, double maxHeight, double minMoisture,
+BiomeType::BiomeType(const std::string &name, u32 color, double minHeight, double maxHeight, double minMoisture,
                      double maxMoisture) : name(name), color(color), minHeight(minHeight), maxHeight(maxHeight),
                                            minMoisture(minMoisture), maxMoisture(maxMoisture) {}
 

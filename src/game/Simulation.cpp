@@ -14,6 +14,6 @@ void Simulation::update() {
     }
 }
 
-void Simulation::setRate(uint32 hz) {
+void Simulation::setRate(u32 hz) {
     intervalMs = 1000/hz;
 }

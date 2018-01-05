@@ -5,11 +5,9 @@
 #include "Chunk.h"
 
 #define GLEW_STATIC
-#include <GL/glew.h>
-#include <glm.hpp>
+
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
-#include <SDL_log.h>
 
 /*
 Chunk::Chunk(BlockTypeDictionary &blockTypeDict) : blockTypeDict(blockTypeDict) {

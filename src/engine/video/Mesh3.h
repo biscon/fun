@@ -28,7 +28,7 @@ public:
     virtual ~Mesh3();
 
     void draw(const Shader& shader);
-    void drawRange(const Shader& shader, int32_t start, int32_t count, Material* material);
+    void drawRange(const Shader& shader, i32 start, i32 count, Material* material);
     void prepare();
     void upload();
     void generateCubeAt(float x, float y, float z);
@@ -44,7 +44,7 @@ public:
     std::shared_ptr<Material> material;
 
     // floats per vertex
-    uint32_t vertexSize = 6;
+    u32 vertexSize = 6;
     bool hasNormals = true;
     bool hasTexcoords = false;
     MeshUpdateType type = MeshUpdateType::STATIC;

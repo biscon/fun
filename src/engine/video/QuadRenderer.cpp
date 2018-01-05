@@ -73,7 +73,7 @@ void QuadRenderer::startFrame() {
     mesh->clear();
 }
 
-void QuadRenderer::drawTexturedQuad(int32_t handle, float left, float top, float right, float bottom, int32_t layer) {
+void QuadRenderer::drawTexturedQuad(i32 handle, float left, float top, float right, float bottom, i32 layer) {
     mesh->addTexturedQuad(left, top, right, bottom, textureAtlas->getUVRect(handle));
 }
 

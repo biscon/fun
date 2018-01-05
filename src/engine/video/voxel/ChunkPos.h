@@ -6,12 +6,12 @@
 #define GAME_CHUNKPOS_H
 
 
-#include <cstdint>
+#include "defs.h"
 
 struct ChunkPos
 {
-    int32_t x;
-    int32_t z;
+    i32 x;
+    i32 z;
     /*
     bool operator<(const ChunkPos r)
     {

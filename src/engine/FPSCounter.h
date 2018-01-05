@@ -25,9 +25,9 @@ public:
 private:
     std::shared_ptr<ISystem> system;
     double fps = 0;
-    uint64 timerFreq = 0;
-    uint64 timeStamp = 0;
-    uint64 timeDiff = 0;
+    u64 timerFreq = 0;
+    u64 timeStamp = 0;
+    u64 timeDiff = 0;
     double delta = 0;
 };
 

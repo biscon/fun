@@ -15,16 +15,16 @@
 
 class OGLRenderer : public IRenderer {
 public:
-    bool init(uint32 screenWidth, uint32 screenHeight) override;
+    bool init(u32 screenWidth, u32 screenHeight) override;
     void shutdown() override;
     void fixedUpdate() override;
     void startFrame() override;
     void renderDefaultLoadScreen(double progress) override;
-    int32_t getWidth() override;
-    int32_t getHeight() override;
-    int32_t getRealWidth() override;
-    int32_t getRealHeight() override;
-    void onViewportChanged(int32_t newWidth, int32_t newHeight) override;
+    i32 getWidth() override;
+    i32 getHeight() override;
+    i32 getRealWidth() override;
+    i32 getRealHeight() override;
+    void onViewportChanged(i32 newWidth, i32 newHeight) override;
     void setLogicalViewport() override;
     void setRealViewport() override;
     void setWindowBordered(bool bordered) override;
@@ -36,8 +36,8 @@ public:
     void restoreWindow() override;
 
 private:
-    uint32_t screenWidth, realWidth;
-    uint32_t screenHeight, realHeight;
+    u32 screenWidth, realWidth;
+    u32 screenHeight, realHeight;
     SDL_Window* window = nullptr;
     SDL_GLContext context = nullptr;
     SDL_Rect viewport{};

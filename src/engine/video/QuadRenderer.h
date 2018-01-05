@@ -13,12 +13,12 @@ class QuadRenderer {
 public:
     explicit QuadRenderer(std::shared_ptr<TextureAtlas> textureAtlas);
 
-    void drawTexturedQuad(int32_t handle, float left, float top, float right, float bottom, int32_t layer);
+    void drawTexturedQuad(i32 handle, float left, float top, float right, float bottom, i32 layer);
     void render(float screenWidth, float screenHeight);
     void startFrame();
     void buildBuffers();
 
-    uint32_t getVertexCount() const {
+    u32 getVertexCount() const {
         return vertexCount/7;
     }
 
@@ -28,7 +28,7 @@ private:
     std::unique_ptr<IndexedMesh> mesh = nullptr;
     std::shared_ptr<TextureAtlas> textureAtlas;
 
-    uint32_t vertexCount = 0;
+    u32 vertexCount = 0;
 };
 
 

@@ -15,9 +15,9 @@
 struct AtlasRect {
 public:
     AtlasRect() {}
-    AtlasRect(int32_t left, int32_t top, int32_t right, int32_t bottom) : left(left), top(top), right(right),
+    AtlasRect(i32 left, i32 top, i32 right, i32 bottom) : left(left), top(top), right(right),
                                                                           bottom(bottom) {}
-    void set(int32_t left, int32_t top, int32_t right, int32_t bottom)
+    void set(i32 left, i32 top, i32 right, i32 bottom)
     {
         this->left = left;
         this->top = top;
@@ -25,15 +25,15 @@ public:
         this->bottom = bottom;
     }
 
-    int32_t width() {
+    i32 width() {
         return (right - left) + 1;
     }
 
-    int32_t height() {
+    i32 height() {
         return (bottom - top) + 1;
     }
 
-    int32 left,top,right,bottom;
+    i32 left,top,right,bottom;
 };
 
 /*
@@ -55,21 +55,21 @@ struct UVRect
 
 struct AtlasTexture
 {
-    AtlasTexture(std::string name, const AtlasRect &rect, const UVRect &uvRect, int32_t id, int32_t width, int32_t height) : name(std::move(name)), rect(rect),
+    AtlasTexture(std::string name, const AtlasRect &rect, const UVRect &uvRect, i32 id, i32 width, i32 height) : name(std::move(name)), rect(rect),
                                                                                          uvRect(uvRect), id(id), width(width), height(height) {}
     std::string name;
     AtlasRect rect;
     UVRect uvRect;
-    int32_t id;
-    int32_t width;
-    int32_t height;
+    i32 id;
+    i32 width;
+    i32 height;
 };
 
 class TextureAtlas {
 public:
-    TextureAtlas(uint32_t width, uint32_t height, bool filtering);
+    TextureAtlas(u32 width, u32 height, bool filtering);
 
-    int32_t addBuffer(std::shared_ptr<PixelBuffer> pb);
+    i32 addBuffer(std::shared_ptr<PixelBuffer> pb);
 
     bool build();
     void upload();
@@ -82,27 +82,27 @@ public:
         return built;
     }
 
-    const std::vector<int32_t> &getUnfittedIds() const {
+    const std::vector<i32> &getUnfittedIds() const {
         return unfittedIds;
     }
 
-    UVRect& getUVRect(int32_t handle);
+    UVRect& getUVRect(i32 handle);
     void bind();
     void bind(int tex_unit);
-    std::shared_ptr<OGLTexture> createOGLTexture(int32_t handle);
+    std::shared_ptr<OGLTexture> createOGLTexture(i32 handle);
     std::shared_ptr<OGLTexture> getTexture();
 
 private:
     bool built = false;
-    uint32_t width, height;
+    u32 width, height;
     std::unique_ptr<AtlasNode> root = nullptr;
     std::unique_ptr<PixelBuffer> atlas;
     std::vector<std::shared_ptr<PixelBuffer>> buffers;
-    std::map<std::shared_ptr<PixelBuffer>, int32_t> idMap;
-    std::map<int32_t, std::unique_ptr<AtlasTexture>> textureMap;
-    std::vector<int32_t> unfittedIds;
+    std::map<std::shared_ptr<PixelBuffer>, i32> idMap;
+    std::map<i32, std::unique_ptr<AtlasTexture>> textureMap;
+    std::vector<i32> unfittedIds;
     std::shared_ptr<OGLTexture> texture;
-    int32_t nextHandle = 1;
+    i32 nextHandle = 1;
     bool useFiltering;
 };
 

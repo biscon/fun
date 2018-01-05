@@ -12,8 +12,8 @@ class ITexture
 public:
     ITexture(){}
     virtual ~ITexture(){}
-    virtual uint32 getWidth()=0;
-    virtual uint32 getHeight()=0;
+    virtual u32 getWidth()=0;
+    virtual u32 getHeight()=0;
 };
 
 #endif //CRPG_ITEXTURE_H

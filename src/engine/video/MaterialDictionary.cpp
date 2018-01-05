@@ -41,7 +41,7 @@ bool MaterialDictionary::load(std::string basepath) {
 }
 
 bool MaterialDictionary::prepare() {
-    SDL_Log("Uploading %d texture maps", textureBufferItems.size());
+    SDL_Log("Uploading %lu texture maps", textureBufferItems.size());
     for(auto& kv : textureBufferItems) {
         kv.second->texture = std::make_shared<OGLTexture>(kv.second->buffer.get(), kv.second->type, true);
     }

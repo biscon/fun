@@ -10,19 +10,19 @@
 #include <SDL_log.h>
 #include "SDLSystem.h"
 
-uint64 SDLSystem::getPerformanceFreq() {
+u64 SDLSystem::getPerformanceFreq() {
     return SDL_GetPerformanceFrequency();
 }
 
-uint64 SDLSystem::getPerformanceCounter() {
+u64 SDLSystem::getPerformanceCounter() {
     return SDL_GetPerformanceCounter();
 }
 
-std::shared_ptr<std::vector<uint8>> SDLSystem::readFile(std::string path) {
+std::shared_ptr<std::vector<u8>> SDLSystem::readFile(std::string path) {
     std::ifstream file(path, std::ios::binary | std::ios::ate);
     std::streamsize size = file.tellg();
     file.seekg(0, std::ios::beg);
-    auto buffer = std::make_shared<std::vector<uint8>>(size);
+    auto buffer = std::make_shared<std::vector<u8>>(size);
     if (file.read(reinterpret_cast<char *>(buffer->data()), size))
     {
         return buffer;

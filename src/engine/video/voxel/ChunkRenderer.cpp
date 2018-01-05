@@ -194,7 +194,7 @@ void ChunkRenderer::runIncrementalChunkBuild()
     }
     if(buildStage == CHUNK_STAGE_BUILD)
     {
-        int32_t count = 0;
+        i32 count = 0;
         while(!buildChunks.empty() && count < CHUNKS_BUILD_PER_FRAME)
         {
             auto chunk_it = buildChunks.begin();
@@ -306,11 +306,11 @@ void ChunkRenderer::chunkToWorld(ChunkPos &chunkpos, glm::vec3 &worldpos) {
     worldpos.z = chunkpos.z * CHUNK_SIZE;
 }
 
-int32_t ChunkRenderer::getActiveChunks() {
-    return static_cast<int32_t>(activeChunks.size());
+i32 ChunkRenderer::getActiveChunks() {
+    return static_cast<i32>(activeChunks.size());
 }
 
-int32_t ChunkRenderer::getRenderedChunks() {
+i32 ChunkRenderer::getRenderedChunks() {
     return renderedChunks;
 }
 

@@ -10,7 +10,7 @@
 #include <engine/util/math_util.h>
 #include "HeightMap.h"
 
-HeightMap::HeightMap(int32_t width, int32_t height) : width(width), height(height) {
+HeightMap::HeightMap(i32 width, i32 height) : width(width), height(height) {
     data = new double[width * height];
 }
 
@@ -95,11 +95,11 @@ void HeightMap::diamondSquare(int stepsize, double scale)
     }
 }
 
-int32_t HeightMap::getWidth() const {
+i32 HeightMap::getWidth() const {
     return width;
 }
 
-int32_t HeightMap::getHeight() const {
+i32 HeightMap::getHeight() const {
     return height;
 }
 

@@ -8,10 +8,10 @@
 #include "../util/math_util.h"
 
 
-TextureAtlas::TextureAtlas(uint32_t width, uint32_t height, bool filtering) : width(width), height(height), useFiltering(filtering) {
+TextureAtlas::TextureAtlas(u32 width, u32 height, bool filtering) : width(width), height(height), useFiltering(filtering) {
 }
 
-int32_t TextureAtlas::addBuffer(std::shared_ptr<PixelBuffer> pb) {
+i32 TextureAtlas::addBuffer(std::shared_ptr<PixelBuffer> pb) {
     auto handle = nextHandle;
     idMap[pb] = handle;
     buffers.push_back(pb);
@@ -46,7 +46,7 @@ bool TextureAtlas::build() {
         {
             node->buffer = pb;
             src_rect.set(0, 0, pb->getWidth(), pb->getHeight());
-            atlas->copy(pb.get(), &src_rect, static_cast<uint32_t>(node->rect.left), static_cast<uint32_t>(node->rect.top));
+            atlas->copy(pb.get(), &src_rect, static_cast<u32>(node->rect.left), static_cast<u32>(node->rect.top));
             // calculate texture coordinates (opengl uv space)
             uv_rect.left = remapFloat(0, (float) width, 0, 1, (float) node->rect.left);
             uv_rect.right = remapFloat(0, (float) width, 0, 1, (float) node->rect.right+1);
@@ -94,10 +94,10 @@ void TextureAtlas::debug()
 
 void TextureAtlas::upload() {
     texture = std::make_shared<OGLTexture>(atlas.get(), "texture_diffuse", useFiltering);
-    SDL_Log("Uploaded %d atlas textures", textureMap.size());
+    SDL_Log("Uploaded %lu atlas textures", textureMap.size());
 }
 
-UVRect& TextureAtlas::getUVRect(int32_t handle) {
+UVRect& TextureAtlas::getUVRect(i32 handle) {
     //debug();
     try {
         return textureMap[handle]->uvRect;
@@ -119,9 +119,9 @@ void TextureAtlas::bind(int tex_unit) {
     glBindTexture(GL_TEXTURE_2D, texture->tex);
 }
 
-std::shared_ptr<OGLTexture> TextureAtlas::createOGLTexture(int32_t handle) {
+std::shared_ptr<OGLTexture> TextureAtlas::createOGLTexture(i32 handle) {
     auto& tex = textureMap[handle];
-    std::unique_ptr<PixelBuffer> pb = std::unique_ptr<PixelBuffer>(new PixelBuffer(static_cast<uint32_t>(tex->width), static_cast<uint32_t>(tex->height)));
+    std::unique_ptr<PixelBuffer> pb = std::unique_ptr<PixelBuffer>(new PixelBuffer(static_cast<u32>(tex->width), static_cast<u32>(tex->height)));
     Rect2D r(tex->rect.left, tex->rect.top, tex->width, tex->height);
     pb->copy(atlas.get(), &r, 0, 0);
     return std::make_shared<OGLTexture>(pb.get(), "texture_diffuse", true);

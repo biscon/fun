@@ -7,7 +7,7 @@
 #include "FontAsset.h"
 #include "../IGame.h"
 
-FontAsset::FontAsset(const std::string &filename, uint16 glyphWidth, uint16 glyphHeight) : filename(filename),
+FontAsset::FontAsset(const std::string &filename, u16 glyphWidth, u16 glyphHeight) : filename(filename),
                                                                                                glyphWidth(glyphWidth),
                                                                                                glyphHeight(
                                                                                                        glyphHeight) {}
@@ -29,14 +29,14 @@ bool FontAsset::load() {
     return true;
 }
 
-void FontAsset::renderText(PixelBuffer* pb, uint16 x, uint16 y, const std::string &str)
+void FontAsset::renderText(PixelBuffer* pb, u16 x, u16 y, const std::string &str)
 {
     int chars_width = buffer->getWidth() / glyphWidth;
     //SDL_Log("Font buffer contains %dx%d glyphs", chars_width, chars_height);
     Rect2D rect;
     rect.width = glyphWidth;
     rect.height = glyphHeight;
-    for(uint32 i = 0; i < strlen(str.c_str()); i++)
+    for(u32 i = 0; i < strlen(str.c_str()); i++)
     {
         int index = (uint8_t) str[i];
         if(index > 255)
@@ -52,12 +52,12 @@ void FontAsset::renderText(PixelBuffer* pb, uint16 x, uint16 y, const std::strin
     }
 }
 
-uint32 FontAsset::measureStringWidth(const std::string &str)
+u32 FontAsset::measureStringWidth(const std::string &str)
 {
-    return (uint32) strlen(str.c_str()) * glyphWidth;
+    return (u32) strlen(str.c_str()) * glyphWidth;
 }
 
-uint32 FontAsset::getFontHeight()
+u32 FontAsset::getFontHeight()
 {
     return glyphHeight;
 }
@@ -85,7 +85,7 @@ bool FontAsset::prepare(TextureAtlas& textureAtlas) {
     return true;
 }
 
-std::map<uint8_t, int32_t>& FontAsset::getGlyphHandleMap() {
+std::map<uint8_t, i32>& FontAsset::getGlyphHandleMap() {
     return glyphHandleMap;
 }
 

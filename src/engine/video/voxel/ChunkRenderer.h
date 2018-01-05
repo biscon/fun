@@ -33,7 +33,7 @@
 // unique_ptr's on the other hand should optimize to bare pointers
 class ChunkRenderer : public ILoadTask {
 public:
-    const int VISIBLE_RADIUS = 24;
+    const int VISIBLE_RADIUS = 4;
     const int CHUNKS_SETUP_PER_FRAME = 4;
     const int CHUNKS_BUILD_PER_FRAME = 4;
 
@@ -43,8 +43,8 @@ public:
     bool load(IGame &game) override;
     bool prepare(IGame &game) override;
     void update();
-    int32_t getActiveChunks();
-    int32_t getRenderedChunks();
+    i32 getActiveChunks();
+    i32 getRenderedChunks();
     ChunkPos camChunkPos;
     glm::vec3 worldPos;
 
@@ -65,9 +65,9 @@ private:
     std::unique_ptr<Skybox> skybox;
     std::unique_ptr<DirectionalLight> directionalLight;
     float lightAngle = -90.0f;
-    int32_t renderedChunks = 0;
+    i32 renderedChunks = 0;
 
-    int32_t buildStage = 0;
+    i32 buildStage = 0;
     std::map<ChunkPos, std::unique_ptr<Chunk>>::iterator setupIterator;
 
     void worldToChunk(glm::vec3 &worldpos, ChunkPos &chunkpos);
@@ -85,7 +85,7 @@ private:
     }
 
 
-    inline int32_t posToIndex(int32_t x, int32_t z)
+    inline i32 posToIndex(i32 x, i32 z)
     {
         return z * CHUNK_SIZE + x;
     }

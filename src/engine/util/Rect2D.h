@@ -12,15 +12,15 @@ class Rect2D {
 public:
     Rect2D();
 
-    Rect2D(int32_t x, int32_t y, int32_t width, int32_t height);
-    void set(int32_t x, int32_t y, int32_t width, int32_t height)
+    Rect2D(i32 x, i32 y, i32 width, i32 height);
+    void set(i32 x, i32 y, i32 width, i32 height)
     {
         this->x = x;
         this->y = y;
         this->width = width;
         this->height = height;
     }
-    int32 x,y,width,height;
+    i32 x,y,width,height;
 };
 
 

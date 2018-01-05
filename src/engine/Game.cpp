@@ -75,7 +75,7 @@ void Game::run() {
     while(!modeStack.empty()) modeStack.pop();
 
     // shutdown all registered & initialized gamemodes
-    SDL_Log("Remaining gamemodes: %d", modes.size());
+    SDL_Log("Remaining gamemodes: %lu", modes.size());
     for(auto i = modes.begin(); i != modes.end(); ++i)
     {
         if((*i)->isInit())
@@ -269,7 +269,7 @@ double Game::getDelta() {
     return fpsCounter->getDelta();
 }
 
-void Game::onWindowResize(int32_t width, int32_t height) {
+void Game::onWindowResize(i32 width, i32 height) {
     if(renderer != nullptr)
         renderer->onViewportChanged(width, height);
 }

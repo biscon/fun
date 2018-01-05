@@ -98,7 +98,7 @@ bool Model::loadOBJ() {
                                            glm::vec4(mat.specular[0], mat.specular[1], mat.specular[2], 1.0f),
                                            mat.diffuse_texname, mat.specular_texname, mat.shininess);
 
-        SDL_Log("Building submesh %s containing %d vertices", shapes[s].name.c_str(), vertices.size());
+        SDL_Log("Building submesh %s containing %lu vertices", shapes[s].name.c_str(), vertices.size());
         meshMaterialMap[meshes.back().get()] = mat.name;
     }
     return true;
@@ -115,7 +115,7 @@ bool Model::prepare(IGame &game) {
     SDL_Log("Preparing model %s", filename.c_str());
     // upload textures
     materialDictionary->prepare();
-    SDL_Log("Uploading %d meshes", meshes.size());
+    SDL_Log("Uploading %lu meshes", meshes.size());
     for(auto& mesh : meshes)
     {
         mesh->material = materialDictionary->getMaterial(meshMaterialMap[mesh.get()]);

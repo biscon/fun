@@ -121,15 +121,15 @@ BiomeType **Terrain::getBiomeMap() const {
     return biomeMap;
 }
 
-BiomeType *Terrain::getBiomeAt(int32_t x, int32_t y) {
+BiomeType *Terrain::getBiomeAt(i32 x, i32 y) {
     return biomeMap[(x & (size - 1)) + (y & (size - 1)) * size];
 }
 
-int32_t Terrain::getSize() const {
+i32 Terrain::getSize() const {
     return size;
 }
 
-bool Terrain::isBiomeBorderAt(int32_t x, int32_t y) {
+bool Terrain::isBiomeBorderAt(i32 x, i32 y) {
     BiomeType *bt = getBiomeAt(x,y);
     // top row
     if(getBiomeAt(x-1, y-1) != bt) return true;

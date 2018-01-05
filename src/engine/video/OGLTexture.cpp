@@ -79,11 +79,11 @@ bool OGLTexture::init(PixelBuffer *pb, bool filtering) {
     return true;
 }
 
-uint32_t OGLTexture::getWidth() {
+u32 OGLTexture::getWidth() {
     return width;
 }
 
-uint32_t OGLTexture::getHeight() {
+u32 OGLTexture::getHeight() {
     return height;
 }
 

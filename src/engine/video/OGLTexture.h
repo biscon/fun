@@ -21,12 +21,12 @@ public:
     void bind();
     void bind(int tex_unit);
 
-    uint32_t getWidth() override;
-    uint32_t getHeight() override;
+    u32 getWidth() override;
+    u32 getHeight() override;
 
     GLuint tex;
-    uint32_t width;
-    uint32_t height;
+    u32 width;
+    u32 height;
     std::string type;
 
 private:

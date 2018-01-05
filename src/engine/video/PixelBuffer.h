@@ -25,38 +25,38 @@ class PixelBuffer {
 public:
     PixelBuffer();
 
-    PixelBuffer(uint32_t width, uint32_t height);
+    PixelBuffer(u32 width, u32 height);
     explicit PixelBuffer(std::string filename);
     virtual ~PixelBuffer();
     bool loadFromPNG(std::string filename);
     bool saveToPNG(std::string filename);
-    bool copy(PixelBuffer* src, Rect2D *src_rect, uint32_t dst_x, uint32_t dst_y);
-    bool copyToBuffer(void* dst, int32 dst_pitch);
-    void clear(uint32_t color);
-    uint32 getWidth() const { return width; }
-    uint32 getHeight() const { return height; }
-    uint32 *getPixels() const { return pixels; }
-    uint32_t getPitch() const { return pitch; }
+    bool copy(PixelBuffer* src, Rect2D *src_rect, u32 dst_x, u32 dst_y);
+    bool copyToBuffer(void* dst, i32 dst_pitch);
+    void clear(u32 color);
+    u32 getWidth() const { return width; }
+    u32 getHeight() const { return height; }
+    u32 *getPixels() const { return pixels; }
+    u32 getPitch() const { return pitch; }
     std::string getName() const { return name; }
     void blur(PixelBuffer *src);
     void convertToGreyScale();
     void sobelEdgeDetection();
-    uint32_t blurAt(int32_t x, int32_t y);
+    u32 blurAt(i32 x, i32 y);
     PixelBuffer *clone();
 
 private:
     std::string name = "PixelBuffer";
-    uint32 width, height, pitch;
-    uint32 *pixels = nullptr;
+    u32 width, height, pitch;
+    u32 *pixels = nullptr;
     bool hasAlpha;
-    int16 cacheId;
+    i16 cacheId;
 
     // for rigmor zobel edge detection ;)
     unsigned int GX [3][3];
     unsigned int GY [3][3];
 
 
-    bool init(uint32_t width, uint32_t height);
+    bool init(u32 width, u32 height);
     bool init(std::string);
 };
 

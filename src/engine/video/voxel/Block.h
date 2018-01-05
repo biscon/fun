@@ -9,7 +9,7 @@
 #define BLOCK_GRASS 1
 #define BLOCK_WATER 2
 
-#include <cstdint>
+#include "defs.h"
 
 struct Block {
     uint8_t type = 0;

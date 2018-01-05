@@ -17,7 +17,7 @@ void FontRenderer::startFrame() {
     quadRenderer->startFrame();
 }
 
-int32_t FontRenderer::addFont(std::string filename, uint16_t glyphWidth, uint16_t glyphHeight) {
+i32 FontRenderer::addFont(std::string filename, uint16_t glyphWidth, uint16_t glyphHeight) {
     auto handle = nextHandle;
     nextHandle++;
     fonts[handle] = std::unique_ptr<FontAsset>(new FontAsset(filename, glyphWidth, glyphHeight));
@@ -40,13 +40,13 @@ bool FontRenderer::prepare(IGame &game) {
     return true;
 }
 
-void FontRenderer::renderText(int32_t handle, float left, float top, std::string txt) {
+void FontRenderer::renderText(i32 handle, float left, float top, std::string txt) {
     FontAsset *font = fonts.at(handle).get();
     auto len = strlen(txt.c_str());
     auto off = left;
     auto gw = font->getGlyphWidth();
     auto gh = font->getGlyphHeight();
-    for(uint32 i = 0; i < len; i++)
+    for(u32 i = 0; i < len; i++)
     {
         uint8_t index = (uint8_t) txt[i];
         quadRenderer->drawTexturedQuad(font->getGlyphHandleMap()[index], off, top, off + gw, top + gh, 0);

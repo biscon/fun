@@ -12,25 +12,25 @@
 
 class Point2D {
 public:
-    Point2D(int32_t x, int32_t y) : x(x), y(y) {}
-    int32_t x,y;
+    Point2D(i32 x, i32 y) : x(x), y(y) {}
+    i32 x,y;
 };
 
 class HeightMap {
 public:
-    HeightMap(int32_t width, int32_t height);
+    HeightMap(i32 width, i32 height);
 
-    inline double getSampleWrap(int32 x, int32 y)
+    inline double getSampleWrap(i32 x, i32 y)
     {
         return data[(x & (width - 1)) + (y & (height - 1)) * width];
     }
 
-    inline void setSampleWrap(int32 x, int32 y, double val)
+    inline void setSampleWrap(i32 x, i32 y, double val)
     {
         data[(x & (width - 1)) + (y & (height - 1)) * width] = val;
     }
 
-    inline double getSampleClip(int32 x, int32 y)
+    inline double getSampleClip(i32 x, i32 y)
     {
         if(x > 0 && x < width && y > 0 && y < height)
             return data[y*width+x];
@@ -38,13 +38,13 @@ public:
             return 0.0;
     }
 
-    inline void setSampleClip(int32 x, int32 y, double val)
+    inline void setSampleClip(i32 x, i32 y, double val)
     {
         if(x > 0 && x < width && y > 0 && y < height)
             data[y*width+x] = val;
     }
 
-    inline double getSample(int32 x, int32 y)
+    inline double getSample(i32 x, i32 y)
     {
         if(wrapCoords)
             return getSampleWrap(x,y);
@@ -52,7 +52,7 @@ public:
             return getSampleClip(x,y);
     }
 
-    inline void setSample(int32 x, int32 y, double val)
+    inline void setSample(i32 x, i32 y, double val)
     {
         if(wrapCoords)
             setSampleWrap(x,y,val);
@@ -60,8 +60,8 @@ public:
             setSampleClip(x,y,val);
     }
 
-    int32_t getWidth() const;
-    int32_t getHeight() const;
+    i32 getWidth() const;
+    i32 getHeight() const;
 
     const Point2D &getHighPoint() const;
     void setHighPoint(const Point2D &highPoint);
@@ -77,8 +77,8 @@ public:
 
 private:
     double* data;
-    int32 width, height;
-    uint32 seed;
+    i32 width, height;
+    u32 seed;
     double minVal = -1;
     double maxVal = 1;
     double lowest = 0;

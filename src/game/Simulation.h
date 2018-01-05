@@ -10,10 +10,10 @@
 class Simulation {
 public:
     void update();
-    void setRate(uint32 hz);
+    void setRate(u32 hz);
 
 private:
-    uint32 lastTime = 0, currentTime, intervalMs = 1000, tick = 0;
+    u32 lastTime = 0, currentTime, intervalMs = 1000, tick = 0;
 };
 
 

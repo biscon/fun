@@ -36,7 +36,7 @@ public:
     void onKeyPressed(const SDL_Event *event) override {}
 
     // window events
-    void onWindowResize(int32_t width, int32_t height) override;
+    void onWindowResize(i32 width, i32 height) override;
     void onMouseEnter() override;
     void onMouseLeave() override;
     void onFocusGained() override;
@@ -54,23 +54,23 @@ private:
     std::shared_ptr<IInput> input;
     std::shared_ptr<IAssetLoader> assetLoader;
     std::shared_ptr<ISystem> system;
-    const uint32 TARGET_FPS = 100;
-    const uint32 MAX_FRAMESKIP = 10;
-    uint64 skipTicks;
+    const u32 TARGET_FPS = 100;
+    const u32 MAX_FRAMESKIP = 10;
+    u64 skipTicks;
     bool shouldQuit;
     std::stack<std::shared_ptr<IGameMode>> modeStack;
     std::vector<std::shared_ptr<IGameMode>> modes;
     std::shared_ptr<FontRenderer> defaultFontRenderer;
-    int32_t defaultFont = -1;
+    i32 defaultFont = -1;
     std::unique_ptr<FPSCounter> fixedFpsCounter;
     std::unique_ptr<FPSCounter> fpsCounter;
     char fpsStr[256];
     void fixedUpdate();
     void update();
     void initFpsTimer();
-    uint64 initTimeStamp = 0;
-    int32 screenWidth;
-    int32 screenHeight;
+    u64 initTimeStamp = 0;
+    i32 screenWidth;
+    i32 screenHeight;
     bool paused = false;
     bool fullscreen = false;
 };
