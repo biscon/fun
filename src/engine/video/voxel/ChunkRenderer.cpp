@@ -290,6 +290,11 @@ void ChunkRenderer::update() {
             ++it;
         }
     }
+
+    for(const auto& chunk : recycleList)
+    {
+        totalMeshSizeBytes += chunk->getMeshSizeBytes();
+    }
 }
 
 void ChunkRenderer::worldToChunk(glm::vec3& worldpos, ChunkPos& chunkpos)
@@ -319,8 +324,8 @@ i32 ChunkRenderer::getRenderedChunks() {
 
 void ChunkRenderer::updateDirectionalLight(float delta) {
 // Update directional light direction, intensity and colour
-    float fast = 2.0f;
-    float slow = 1.0f;
+    float fast = 5.0f;
+    float slow = 2.0f;
     if (lightAngle > 90) {
         lightAngle += fast * delta;
         directionalLight->intensity = 0;
@@ -334,7 +339,7 @@ void ChunkRenderer::updateDirectionalLight(float delta) {
         directionalLight->color.y = std::max(factor, 0.9f);
         directionalLight->color.z = std::max(factor, 0.5f);
     } else {
-        lightAngle += fast + delta;
+        lightAngle += fast * delta;
         directionalLight->intensity = 1.0f;
         directionalLight->color.x = 1.0f;
         directionalLight->color.y = 1.0f;

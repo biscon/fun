@@ -132,10 +132,10 @@ void IntroGameMode::fixedUpdate() {
     fontRenderer->startFrame();
     fontRenderer->renderText(font2, 50, 50, "Use WASD and mouse look to fly around");
     fontRenderer->renderText(font2, 50, 80, "Mousewheel adjusts FOV, F12 toggles fullscreen");
-    fontRenderer->renderText(font2, 50, 1000, stringFormat("pos = %.2f,%.2f,%.2f chunkPosXZ = %d,%d activeChunks: %d visChunks: %d voxMeshSize: %d MB",
+    fontRenderer->renderText(font2, 50, 1000, stringFormat("pos = %.2f,%.2f,%.2f chunkPosXZ = %d,%d activeChunks: %d visChunks: %d voxMeshSize: %d MB visRad: %d",
                                                            camera->Position.x, camera->Position.y, camera->Position.z,
                                                            chunkRenderer->camChunkPos.x, chunkRenderer->camChunkPos.z,
-                                                           chunkRenderer->getActiveChunks(), chunkRenderer->getRenderedChunks(), (chunkRenderer->totalMeshSizeBytes / 1024) / 1024));
+                                                           chunkRenderer->getActiveChunks(), chunkRenderer->getRenderedChunks(), (chunkRenderer->totalMeshSizeBytes / 1024) / 1024, chunkRenderer->VISIBLE_RADIUS));
     fontRenderer->render(game->getRenderer()->getWidth(), game->getRenderer()->getHeight());
 }
 
