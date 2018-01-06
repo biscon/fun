@@ -26,11 +26,40 @@ void ChunkManager::runIncrementalChunkBuild()
     }
     if(buildStage == CHUNK_STAGE_BUILD)
     {
+        ChunkNeighbours neighbours;
+        //Chunk *search_chunk;
+        ChunkPos pos;
         i32 count = 0;
         while(!buildChunks.empty() && count < CHUNKS_BUILD_PER_FRAME)
         {
             auto chunk_it = buildChunks.begin();
-            chunk_it->second->rebuild(chunk_it->first, terrain);
+            const auto& chunk_pos = chunk_it->first;
+
+            // find north
+            pos.set(chunk_pos.x, chunk_pos.z - 1);
+            neighbours.n = findBuildChunkAt(pos);
+            if(neighbours.n == nullptr)
+                neighbours.n = findActiveChunkAt(pos);
+
+            // find south
+            pos.set(chunk_pos.x, chunk_pos.z + 1);
+            neighbours.s = findBuildChunkAt(pos);
+            if(neighbours.s == nullptr)
+                neighbours.s = findActiveChunkAt(pos);
+
+            // find west
+            pos.set(chunk_pos.x - 1, chunk_pos.z);
+            neighbours.w = findBuildChunkAt(pos);
+            if(neighbours.w == nullptr)
+                neighbours.w = findActiveChunkAt(pos);
+
+            // find east
+            pos.set(chunk_pos.x + 1, chunk_pos.z);
+            neighbours.e = findBuildChunkAt(pos);
+            if(neighbours.e == nullptr)
+                neighbours.e = findActiveChunkAt(pos);
+
+            chunk_it->second->rebuild(chunk_it->first, neighbours);
             activeChunks[chunk_it->first] = std::move(chunk_it->second);
             buildChunks.erase(chunk_it);
             count++;

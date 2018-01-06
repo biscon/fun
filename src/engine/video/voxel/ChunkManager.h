@@ -16,26 +16,16 @@ class ChunkManager {
 public:
     const int CHUNKS_SETUP_PER_FRAME = 2;
     const int CHUNKS_BUILD_PER_FRAME = 2;
-    const int VISIBLE_RADIUS = 24;
+    const int VISIBLE_RADIUS = 32;
 
     ChunkManager(const std::shared_ptr<Terrain> &terrain);
 
     std::map<ChunkPos, std::unique_ptr<Chunk>> activeChunks;
     std::map<ChunkPos, std::unique_ptr<Chunk>> buildChunks;
     std::vector<std::unique_ptr<Chunk>> recycleList;
-    std::shared_ptr<Terrain> terrain = nullptr;
-    i32 buildStage = 0;
-    std::map<ChunkPos, std::unique_ptr<Chunk>>::iterator setupIterator;
+
     ChunkPos camChunkPos;
     size_t totalMeshSizeBytes = 0;
-
-    inline Chunk *findChunkAt(const std::map<ChunkPos, std::unique_ptr<Chunk>>&chunk_map, const ChunkPos &pos) {
-        auto it = chunk_map.find(pos);
-        if(it != chunk_map.end())
-            return (*it).second.get();
-
-        return nullptr;
-    }
 
     inline Chunk *findActiveChunkAt(const ChunkPos &pos) {
         return findChunkAt(activeChunks, pos);
@@ -61,6 +51,17 @@ public:
     void update(glm::vec3& campos, BlockTypeDictionary& blockTypeDict);
 
 private:
+    std::shared_ptr<Terrain> terrain = nullptr;
+    i32 buildStage = 0;
+    std::map<ChunkPos, std::unique_ptr<Chunk>>::iterator setupIterator;
+
+    inline Chunk *findChunkAt(const std::map<ChunkPos, std::unique_ptr<Chunk>>&chunk_map, const ChunkPos &pos) {
+        auto it = chunk_map.find(pos);
+        if(it != chunk_map.end())
+            return (*it).second.get();
+
+        return nullptr;
+    }
 };
 
 

@@ -74,7 +74,7 @@ void Chunk::setupFromTerrain(const ChunkPos& position, const std::shared_ptr<Ter
 }
 
 // cache friendly order y,z,x
-void Chunk::rebuild(const ChunkPos& position, const std::shared_ptr<Terrain>& terrain) {
+void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
     // clear lightmap
     memset(lightMap, 0, sizeof(lightMap));
 
@@ -106,14 +106,18 @@ void Chunk::rebuild(const ChunkPos& position, const std::shared_ptr<Terrain>& te
                     auto pos = z_m * origin;
                     bool should_mesh = false;
 
-                    // Check if each of the cubes side is not active, if then we need to mesh it
-                    if (!isBlockActiveAt(x, y, z - 1)) should_mesh = true; // back
-                    if (!isBlockActiveAt(x, y, z + 1)) should_mesh = true; // front
-                    if (!isBlockActiveAt(x - 1, y, z)) should_mesh = true; // left
-                    if (!isBlockActiveAt(x + 1, y, z)) should_mesh = true; // right
-                    if (!isBlockActiveAt(x, y + 1, z)) should_mesh = true; // bottom
-                    if (!isBlockActiveAt(x, y - 1, z)) should_mesh = true; // top
-
+                    // if we're on the bottom only check directly above
+                    if(y == 0 && isBlockActiveAt(neighbours, x, 1, z))
+                        should_mesh = false;
+                    else {
+                        // Check if each of the cubes side is not active, if then we need to mesh it
+                        if (!isBlockActiveAt(neighbours, x, y, z - 1)) should_mesh = true; // back
+                        if (!isBlockActiveAt(neighbours, x, y, z + 1)) should_mesh = true; // front
+                        if (!isBlockActiveAt(neighbours, x - 1, y, z)) should_mesh = true; // left
+                        if (!isBlockActiveAt(neighbours, x + 1, y, z)) should_mesh = true; // right
+                        if (!isBlockActiveAt(neighbours, x, y + 1, z)) should_mesh = true; // bottom
+                        if (!isBlockActiveAt(neighbours, x, y - 1, z)) should_mesh = true; // top
+                    }
                     if (should_mesh) {
                         auto batch = materialBatchMap.find(block.type);
                         if(batch == materialBatchMap.end()) // batch does not exist, create
