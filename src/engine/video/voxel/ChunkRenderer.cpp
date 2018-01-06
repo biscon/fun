@@ -129,7 +129,7 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
         chunkbox.setBox(corner, CHUNK_SIZE, CHUNK_HEIGHT, CHUNK_SIZE);
         //SDL_Log("Chunk pos %.2f,%.2f,%.2f", chunk.second->position.x, chunk.second->position.y, chunk.second->position.z);
         //SDL_Log("Box Corner pos %.2f,%.2f,%.2f, xyz = %.2f,%.2f,%.2f", chunkbox.corner.x, chunkbox.corner.y, chunkbox.corner.z, chunkbox.x, chunkbox.y, chunkbox.z);
-        if(viewFrustrum->boxInFrustum(chunkbox) != ViewFrustum::OUTSIDE )
+        //if(viewFrustrum->boxInFrustum(chunkbox) != ViewFrustum::OUTSIDE )
             renderList.push_back(chunk.second.get());
     }
 

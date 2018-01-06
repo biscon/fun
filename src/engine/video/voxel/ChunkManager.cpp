@@ -163,17 +163,19 @@ void ChunkManager::update(glm::vec3& campos, BlockTypeDictionary& blockTypeDict)
 
 void ChunkManager::worldToChunk(glm::vec3& worldpos, ChunkPos& chunkpos)
 {
-    auto xoffset = (float) CHUNK_SIZE/2;
-    auto zoffset = (float) CHUNK_SIZE/2;
+    auto xoffset = halfChunkSize;
+    auto zoffset = halfChunkSize;
     if(worldpos.x < 0)
         xoffset *= -1;
     if(worldpos.z < 0)
         zoffset *= -1;
-    chunkpos.x = (int) ((worldpos.x + xoffset) / (float) CHUNK_SIZE);
-    chunkpos.z = (int) ((worldpos.z + zoffset) / (float) CHUNK_SIZE);
+    chunkpos.x = (int) ((worldpos.x + xoffset) / fChunkSize);
+    chunkpos.z = (int) ((worldpos.z + zoffset) / fChunkSize);
 }
 
 void ChunkManager::chunkToWorld(ChunkPos &chunkpos, glm::vec3 &worldpos) {
     worldpos.x = (chunkpos.x * CHUNK_SIZE);
     worldpos.z = (chunkpos.z * CHUNK_SIZE);
+    worldpos.x -= halfChunkSize;
+    worldpos.z -= halfChunkSize;
 }

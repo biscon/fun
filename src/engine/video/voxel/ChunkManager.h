@@ -16,7 +16,7 @@ class ChunkManager {
 public:
     const int CHUNKS_SETUP_PER_FRAME = 2;
     const int CHUNKS_BUILD_PER_FRAME = 2;
-    const int VISIBLE_RADIUS = 32;
+    const int VISIBLE_RADIUS = 24;
 
     ChunkManager(const std::shared_ptr<Terrain> &terrain);
 
@@ -51,6 +51,8 @@ public:
     void update(glm::vec3& campos, BlockTypeDictionary& blockTypeDict);
 
 private:
+    float halfChunkSize = (float) CHUNK_SIZE/2;
+    float fChunkSize = (float) CHUNK_SIZE;
     std::shared_ptr<Terrain> terrain = nullptr;
     i32 buildStage = 0;
     std::map<ChunkPos, std::unique_ptr<Chunk>>::iterator setupIterator;
