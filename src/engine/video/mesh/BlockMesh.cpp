@@ -35,8 +35,8 @@ void BlockMesh::prepare()
     // vertex positions
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_BYTE, GL_FALSE, vsize, (void*)0);
-    // vertex normals
-    if(hasNormals) {
+    // vertex colors
+    if(hasColors) {
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 4, GL_BYTE, GL_FALSE, vsize, (void *) 4);
     }
@@ -76,7 +76,7 @@ void BlockMesh::drawRange(const Shader& shader, i32 start, i32 count, Material* 
 
     glBindVertexArray(VAO);
     // draw mesh
-    glDrawArrays(GL_TRIANGLES, start / vertexSize, count / vertexSize);
+    glDrawArrays(GL_TRIANGLES, start, count);
     //glBindVertexArray(0);
 }
 

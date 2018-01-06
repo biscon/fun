@@ -5,7 +5,7 @@
 #define GAME_TILECHUNK_H
 
 #include <memory>
-#include <engine/video/mesh/Mesh3.h>
+#include <engine/video/mesh/BlockMesh.h>
 #include <engine/video/texture/TextureAtlas.h>
 #include "BlockTypeDictionary.h"
 #include "Block.h"
@@ -21,8 +21,8 @@
 
 struct MaterialBlock
 {
-    float x,y,z;
-    MaterialBlock(float x, float y, float z) : x(x), y(y), z(z) {}
+    i8 x,y,z;
+    MaterialBlock(i8 x, i8 y, i8 z) : x(x), y(y), z(z) {}
 };
 
 struct MaterialBatch
@@ -53,7 +53,7 @@ public:
 
 private:
     BlockTypeDictionary& blockTypeDict;
-    std::unique_ptr<Mesh3> mesh;
+    std::unique_ptr<BlockMesh> mesh;
     std::map<i32, std::unique_ptr<MaterialBatch>> materialBatchMap;
 
     inline bool isBlockActiveAt(i32 x, i32 y, i32 z)

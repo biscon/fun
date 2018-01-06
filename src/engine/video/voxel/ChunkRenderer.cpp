@@ -17,20 +17,15 @@ ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera,
     viewFrustrum = std::unique_ptr<ViewFrustum>(new ViewFrustum());
 
     auto& system = *game.getSystem();
-    auto lighting_vs = system.readTextFile("shaders/voxel_shader_vs.glsl");
-    auto lighting_fs = system.readTextFile("shaders/voxel_shader_fs.glsl");
+    auto lighting_vs = system.readTextFile("shaders/voxel_shader2_vs.glsl");
+    auto lighting_fs = system.readTextFile("shaders/voxel_shader2_fs.glsl");
 
     //auto lighting_fs = system.readTextFile("shaders/lamp_shader_fs.glsl");
-
     shader = std::unique_ptr<Shader>(new Shader(lighting_vs.c_str(), lighting_fs.c_str(), nullptr));
-
-    auto lamp_vs = system.readTextFile("shaders/lamp_shader_vs.glsl");
-    auto lamp_fs = system.readTextFile("shaders/lamp_shader_fs.glsl");
-    lampShader = std::unique_ptr<Shader>(new Shader(lamp_vs.c_str(), lamp_fs.c_str(), nullptr));
 
     skybox = std::unique_ptr<Skybox>(new Skybox(system, camera));
 
-    /*
+    /* Im keeping these around if we ever need some untextured materials its a PITA typing in those floats
     materialDict = std::unique_ptr<MaterialDictionary>(new MaterialDictionary());
     materialDict->createMaterial("emerald",
                                  glm::vec3(0.0215f, 0.1745f, 0.0215f),
@@ -67,6 +62,8 @@ ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera,
     //fog = std::unique_ptr<Fog>(new Fog(color, 0.0075f, true));
     fog = std::unique_ptr<Fog>(new Fog(color, 0.0035f, true));
     directionalLight = std::unique_ptr<DirectionalLight>(new DirectionalLight());
+
+    SDL_Log("size of BlockMeshVertex %d", sizeof(BlockMeshVertex));
 }
 
 void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
@@ -88,6 +85,8 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
 
     // be sure to activate shader when setting uniforms/drawing objects
     shader->use();
+    sendNormalsArrayUniform();
+
     shader->setVec3("camPos", camera->Position);
     fog->color = directionalLight->intensity * glm::vec3(0.3294f, 0.92157f, 1.0f);
     fog->applyShader(*shader);
@@ -124,19 +123,11 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
 
     renderList.clear();
     AABox chunkbox;
-    float half_chunk_size = (float) CHUNK_SIZE/2;
-    float half_chunk_height = (float) CHUNK_HEIGHT/2;
     Vec3 corner;
     for(auto& chunk : activeChunks) {
         corner.x = chunk.second->position.x;
         corner.y = chunk.second->position.y;
         corner.z = chunk.second->position.z;
-
-
-        corner.x -= half_chunk_size;
-        //corner.y -= half_chunk_height;
-        corner.z -= half_chunk_size;
-
         chunkbox.setBox(corner, CHUNK_SIZE, CHUNK_HEIGHT, CHUNK_SIZE);
         //SDL_Log("Chunk pos %.2f,%.2f,%.2f", chunk.second->position.x, chunk.second->position.y, chunk.second->position.z);
         //SDL_Log("Box Corner pos %.2f,%.2f,%.2f, xyz = %.2f,%.2f,%.2f", chunkbox.corner.x, chunkbox.corner.y, chunkbox.corner.z, chunkbox.x, chunkbox.y, chunkbox.z);
@@ -226,7 +217,7 @@ void ChunkRenderer::update() {
             if (x * x + z * z <= radius * radius)
             {
                 ChunkPos testpos;
-                glm::vec3 worldpos = {0, 0.5f, 0};
+                glm::vec3 worldpos = {0, 0.0f, 0};
                 testpos.x = camChunkPos.x + x;
                 testpos.z = camChunkPos.z + z;
                 chunkToWorld(testpos, worldpos);
@@ -310,8 +301,8 @@ void ChunkRenderer::worldToChunk(glm::vec3& worldpos, ChunkPos& chunkpos)
 }
 
 void ChunkRenderer::chunkToWorld(ChunkPos &chunkpos, glm::vec3 &worldpos) {
-    worldpos.x = chunkpos.x * CHUNK_SIZE;
-    worldpos.z = chunkpos.z * CHUNK_SIZE;
+    worldpos.x = (chunkpos.x * CHUNK_SIZE);
+    worldpos.z = (chunkpos.z * CHUNK_SIZE);
 }
 
 i32 ChunkRenderer::getActiveChunks() {
@@ -352,4 +343,51 @@ void ChunkRenderer::updateDirectionalLight(float delta) {
     //SDL_Log("Light angle %.2f intensity %.2f", lightAngle, directionalLight->intensity);
     if(lightAngle > 100)
         lightAngle = -90;
+}
+
+// TODO use uniform buffer objects instead
+void ChunkRenderer::sendNormalsArrayUniform()
+{
+    // Back face
+    shader->setVec3("normals[0]",0,0,-1);
+    shader->setVec3("normals[1]",0,0,-1);
+    shader->setVec3("normals[2]",0,0,-1);
+    shader->setVec3("normals[3]",0,0,-1);
+    shader->setVec3("normals[4]",0,0,-1);
+    shader->setVec3("normals[5]",0,0,-1);
+    // Front face
+    shader->setVec3("normals[6]",0,0,1);
+    shader->setVec3("normals[7]",0,0,1);
+    shader->setVec3("normals[8]",0,0,1);
+    shader->setVec3("normals[9]",0,0,1);
+    shader->setVec3("normals[10]",0,0,1);
+    shader->setVec3("normals[11]",0,0,1);
+    // Left face
+    shader->setVec3("normals[12]",-1,0,0);
+    shader->setVec3("normals[13]",-1,0,0);
+    shader->setVec3("normals[14]",-1,0,0);
+    shader->setVec3("normals[15]",-1,0,0);
+    shader->setVec3("normals[16]",-1,0,0);
+    shader->setVec3("normals[17]",-1,0,0);
+    // Right face
+    shader->setVec3("normals[18]",1,0,0);
+    shader->setVec3("normals[19]",1,0,0);
+    shader->setVec3("normals[20]",1,0,0);
+    shader->setVec3("normals[21]",1,0,0);
+    shader->setVec3("normals[22]",1,0,0);
+    shader->setVec3("normals[23]",1,0,0);
+    // Bottom face
+    shader->setVec3("normals[24]",0,-1,0);
+    shader->setVec3("normals[25]",0,-1,0);
+    shader->setVec3("normals[26]",0,-1,0);
+    shader->setVec3("normals[27]",0,-1,0);
+    shader->setVec3("normals[28]",0,-1,0);
+    shader->setVec3("normals[29]",0,-1,0);
+    // Top face
+    shader->setVec3("normals[30]",0,1,0);
+    shader->setVec3("normals[31]",0,1,0);
+    shader->setVec3("normals[32]",0,1,0);
+    shader->setVec3("normals[33]",0,1,0);
+    shader->setVec3("normals[34]",0,1,0);
+    shader->setVec3("normals[35]",0,1,0);
 }
