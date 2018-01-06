@@ -13,8 +13,9 @@
 #include <cmath>
 #include <engine/video/shader/shaders.h>
 
-ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain) : game(game), camera(camera), terrain(terrain) {
+ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain) : game(game), camera(camera) {
     viewFrustrum = std::unique_ptr<ViewFrustum>(new ViewFrustum());
+    chunkManager = std::unique_ptr<ChunkManager>(new ChunkManager(terrain));
 
     auto& system = *game.getSystem();
     auto lighting_vs = system.readTextFile("shaders/voxel_shader2_vs.glsl");
@@ -25,37 +26,34 @@ ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera,
 
     skybox = std::unique_ptr<Skybox>(new Skybox(system, camera));
 
-    /* Im keeping these around if we ever need some untextured materials its a PITA typing in those floats
-    materialDict = std::unique_ptr<MaterialDictionary>(new MaterialDictionary());
-    materialDict->createMaterial("emerald",
-                                 glm::vec3(0.0215f, 0.1745f, 0.0215f),
-                                 glm::vec3(0.07568f, 0.61424f, 0.07568f),
-                                 glm::vec3(0.633f, 0.727811f, 0.633f),
-                                 "", "", 0.6f*128.0f);
-
-    materialDict->createMaterial("gold",
-                                 glm::vec3(0.24725f, 0.1995f, 0.0745f),
-                                 glm::vec3(0.75164f, 0.60648f, 0.22648f),
-                                 glm::vec3(0.628281f, 0.555802f, 0.366065f),
-                                 "", "", 0.4f*128.0f);
-
-    materialDict->createMaterial("silver",
-                                 glm::vec3(0.19225f, 0.19225f, 0.19225f),
-                                 glm::vec3(0.50754f, 0.50754f, 0.50754f),
-                                 glm::vec3(0.508273f, 0.508273f, 0.508273f),
-                                 "", "", 0.4f*128.0f);
-
-    materialDict->createMaterial("bronze",
-                                 glm::vec3(0.2125f, 0.1275f, 0.054f),
-                                 glm::vec3(0.714f, 0.4284f, 0.18144f),
-                                 glm::vec3(0.393548f, 0.271906f, 0.166721f),
-                                 "", "", 0.2f*128.0f);
-    */
-
     blockTypeDict = std::unique_ptr<BlockTypeDictionary>(new BlockTypeDictionary());
     blockTypeDict->createBlockType("stone", "assets/stone_diffuse.png", "assets/stone_specular.png", 32);
     blockTypeDict->createBlockType("grass", "assets/grass_diffuse.png", "assets/grass_specular.png", 8);
     blockTypeDict->createBlockType("water", "assets/water_diffuse.png", "assets/water_specular.png", 64);
+
+    blockTypeDict->createBlockType("emerald",
+                                 glm::vec4(0.0215f, 0.1745f, 0.0215f, 1.0f),
+                                 glm::vec4(0.07568f, 0.61424f, 0.07568f, 1.0f),
+                                 glm::vec4(0.633f, 0.727811f, 0.633f, 1.0f),
+                                 0.6f*128.0f);
+
+    blockTypeDict->createBlockType("gold",
+                                 glm::vec4(0.24725f, 0.1995f, 0.0745f, 1.0f),
+                                 glm::vec4(0.75164f, 0.60648f, 0.22648f, 1.0f),
+                                 glm::vec4(0.628281f, 0.555802f, 0.366065f, 1.0f),
+                                 0.4f*128.0f);
+
+    blockTypeDict->createBlockType("silver",
+                                 glm::vec4(0.19225f, 0.19225f, 0.19225f, 1.0f),
+                                 glm::vec4(0.50754f, 0.50754f, 0.50754f, 1.0f),
+                                 glm::vec4(0.508273f, 0.508273f, 0.508273f, 1.0f),
+                                 0.4f*128.0f);
+
+    blockTypeDict->createBlockType("bronze",
+                                 glm::vec4(0.2125f, 0.1275f, 0.054f, 1.0f),
+                                 glm::vec4(0.714f, 0.4284f, 0.18144f, 1.0f),
+                                 glm::vec4(0.393548f, 0.271906f, 0.166721f, 1.0f),
+                                 0.2f*128.0f);
 
     //glm::vec3 color = glm::vec3(135.0f/255.0f, 206.0f/255.0f, 250.0f/255.0f);
     glm::vec3 color = glm::vec3(0.3294f, 0.92157f, 1.0f);
@@ -92,7 +90,7 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
     fog->applyShader(*shader);
 
     // ambient light
-    shader->setVec3("ambientLight", 0.15f, 0.15f, 0.15f);
+    shader->setVec3("ambientLight", 0.35f, 0.35f, 0.35f);
 
     // directional light
 
@@ -124,7 +122,7 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
     renderList.clear();
     AABox chunkbox;
     Vec3 corner;
-    for(auto& chunk : activeChunks) {
+    for(auto& chunk : chunkManager->activeChunks) {
         corner.x = chunk.second->position.x;
         corner.y = chunk.second->position.y;
         corner.z = chunk.second->position.z;
@@ -166,147 +164,13 @@ static int distance(int x1, int y1, int x2, int y2)
     return sqrt(dx*dx + dy*dy);
 }
 
-void ChunkRenderer::runIncrementalChunkBuild()
-{
-    if(buildStage == CHUNK_STAGE_SETUP)
-    {
-        for(int i = 0; i < CHUNKS_SETUP_PER_FRAME; i++)
-        {
-            if(setupIterator == buildChunks.end())
-            {
-                buildStage = CHUNK_STAGE_BUILD;
-                return;
-            }
-            else
-            {
-                setupIterator->second->setupFromTerrain(setupIterator->first, terrain);
-            }
-            setupIterator++;
-        }
-    }
-    if(buildStage == CHUNK_STAGE_BUILD)
-    {
-        i32 count = 0;
-        while(!buildChunks.empty() && count < CHUNKS_BUILD_PER_FRAME)
-        {
-            auto chunk_it = buildChunks.begin();
-            chunk_it->second->rebuild(chunk_it->first, terrain);
-            activeChunks[chunk_it->first] = std::move(chunk_it->second);
-            buildChunks.erase(chunk_it);
-            count++;
-        }
-    }
-    //SDL_Log("Rebuild %d chunks this frame", count);
-}
 
 void ChunkRenderer::update() {
-    worldToChunk(camera->Position, camChunkPos);
-    chunkToWorld(camChunkPos, worldPos);
-
-    bool did_rebuild = false;
-    // check if chunks needs to be added, by checking a grid based on the visual radius around the camera
-    // calculate width of a box centered on the camera pos
-    int size = (VISIBLE_RADIUS * 2) + 1;
-    auto m = glm::mat4();
-
-    int chunks_allocated = 0;
-    int chunks_recycled = 0;
-    int radius = VISIBLE_RADIUS;
-    for(int z=-radius; z<=radius; z++) {
-        for (int x = -radius; x <= radius; x++) {
-            if (x * x + z * z <= radius * radius)
-            {
-                ChunkPos testpos;
-                glm::vec3 worldpos = {0, 0.0f, 0};
-                testpos.x = camChunkPos.x + x;
-                testpos.z = camChunkPos.z + z;
-                chunkToWorld(testpos, worldpos);
-                auto chunk = findChunkAt(activeChunks, testpos);
-                auto build_chunk = findChunkAt(buildChunks, testpos);
-                if(chunk == nullptr && build_chunk == nullptr)
-                {
-                    did_rebuild = true;
-                    //SDL_Log("No chunk found at pos %d,%d, adding one.", testpos.x, testpos.z);
-                    if(!recycleList.empty())
-                    {
-                        chunks_recycled++;
-                        std::unique_ptr<Chunk> nc = std::move(recycleList.back());
-                        recycleList.pop_back();
-                        nc->position = worldpos;
-                        buildChunks[testpos] = std::move(nc);
-                    }
-                    else {
-                        chunks_allocated++;
-                        buildChunks[testpos] = std::unique_ptr<Chunk>(new Chunk(*blockTypeDict));
-                        buildChunks[testpos]->position = worldpos;
-                    }
-                }
-            }
-        }
-    }
-
-    if(did_rebuild)
-    {
-        buildStage = CHUNK_STAGE_SETUP;
-        setupIterator = buildChunks.begin();
-    }
-
-    if(!buildChunks.empty())
-    {
-        auto start = game.getSystem()->getPerformanceCounter();
-        runIncrementalChunkBuild();
-        auto end = game.getSystem()->getPerformanceCounter();
-        auto diff = end - start;
-        //SDL_Log("Incremental chunk building took %d ms this frame (%d chunks built)", diff / (system.getPerformanceFreq()/1000), CHUNKS_BUILD_PER_FRAME);
-    }
-
-    if(did_rebuild)
-        SDL_Log("Started rebuilding %d chunks. new = %d, recycled = %d", chunks_recycled+chunks_allocated, chunks_allocated, chunks_recycled);
-
-    totalMeshSizeBytes = 0;
-    // check if chunks need to be removed
-    for (auto it = activeChunks.begin(); it != activeChunks.end() /* not hoisted */; /* no increment */)
-    {
-        auto tilepos = (*it).first;
-        //auto dist = distance(camChunkPos.x, camChunkPos.z, tilepos.x, tilepos.z);
-        auto visible = posInVisibleRadius(tilepos);
-        if (!visible)
-        {
-            recycleList.push_back(std::move((*it).second));
-            activeChunks.erase(it++);    // or "it = m.erase(it)" since C++11
-        }
-        else
-        {
-            totalMeshSizeBytes += (*it).second->getMeshSizeBytes();
-            ++it;
-        }
-    }
-
-    for(const auto& chunk : recycleList)
-    {
-        totalMeshSizeBytes += chunk->getMeshSizeBytes();
-    }
-}
-
-void ChunkRenderer::worldToChunk(glm::vec3& worldpos, ChunkPos& chunkpos)
-{
-    auto xoffset = (float) CHUNK_SIZE/2;
-    auto zoffset = (float) CHUNK_SIZE/2;
-    if(worldpos.x < 0)
-        xoffset *= -1;
-    if(worldpos.z < 0)
-        zoffset *= -1;
-    chunkpos.x = (int) ((worldpos.x + xoffset) / (float) CHUNK_SIZE);
-    chunkpos.z = (int) ((worldpos.z + zoffset) / (float) CHUNK_SIZE);
-}
-
-void ChunkRenderer::chunkToWorld(ChunkPos &chunkpos, glm::vec3 &worldpos) {
-    worldpos.x = (chunkpos.x * CHUNK_SIZE);
-    worldpos.z = (chunkpos.z * CHUNK_SIZE);
+  chunkManager->update(camera->Position, *blockTypeDict);
 }
 
 i32 ChunkRenderer::getActiveChunks() {
-    return static_cast<i32>(activeChunks.size());
+    return static_cast<i32>(chunkManager->activeChunks.size());
 }
 
 i32 ChunkRenderer::getRenderedChunks() {

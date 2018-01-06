@@ -45,3 +45,14 @@ void BlockTypeDictionary::createBlockType(std::string name, std::string diffuseM
 BlockType &BlockTypeDictionary::getBlockTypeAt(int index) {
     return *blockTypes[index];
 }
+
+void BlockTypeDictionary::createBlockType(std::string name, glm::vec4 ambient, glm::vec4 diffuse, glm::vec4 specular,
+                                          float shininess) {
+    blockTypes.push_back(std::unique_ptr<BlockType>(new BlockType()));
+    auto& bt = blockTypes.back();
+    bt->name = name;
+    bt->material.ambient = ambient;
+    bt->material.diffuse = diffuse;
+    bt->material.specular = specular;
+    bt->material.shininess = shininess;
+}

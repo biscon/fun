@@ -27,6 +27,7 @@ public:
     bool load(IGame &game) override;
     bool prepare(IGame &game) override;
     void createBlockType(std::string name, std::string diffuseMapFilename, std::string specularMapFilename, float shininess);
+    void createBlockType(std::string name, glm::vec4 ambient, glm::vec4 diffuse, glm::vec4 specular, float shininess);
     BlockType& getBlockTypeAt(int index);
 
 private:

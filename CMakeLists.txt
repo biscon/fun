@@ -83,8 +83,8 @@ set(SOURCE_FILES
         src/engine/video/ui/QuadRenderer.h
         src/engine/video/other/CubeRenderer.cpp
         src/engine/video/other/CubeRenderer.h
-        src/engine/video/voxel/TileMap.cpp
-        src/engine/video/voxel/TileMap.h
+        src/engine/video/voxel/ChunkManager.cpp
+        src/engine/video/voxel/ChunkManager.h
         src/engine/asset/ILoadTask.h
         src/engine/asset/AssetLoader.cpp
         src/engine/asset/AssetLoader.h

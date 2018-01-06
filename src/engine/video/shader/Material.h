@@ -39,6 +39,10 @@ struct Material {
             shader.setInt("texture_specular", 1);
             glBindTexture(GL_TEXTURE_2D, specularTexture->tex);
         }
+        if(diffuseTexture == nullptr)
+        {
+            shader.setInt("material.hasTexture", 0);
+        }
     }
 };
 
