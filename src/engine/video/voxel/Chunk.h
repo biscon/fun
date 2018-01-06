@@ -33,13 +33,25 @@ struct MaterialBatch
     std::vector<MaterialBlock> blocks;
 };
 
+class Chunk; // forward
+
+struct ChunkNeighbours {
+    Chunk *n;
+    Chunk *s;
+    Chunk *w;
+    Chunk *e;
+
+    ChunkNeighbours() : n(nullptr), s(nullptr), w(nullptr), e(nullptr) {}
+    ChunkNeighbours(Chunk *n, Chunk *s, Chunk *w, Chunk *e) : n(n), s(s), w(w), e(e) {}
+};
+
 class Chunk {
 public:
     Chunk(BlockTypeDictionary &blockTypeDict);
 
     virtual ~Chunk();
     void setupFromTerrain(const ChunkPos &position, const std::shared_ptr<Terrain> &terrain);
-    void rebuild(const ChunkPos& position, const std::shared_ptr<Terrain>& terrain);
+    void rebuild(const ChunkPos& position, ChunkNeighbours& neighbours);
     void draw(const Shader& shader);
     glm::vec3 position;
     // cache friendly order y,z,x
@@ -56,15 +68,58 @@ private:
     std::unique_ptr<BlockMesh> mesh;
     std::map<i32, std::unique_ptr<MaterialBatch>> materialBatchMap;
 
-    inline bool isBlockActiveAt(i32 x, i32 y, i32 z)
+    inline bool isBlockActiveAt(ChunkNeighbours& neighbours, i32 x, i32 y, i32 z)
     {
-        if(x < 0 || x >= CHUNK_SIZE)
-            return false;
+        // early out since our chunk grid is 2d
         if(y < 0 || y >= CHUNK_HEIGHT)
             return false;
-        if(z < 0 || z >= CHUNK_SIZE)
-            return false;
-        return blocks[POS_TO_INDEX(y,z,x)].active;
+
+        // within the same chunk
+        if(x >= 0 && x < CHUNK_SIZE && z >= 0 && z < CHUNK_SIZE)
+        {
+            return blocks[POS_TO_INDEX(y,z,x)].active;
+        }
+
+        // within neighbouring chunk
+        // check west
+        if(x < 0)
+        {
+            if(neighbours.w == nullptr)
+                return false;
+            auto nx = CHUNK_SIZE + x;
+            return neighbours.w->blocks[POS_TO_INDEX(y,z,nx)].active;
+        }
+
+        // check east
+        if(x >= CHUNK_SIZE)
+        {
+            if(neighbours.e == nullptr)
+                return false;
+
+            auto nx = x - CHUNK_SIZE;
+            return neighbours.e->blocks[POS_TO_INDEX(y,z,nx)].active;
+        }
+
+        // check north
+        if(z >= CHUNK_SIZE)
+        {
+            if(neighbours.n == nullptr)
+                return false;
+
+            auto nz = z - CHUNK_SIZE;
+            return neighbours.n->blocks[POS_TO_INDEX(y,nz,x)].active;
+        }
+
+        // check south
+        if(z < 0)
+        {
+            if(neighbours.s == nullptr)
+                return false;
+            auto nz = CHUNK_SIZE + z;
+            return neighbours.s->blocks[POS_TO_INDEX(y,nz,x)].active;
+        }
+
+        return false;
     }
 
     // Get the bits XXXX0000
