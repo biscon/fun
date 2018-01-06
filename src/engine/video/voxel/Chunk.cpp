@@ -75,11 +75,7 @@ void Chunk::rebuild(const ChunkPos& position, const std::shared_ptr<Terrain>& te
     bool first_build = false;
     if(mesh == nullptr) {
         first_build = true;
-        mesh = std::unique_ptr<Mesh3>(new Mesh3());
-        mesh->type = MeshUpdateType::DYNAMIC;
-        mesh->hasNormals = true;
-        mesh->hasTexcoords = true;
-        mesh->vertexSize = 8;
+        mesh = std::unique_ptr<BlockMesh>(new BlockMesh());
     }
     if(!first_build)
         mesh->clear();
@@ -90,7 +86,7 @@ void Chunk::rebuild(const ChunkPos& position, const std::shared_ptr<Terrain>& te
 
     auto m = glm::mat4();
     auto origin = glm::vec4(0,0,0,1);
-    m = glm::translate(m, glm::vec3(-0.5*CHUNK_SIZE, 0.5f, -0.5*CHUNK_SIZE));
+    m = glm::translate(m, glm::vec3(-0.5*CHUNK_SIZE, 0.0f, -0.5*CHUNK_SIZE));
     for(int y = 0; y < CHUNK_HEIGHT; y++)
     {
         glm::mat4 old = m;
@@ -118,32 +114,30 @@ void Chunk::rebuild(const ChunkPos& position, const std::shared_ptr<Terrain>& te
                         {
                             materialBatchMap[block.type] = std::unique_ptr<MaterialBatch>(new MaterialBatch());
                             materialBatchMap[block.type]->blockType = block.type;
-                            materialBatchMap[block.type]->blocks.emplace_back(pos.x, pos.y, pos.z);
+                            materialBatchMap[block.type]->blocks.emplace_back(x,y,z);
+                            //SDL_Log("Generated cube at %d,%d,%d", x, y, z);
                         }
-                        else
-                            batch->second->blocks.emplace_back(pos.x, pos.y, pos.z);
+                        else {
+                            batch->second->blocks.emplace_back(x, y, z);
+                            //SDL_Log("Generated cube at %d,%d,%d", x, y, z);
+                        }
                     }
                 }
                 z_m = glm::translate(z_m, glm::vec3(1.0f, 0.0f, 0.0f));
             }
-            //SDL_Log("Generated cube at %.2f,%.2f,%.2f", pos.x, pos.y, pos.z);
         }
         m = old;
         m = glm::translate(m, glm::vec3(0.0f, 1.0f, 0.0f));
     }
-    UVRect uvRect;
-    uvRect.left = 0.0f;
-    uvRect.right = 1.0f;
-    uvRect.top = 1.0f;
-    uvRect.bottom = 0.0f;
     for(auto const& kv : materialBatchMap)
     {
-        kv.second->start = mesh->vertices.size();
+        kv.second->start = static_cast<u32>(mesh->vertices.size());
         for(auto const& mb : kv.second->blocks)
         {
-            mesh->generateTexturedCubeAt(mb.x, mb.y, mb.z, uvRect);
+            //SDL_Log("Meshing cube at %d,%d,%d", mb.x, mb.y, mb.z);
+            mesh->generateTexturedCubeAt(mb.x, mb.y, mb.z);
         }
-        kv.second->count = mesh->vertices.size() - kv.second->start;
+        kv.second->count = static_cast<u32>(mesh->vertices.size() - kv.second->start);
     }
     if(first_build)
         mesh->prepare();
@@ -154,14 +148,12 @@ void Chunk::rebuild(const ChunkPos& position, const std::shared_ptr<Terrain>& te
 void Chunk::draw(const Shader &shader) {
     //SDL_Log("Rendering %d batches", materialBatchMap.size());
     //mesh->drawRange(shader, 0, mesh->vertices.size(), &blockTypeDict.getBlockTypeAt(0).material);
-
     for(auto const& kv : materialBatchMap)
     {
         //sum += kv.second->count;
         //SDL_Log("Rendering batch: blocks = %d, start = %d, count = %d, blockType = %d", kv.second->blocks.size(), kv.second->start, kv.second->count, kv.first);
         mesh->drawRange(shader, kv.second->start, kv.second->count, &blockTypeDict.getBlockTypeAt(kv.first).material);
     }
-
     //SDL_Log("Sum of batch counts = %d, size of mesh = %d", sum, mesh->vertices.size());
 }
 

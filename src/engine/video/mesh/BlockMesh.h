@@ -2,8 +2,8 @@
 // Created by bison on 16-12-2017.
 //
 
-#ifndef GAME_MESH3_H
-#define GAME_MESH3_H
+#ifndef GAME_BLOCKMESH_H
+#define GAME_BLOCKMESH_H
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -38,11 +38,11 @@ typedef glm::tvec4<GLshort> short4;
 struct BlockMeshVertex {
     BlockMeshVertex() {}
     BlockMeshVertex(const byte4 &position, const byte4 &normal, const short2 &texCoord) : position(position),
-                                                                                          normal(normal),
+                                                                                          color(normal),
                                                                                           texCoord(texCoord) {}
 
     byte4 position;
-    byte4 normal;
+    byte4 color;
     short2 texCoord;
 };
 
@@ -64,8 +64,8 @@ public:
     std::vector<unsigned int> indices;
 
     // bytes per vertex
-    size_t vertexSize = 8;
-    bool hasNormals = true;
+    size_t vertexSize = 12;
+    bool hasColors = true;
     bool hasTexcoords = true;
     MeshUpdateType type = MeshUpdateType::DYNAMIC;
 

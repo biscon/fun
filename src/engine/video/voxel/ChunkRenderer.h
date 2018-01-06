@@ -9,7 +9,7 @@
 #include <engine/system/ISystem.h>
 #include <array>
 #include <engine/video/shader/Shader.h>
-#include <engine/video/mesh/Mesh3.h>
+#include <engine/video/mesh/BlockMesh.h>
 #include <engine/video/camera/Camera.h>
 #include <engine/video/model/MaterialDictionary.h>
 #include <engine/asset/ILoadTask.h>
@@ -30,10 +30,10 @@
 // TODO refactor parts into a chunkmap object to pass to individual chunks and to break up this big class, allow chunks to query their neighbours
 
 // Do not copy shared_ptr's in inner loops (they incur reference and synchronization overhead)
-// unique_ptr's on the other hand should optimize to bare pointers
+// unique_ptr's on the other hand should optimize to bare pointers (just avoid syphilis_ptr completely)
 class ChunkRenderer : public ILoadTask {
 public:
-    const int VISIBLE_RADIUS = 24;
+    const int VISIBLE_RADIUS = 16;
     const int CHUNKS_SETUP_PER_FRAME = 2;
     const int CHUNKS_BUILD_PER_FRAME = 2;
 
@@ -55,7 +55,6 @@ private:
     std::shared_ptr<Terrain> terrain = nullptr;
     std::shared_ptr<Camera> camera = nullptr;
     std::unique_ptr<Shader> shader = nullptr;
-    std::unique_ptr<Shader> lampShader = nullptr;
     std::unique_ptr<BlockTypeDictionary> blockTypeDict;
     std::map<ChunkPos, std::unique_ptr<Chunk>> activeChunks;
     std::map<ChunkPos, std::unique_ptr<Chunk>> buildChunks;
@@ -100,6 +99,7 @@ private:
         return nullptr;
     }
 
+    void sendNormalsArrayUniform();
 };
 
 
