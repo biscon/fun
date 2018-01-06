@@ -119,7 +119,10 @@ void main()
     // this fragment's final color.
     // == =====================================================
     // phase 1: directional lighting
-    vec4 result = vec4(ambientLight, 1.0) * ambientColor;
+    float intensity = dirLight.intensity;
+    if(intensity < 0.05)
+        intensity = 0.05;
+    vec4 result = vec4(intensity * ambientLight, 1.0) * ambientColor;
 
     result += CalcDirLight(dirLight, norm, viewDir);
 

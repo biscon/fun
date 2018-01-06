@@ -53,8 +53,14 @@ void Chunk::setupFromTerrain(const ChunkPos& position, const std::shared_ptr<Ter
                 {
                     blocks[POS_TO_INDEX(y,z,x)].active = true;
                     blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_GRASS;
-                    if(y >= 0 && y <= 8)
+                    if(y >= 0 && y <= 5)
+                    {
                         blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_STONE;
+                    }
+                    if(y >= 6 && y <= 10) {
+                        auto off = rand() % 4;
+                        blocks[POS_TO_INDEX(y, z, x)].type = BLOCK_EMERALD + off;
+                    }
 
                 }
                 if(y > height && y <= 4)
