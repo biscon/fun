@@ -10,6 +10,10 @@
 
 struct ChunkPos
 {
+    ChunkPos() {x = 0; z = 0;}
+
+    ChunkPos(int32_t x, int32_t z) : x(x), z(z) {}
+
     i32 x;
     i32 z;
 

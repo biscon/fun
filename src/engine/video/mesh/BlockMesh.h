@@ -11,6 +11,7 @@
 #include <glm.hpp>
 #include <memory>
 #include <string>
+#include <engine/video/voxel/Block.h>
 #include "MeshUpdateType.h"
 #include "engine/video/shader/Shader.h"
 #include "engine/video/texture/OGLTexture.h"
@@ -19,11 +20,10 @@
 
 /*
 * Vertex specification (12 bytes per vertex)
-* pos: x(i8) y(i8) z(i8) p(i8)     normal: nx(i8) ny(i8) nz(i8) p(i8)    texture: tx(i16) ty(i6)
+* pos: x(i8) y(i8) z(i8) ni(i8)     color: cx(i8) cy(i8) cz(i8) p(i8)    texture: tx(i16) ty(i6)
 *
 * each attribute takes up 4 bytes
-* (which is the min side as I understand EACH attribute must be aligned and not just vertex as a whole
-* the padding bytes can be used for other stuff :)
+* ni = stores an index into a normal lookup table in the shader set by a uniform
 */
 
 // The alignment of any attribute's data should be no less than 4 bytes. So if you have a vec3 of GLushorts,
@@ -37,13 +37,10 @@ typedef glm::tvec4<GLshort> short4;
 
 struct BlockMeshVertex {
     BlockMeshVertex() {}
-    BlockMeshVertex(const byte4 &position, const byte4 &normal, const short2 &texCoord) : position(position),
-                                                                                          color(normal),
-                                                                                          texCoord(texCoord) {}
-
+    BlockMeshVertex(const byte4 &position, const byte4 &normal) : position(position), color(normal) {}
     byte4 position;
     byte4 color;
-    short2 texCoord;
+    //short2 texCoord;
 };
 
 
@@ -56,7 +53,7 @@ public:
     void prepare();
     void upload();
     //void generateCubeAt(float x, float y, float z);
-    void generateTexturedCubeAt(i8 x, i8 y, i8 z);
+    void generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces);
     void clear();
 
     /*  Mesh Data  */
@@ -64,9 +61,9 @@ public:
     std::vector<unsigned int> indices;
 
     // bytes per vertex
-    size_t vertexSize = 12;
+    size_t vertexSize = 8;
     bool hasColors = true;
-    bool hasTexcoords = true;
+    bool hasTexcoords = false;
     MeshUpdateType type = MeshUpdateType::DYNAMIC;
 
     inline size_t getMeshSizeBytes()

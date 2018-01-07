@@ -67,6 +67,8 @@ private:
     }
 
     void sendNormalsArrayUniform();
+
+    void sendTexcoordArrayUniform();
 };
 
 

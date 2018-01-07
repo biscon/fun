@@ -124,7 +124,8 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
                     bool should_mesh = false;
 
                     // if we're on the bottom only check directly above
-                    if(y == 0 && isBlockActiveAt(neighbours, x, 1, z))
+                    //if(y == 0 && isBlockActiveAt(neighbours, x, 1, z))
+                    if(y == 0)
                         should_mesh = false;
                     else {
                         // Check if each of the cubes side is not active, if then we need to mesh it
@@ -156,13 +157,15 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
         m = old;
         m = glm::translate(m, glm::vec3(0.0f, 1.0f, 0.0f));
     }
+    BlockFaces faces;
+    //faces.bottom = false;
     for(auto const& kv : materialBatchMap)
     {
         kv.second->start = static_cast<u32>(mesh->vertices.size());
         for(auto const& mb : kv.second->blocks)
         {
             //SDL_Log("Meshing cube at %d,%d,%d", mb.x, mb.y, mb.z);
-            mesh->generateTexturedCubeAt(mb.x, mb.y, mb.z);
+            mesh->generateTexturedCubeAt(mb.x, mb.y, mb.z, faces);
         }
         kv.second->count = static_cast<u32>(mesh->vertices.size() - kv.second->start);
     }
