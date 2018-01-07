@@ -17,7 +17,7 @@ class Renderer : public IRenderer {
 public:
     bool init(u32 screenWidth, u32 screenHeight) override;
     void shutdown() override;
-    void fixedUpdate() override;
+    void render() override;
     void startFrame() override;
     void renderDefaultLoadScreen(double progress) override;
     i32 getWidth() override;

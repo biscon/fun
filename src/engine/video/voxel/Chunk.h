@@ -13,7 +13,7 @@
 #include "Terrain.h"
 
 #define CHUNK_SIZE 16
-#define CHUNK_HEIGHT 64
+#define CHUNK_HEIGHT 128
 // flatten coords to index
 // (z * CHUNK_SIZE * CHUNK_HEIGHT) + (y * CHUNK_SIZE) + x
 // (y * CHUNK_SIZE) + (z * CHUNK_SIZE * CHUNK_HEIGHT) + x

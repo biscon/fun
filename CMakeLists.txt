@@ -60,8 +60,6 @@ set(SOURCE_FILES
         src/engine/system/ISystem.h
         src/engine/system/SDLSystem.cpp
         src/engine/system/SDLSystem.h
-        src/engine/system/FPSCounter.cpp
-        src/engine/system/FPSCounter.h
         src/engine/util/math_util.cpp
         src/engine/util/math_util.h
         src/engine/util/Point2D.cpp

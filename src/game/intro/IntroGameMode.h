@@ -28,8 +28,8 @@ public:
     void shutdown() override;
     void resume() override;
     void pause() override;
-    void update() override;
-    void fixedUpdate() override;
+    void update(double delta) override;
+    void render(double delta) override;
 
     // keyboard events
     void onKeyDown(const SDL_Event *event) override;

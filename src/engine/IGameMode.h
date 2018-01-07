@@ -23,8 +23,8 @@ public:
     virtual void shutdown()=0;
     virtual void resume()=0;
     virtual void pause()=0;
-    virtual void update()=0;
-    virtual void fixedUpdate()=0;
+    virtual void update(double delta)=0;
+    virtual void render(double delta)=0;
 
 protected:
     std::shared_ptr<IGame> game;

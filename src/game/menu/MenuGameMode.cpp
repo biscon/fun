@@ -31,11 +31,11 @@ void MenuGameMode::pause() {
     SDL_Log("MenuGameMode::pause");
 }
 
-void MenuGameMode::update() {
+void MenuGameMode::update(double delta) {
 
 }
 
-void MenuGameMode::fixedUpdate() {
+void MenuGameMode::render(double delta) {
 
 }
 

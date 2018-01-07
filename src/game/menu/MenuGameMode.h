@@ -18,8 +18,8 @@ public:
     void shutdown() override;
     void resume() override;
     void pause() override;
-    void update() override;
-    void fixedUpdate() override;
+    void update(double delta) override;
+    void render(double delta) override;
 
 private:
     bool initialized = false;

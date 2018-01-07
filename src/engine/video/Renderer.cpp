@@ -68,7 +68,7 @@ void Renderer::shutdown() {
         SDL_DestroyWindow(window);
 }
 
-void Renderer::fixedUpdate() {
+void Renderer::render() {
     //glDrawArrays(GL_TRIANGLES, 0, 4);
     //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     GLenum err;
