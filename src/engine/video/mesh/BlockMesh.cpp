@@ -135,7 +135,7 @@ void BlockMesh::clear() {
 }
 
 
-void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z) {
+void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces) {
    /*
     vertices.insert(vertices.end(),{
             // Back face
@@ -189,50 +189,130 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z) {
     uvRect.top = 1.0f;
     uvRect.bottom = 0.0f;
      */
-    vertices.insert(vertices.end(),{
-            // Back face (The North Face ;)
-            {byte4(x,y,z,0), byte4(0,0,-1,0), short2(0, 0)},
-            {byte4(x+1,y+1,z,0), byte4(0,0,-1,0), short2(1, 1)},
-            {byte4(x+1,y,z,0), byte4(0,0,-1,0), short2(1, 0)},
-            {byte4(x+1,y+1,z,0), byte4(0,0,-1,0), short2(1, 1)},
-            {byte4(x,y,z,0), byte4(0,0,-1,0), short2(0, 0)},
-            {byte4(x,y+1,z,0), byte4(0,0,-1,0), short2(0, 1)},
-            // Front face
-            {byte4(x,y,z+1,0), byte4(0,0,1,0), short2(0, 0)},
-            {byte4(x+1,y,z+1,0), byte4(0,0,1,0), short2(1, 0)},
-            {byte4(x+1,y+1,z+1,0), byte4(0,0,1,0), short2(1, 1)},
-            {byte4(x+1,y+1,z+1,0), byte4(0,0,1,0), short2(1, 1)},
-            {byte4(x,y+1,z+1,0), byte4(0,0,1,0), short2(0, 1)},
-            {byte4(x,y,z+1,0), byte4(0,0,1,0), short2(0, 0)},
-            // Left face
-            {byte4(x,y+1,z+1,0), byte4(-1,0,0,0), short2(1, 0)},
-            {byte4(x,y+1,z,0), byte4(-1,0,0,0), short2(1, 1)},
-            {byte4(x,y,z,0), byte4(-1,0,0,0), short2(0, 1)},
-            {byte4(x,y,z,0), byte4(-1,0,0,0), short2(0, 1)},
-            {byte4(x,y,z+1,0), byte4(-1,0,0,0), short2(0, 0)},
-            {byte4(x,y+1,z+1,0), byte4(-1,0,0,0), short2(1, 0)},
-            // Right face
-            {byte4(x+1,y+1,z+1,0), byte4(1,0,0,0), short2(1, 0)},
-            {byte4(x+1,y,z,0), byte4(1,0,0,0), short2(0, 1)},
-            {byte4(x+1,y+1,z,0), byte4(1,0,0,0), short2(1, 1)},
-            {byte4(x+1,y,z,0), byte4(1,0,0,0), short2(0, 1)},
-            {byte4(x+1,y+1,z+1,0), byte4(1,0,0,0), short2(1, 0)},
-            {byte4(x+1,y,z+1,0), byte4(1,0,0,0), short2(0, 0)},
-            // Bottom face
-            {byte4(x,y,z,0), byte4(0,-1,0,0), short2(0, 1)},
-            {byte4(x+1,y,z,0), byte4(0,-1,0,0), short2(1, 1)},
-            {byte4(x+1,y,z+1,0), byte4(0,-1,0,0), short2(1, 0)},
-            {byte4(x+1,y,z+1,0), byte4(0,-1,0,0), short2(1, 0)},
-            {byte4(x,y,z+1,0), byte4(0,-1,0,0), short2(0, 0)},
-            {byte4(x,y,z,0), byte4(0,-1,0,0), short2(0, 1)},
-            // Top face
-            {byte4(x,y+1,z,0), byte4(0,1,0,0), short2(0, 1)},
-            {byte4(x+1,y+1,z+1,0), byte4(0,1,0,0), short2(1, 0)},
-            {byte4(x+1,y+1,z,0), byte4(0,1,0,0), short2(1, 1)},
-            {byte4(x+1,y+1,z+1,0), byte4(0,1,0,0), short2(1, 0)},
-            {byte4(x,y+1,z,0), byte4(0,1,0,0), short2(0, 1)},
-            {byte4(x,y+1,z+1,0), byte4(0,1,0,0), short2(0, 0)}
-    });
+
+    /*
+    if(faces.back)
+        vertices.insert(vertices.end(),{
+                // Back face (The North Face ;)
+                {byte4(x,y,z,0), byte4(0,0,-1,0), short2(0, 0)},
+                {byte4(x+1,y+1,z,0), byte4(0,0,-1,3), short2(1, 1)},
+                {byte4(x+1,y,z,0), byte4(0,0,-1,2), short2(1, 0)},
+                {byte4(x+1,y+1,z,0), byte4(0,0,-1,3), short2(1, 1)},
+                {byte4(x,y,z,0), byte4(0,0,-1,0), short2(0, 0)},
+                {byte4(x,y+1,z,0), byte4(0,0,-1,1), short2(0, 1)}
+        });
+    if(faces.front)
+        vertices.insert(vertices.end(),{
+                // Front face
+                {byte4(x,y,z+1,1), byte4(0,0,1,0), short2(0, 0)},
+                {byte4(x+1,y,z+1,1), byte4(0,0,1,2), short2(1, 0)},
+                {byte4(x+1,y+1,z+1,1), byte4(0,0,1,3), short2(1, 1)},
+                {byte4(x+1,y+1,z+1,1), byte4(0,0,1,3), short2(1, 1)},
+                {byte4(x,y+1,z+1,1), byte4(0,0,1,1), short2(0, 1)},
+                {byte4(x,y,z+1,1), byte4(0,0,1,0), short2(0, 0)}
+        });
+    if(faces.left)
+        vertices.insert(vertices.end(),{
+                // Left face
+                {byte4(x,y+1,z+1,2), byte4(-1,0,0,3), short2(1, 1)},
+                {byte4(x,y+1,z,2), byte4(-1,0,0,1), short2(0, 1)},
+                {byte4(x,y,z,2), byte4(-1,0,0,0), short2(0, 0)},
+                {byte4(x,y,z,2), byte4(-1,0,0,0), short2(0, 0)},
+                {byte4(x,y,z+1,2), byte4(-1,0,0,2), short2(1, 0)},
+                {byte4(x,y+1,z+1,2), byte4(-1,0,0,3), short2(1, 1)}
+        });
+    if(faces.right)
+        vertices.insert(vertices.end(),{
+                // Right face
+                {byte4(x+1,y+1,z+1,3), byte4(1,0,0,1), short2(0, 1)},
+                {byte4(x+1,y,z,3), byte4(1,0,0,2), short2(1, 0)},
+                {byte4(x+1,y+1,z,3), byte4(1,0,0,3), short2(1, 1)},
+                {byte4(x+1,y,z,3), byte4(1,0,0,2), short2(1, 0)},
+                {byte4(x+1,y+1,z+1,3), byte4(1,0,0,1), short2(0, 1)},
+                {byte4(x+1,y,z+1,3), byte4(1,0,0,0), short2(0, 0)}
+        });
+    if(faces.bottom)
+        vertices.insert(vertices.end(),{
+                // Bottom face
+                {byte4(x,y,z,4), byte4(0,-1,0,3), short2(1, 1)},
+                {byte4(x+1,y,z,4), byte4(0,-1,0,1), short2(0, 1)},
+                {byte4(x+1,y,z+1,4), byte4(0,-1,0,0), short2(0, 0)},
+                {byte4(x+1,y,z+1,4), byte4(0,-1,0,0), short2(0, 0)},
+                {byte4(x,y,z+1,4), byte4(0,-1,0,2), short2(1, 0)},
+                {byte4(x,y,z,4), byte4(0,-1,0,3), short2(1, 1)}
+        });
+    if(faces.top)
+        vertices.insert(vertices.end(),{
+                // Top face
+                {byte4(x,y+1,z,5), byte4(0,1,0,1), short2(0, 1)},
+                {byte4(x+1,y+1,z+1,5), byte4(0,1,0,2), short2(1, 0)},
+                {byte4(x+1,y+1,z,5), byte4(0,1,0,3), short2(1, 1)},
+                {byte4(x+1,y+1,z+1,5), byte4(0,1,0,2), short2(1, 0)},
+                {byte4(x,y+1,z,5), byte4(0,1,0,1), short2(0, 1)},
+                {byte4(x,y+1,z+1,5), byte4(0,1,0,0), short2(0, 0)}
+        });
+     */
+
+    if(faces.back)
+        vertices.insert(vertices.end(),{
+                // Back face (The North Face ;)
+                {byte4(x,y,z,0), byte4(0,0,-1,0)},
+                {byte4(x+1,y+1,z,0), byte4(0,0,-1,3)},
+                {byte4(x+1,y,z,0), byte4(0,0,-1,2)},
+                {byte4(x+1,y+1,z,0), byte4(0,0,-1,3)},
+                {byte4(x,y,z,0), byte4(0,0,-1,0)},
+                {byte4(x,y+1,z,0), byte4(0,0,-1,1)}
+        });
+    if(faces.front)
+        vertices.insert(vertices.end(),{
+                // Front face
+                {byte4(x,y,z+1,1), byte4(0,0,1,0)},
+                {byte4(x+1,y,z+1,1), byte4(0,0,1,2)},
+                {byte4(x+1,y+1,z+1,1), byte4(0,0,1,3)},
+                {byte4(x+1,y+1,z+1,1), byte4(0,0,1,3)},
+                {byte4(x,y+1,z+1,1), byte4(0,0,1,1)},
+                {byte4(x,y,z+1,1), byte4(0,0,1,0)}
+        });
+    if(faces.left)
+        vertices.insert(vertices.end(),{
+                // Left face
+                {byte4(x,y+1,z+1,2), byte4(-1,0,0,3)},
+                {byte4(x,y+1,z,2), byte4(-1,0,0,1)},
+                {byte4(x,y,z,2), byte4(-1,0,0,0)},
+                {byte4(x,y,z,2), byte4(-1,0,0,0)},
+                {byte4(x,y,z+1,2), byte4(-1,0,0,2)},
+                {byte4(x,y+1,z+1,2), byte4(-1,0,0,3)}
+        });
+    if(faces.right)
+        vertices.insert(vertices.end(),{
+                // Right face
+                {byte4(x+1,y+1,z+1,3), byte4(1,0,0,1)},
+                {byte4(x+1,y,z,3), byte4(1,0,0,2)},
+                {byte4(x+1,y+1,z,3), byte4(1,0,0,3)},
+                {byte4(x+1,y,z,3), byte4(1,0,0,2)},
+                {byte4(x+1,y+1,z+1,3), byte4(1,0,0,1)},
+                {byte4(x+1,y,z+1,3), byte4(1,0,0,0)}
+        });
+    if(faces.bottom)
+        vertices.insert(vertices.end(),{
+                // Bottom face
+                {byte4(x,y,z,4), byte4(0,-1,0,3)},
+                {byte4(x+1,y,z,4), byte4(0,-1,0,1)},
+                {byte4(x+1,y,z+1,4), byte4(0,-1,0,0)},
+                {byte4(x+1,y,z+1,4), byte4(0,-1,0,0)},
+                {byte4(x,y,z+1,4), byte4(0,-1,0,2)},
+                {byte4(x,y,z,4), byte4(0,-1,0,3)}
+        });
+    if(faces.top)
+        vertices.insert(vertices.end(),{
+                // Top face
+                {byte4(x,y+1,z,5), byte4(0,1,0,1)},
+                {byte4(x+1,y+1,z+1,5), byte4(0,1,0,2)},
+                {byte4(x+1,y+1,z,5), byte4(0,1,0,3)},
+                {byte4(x+1,y+1,z+1,5), byte4(0,1,0,2)},
+                {byte4(x,y+1,z,5), byte4(0,1,0,1)},
+                {byte4(x,y+1,z+1,5), byte4(0,1,0,0)}
+        });
 }
 
 

@@ -14,6 +14,10 @@
 #define BLOCK_BRONZE 6
 #include "defs.h"
 
+struct BlockFaces {
+    bool back = true, front = true, left = true, right = true, bottom = true, top = true;
+};
+
 struct Block {
     uint8_t type = 0;
     // TODO this takes up a byte, waste of memory, instead define 8 bit field to hold binary options (on/off)

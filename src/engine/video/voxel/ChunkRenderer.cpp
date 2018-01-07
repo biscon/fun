@@ -58,7 +58,7 @@ ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera,
     //glm::vec3 color = glm::vec3(135.0f/255.0f, 206.0f/255.0f, 250.0f/255.0f);
     glm::vec3 color = glm::vec3(0.3294f, 0.92157f, 1.0f);
     //fog = std::unique_ptr<Fog>(new Fog(color, 0.0075f, true));
-    fog = std::unique_ptr<Fog>(new Fog(color, 0.0035f, true));
+    fog = std::unique_ptr<Fog>(new Fog(color, 0.0035f, false));
     directionalLight = std::unique_ptr<DirectionalLight>(new DirectionalLight());
 
     SDL_Log("size of BlockMeshVertex %d", sizeof(BlockMeshVertex));
@@ -72,9 +72,9 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
     glFrontFace(GL_CCW);
 
     // view/projection transformations
-    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), screenWidth / screenHeight, 0.1f, 500.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), screenWidth / screenHeight, 0.1f, 800.0f);
     glm::mat4 view = camera->GetViewMatrix();
-    viewFrustrum->setCamInternals(camera->Zoom, screenWidth / screenHeight, 0.1f, 500.0f);
+    viewFrustrum->setCamInternals(camera->Zoom, screenWidth / screenHeight, 0.1f, 800.0f);
 
     // update directional light
     updateDirectionalLight((float) game.getDelta());
@@ -84,6 +84,7 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
     // be sure to activate shader when setting uniforms/drawing objects
     shader->use();
     sendNormalsArrayUniform();
+    sendTexcoordArrayUniform();
 
     shader->setVec3("camPos", camera->Position);
     fog->color = directionalLight->intensity * glm::vec3(0.3294f, 0.92157f, 1.0f);
@@ -214,44 +215,23 @@ void ChunkRenderer::sendNormalsArrayUniform()
 {
     // Back face
     shader->setVec3("normals[0]",0,0,-1);
-    shader->setVec3("normals[1]",0,0,-1);
-    shader->setVec3("normals[2]",0,0,-1);
-    shader->setVec3("normals[3]",0,0,-1);
-    shader->setVec3("normals[4]",0,0,-1);
-    shader->setVec3("normals[5]",0,0,-1);
     // Front face
-    shader->setVec3("normals[6]",0,0,1);
-    shader->setVec3("normals[7]",0,0,1);
-    shader->setVec3("normals[8]",0,0,1);
-    shader->setVec3("normals[9]",0,0,1);
-    shader->setVec3("normals[10]",0,0,1);
-    shader->setVec3("normals[11]",0,0,1);
+    shader->setVec3("normals[1]",0,0,1);
     // Left face
-    shader->setVec3("normals[12]",-1,0,0);
-    shader->setVec3("normals[13]",-1,0,0);
-    shader->setVec3("normals[14]",-1,0,0);
-    shader->setVec3("normals[15]",-1,0,0);
-    shader->setVec3("normals[16]",-1,0,0);
-    shader->setVec3("normals[17]",-1,0,0);
+    shader->setVec3("normals[2]",-1,0,0);
     // Right face
-    shader->setVec3("normals[18]",1,0,0);
-    shader->setVec3("normals[19]",1,0,0);
-    shader->setVec3("normals[20]",1,0,0);
-    shader->setVec3("normals[21]",1,0,0);
-    shader->setVec3("normals[22]",1,0,0);
-    shader->setVec3("normals[23]",1,0,0);
+    shader->setVec3("normals[3]",1,0,0);
     // Bottom face
-    shader->setVec3("normals[24]",0,-1,0);
-    shader->setVec3("normals[25]",0,-1,0);
-    shader->setVec3("normals[26]",0,-1,0);
-    shader->setVec3("normals[27]",0,-1,0);
-    shader->setVec3("normals[28]",0,-1,0);
-    shader->setVec3("normals[29]",0,-1,0);
+    shader->setVec3("normals[4]",0,-1,0);
     // Top face
-    shader->setVec3("normals[30]",0,1,0);
-    shader->setVec3("normals[31]",0,1,0);
-    shader->setVec3("normals[32]",0,1,0);
-    shader->setVec3("normals[33]",0,1,0);
-    shader->setVec3("normals[34]",0,1,0);
-    shader->setVec3("normals[35]",0,1,0);
+    shader->setVec3("normals[5]",0,1,0);
+}
+
+// TODO use uniform buffer objects instead
+void ChunkRenderer::sendTexcoordArrayUniform()
+{
+    shader->setVec2("texcoords[0]",0,0);
+    shader->setVec2("texcoords[1]",0,1);
+    shader->setVec2("texcoords[2]",1,0);
+    shader->setVec2("texcoords[3]",1,1);
 }

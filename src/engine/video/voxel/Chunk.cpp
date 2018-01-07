@@ -68,6 +68,22 @@ void Chunk::setupFromTerrain(const ChunkPos& position, const std::shared_ptr<Ter
                     blocks[POS_TO_INDEX(y,z,x)].active = true;
                     blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_WATER;
                 }
+                // if in chunk 0,0
+                if(position.x == 0 && position.z == 0)
+                {
+                    if(x == 0 && z == 0 && y == 60)
+                    {
+                        blocks[POS_TO_INDEX(y,z,x)].active = true;
+                        blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_STONE;
+                    }
+                    if(x == 15 && z == 0 && y == 60
+                       || x == 15 && z == 15 && y == 60
+                          || x == 0 && z == 15 && y == 60)
+                    {
+                        blocks[POS_TO_INDEX(y,z,x)].active = true;
+                        blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_STONE;
+                    }
+                }
             }
         }
     }
@@ -100,7 +116,8 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
         {
             m = glm::translate(m, glm::vec3(0.0f, 0.0f, 1.0f));
             auto z_m = m;
-            for(int x = 0; x < CHUNK_SIZE; x++) {
+            for(int x = 0; x < CHUNK_SIZE; x++)
+            {
                 Block &block = blocks[POS_TO_INDEX(y,z,x)];
                 if(block.active) {
                     auto pos = z_m * origin;
@@ -139,13 +156,15 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
         m = old;
         m = glm::translate(m, glm::vec3(0.0f, 1.0f, 0.0f));
     }
+    BlockFaces faces;
+    //faces.bottom = false;
     for(auto const& kv : materialBatchMap)
     {
         kv.second->start = static_cast<u32>(mesh->vertices.size());
         for(auto const& mb : kv.second->blocks)
         {
             //SDL_Log("Meshing cube at %d,%d,%d", mb.x, mb.y, mb.z);
-            mesh->generateTexturedCubeAt(mb.x, mb.y, mb.z);
+            mesh->generateTexturedCubeAt(mb.x, mb.y, mb.z, faces);
         }
         kv.second->count = static_cast<u32>(mesh->vertices.size() - kv.second->start);
     }

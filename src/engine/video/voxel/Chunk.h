@@ -63,6 +63,8 @@ public:
         return mesh->getMeshSizeBytes();
     }
 
+    ChunkPos chunkPosition;
+
 private:
     BlockTypeDictionary& blockTypeDict;
     std::unique_ptr<BlockMesh> mesh;
@@ -85,7 +87,7 @@ private:
         if(x < 0)
         {
             if(neighbours.w == nullptr)
-                return false;
+                return true;
             auto nx = CHUNK_SIZE + x;
             return neighbours.w->blocks[POS_TO_INDEX(y,z,nx)].active;
         }
@@ -94,29 +96,29 @@ private:
         if(x >= CHUNK_SIZE)
         {
             if(neighbours.e == nullptr)
-                return false;
+                return true;
 
             auto nx = x - CHUNK_SIZE;
             return neighbours.e->blocks[POS_TO_INDEX(y,z,nx)].active;
         }
 
-        // check north
+        // check south
         if(z >= CHUNK_SIZE)
         {
-            if(neighbours.n == nullptr)
-                return false;
+            if(neighbours.s == nullptr)
+                return true;
 
             auto nz = z - CHUNK_SIZE;
-            return neighbours.n->blocks[POS_TO_INDEX(y,nz,x)].active;
+            return neighbours.s->blocks[POS_TO_INDEX(y,nz,x)].active;
         }
 
-        // check south
+        // check north
         if(z < 0)
         {
-            if(neighbours.s == nullptr)
-                return false;
+            if(neighbours.n == nullptr)
+                return true;
             auto nz = CHUNK_SIZE + z;
-            return neighbours.s->blocks[POS_TO_INDEX(y,nz,x)].active;
+            return neighbours.n->blocks[POS_TO_INDEX(y,nz,x)].active;
         }
 
         return false;

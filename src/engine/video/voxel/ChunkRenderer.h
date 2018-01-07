@@ -25,10 +25,6 @@
 #include "ChunkPos.h"
 #include "ChunkManager.h"
 
-
-
-// TODO refactor parts into a chunkmap object to pass to individual chunks and to break up this big class, allow chunks to query their neighbours
-
 // Do not copy shared_ptr's in inner loops (they incur reference and synchronization overhead)
 // unique_ptr's on the other hand should optimize to bare pointers (just avoid syphilis_ptr completely)
 class ChunkRenderer : public ILoadTask {
@@ -67,6 +63,8 @@ private:
     }
 
     void sendNormalsArrayUniform();
+
+    void sendTexcoordArrayUniform();
 };
 
 
