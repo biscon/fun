@@ -47,11 +47,12 @@ void Chunk::setupFromTerrain(const ChunkPos& position, const std::shared_ptr<Ter
                 auto height = (int) ceil(terrain->getHeightMap()->getSampleWrap(map_x, map_z) * fchunk_height);
 
                 //SDL_Log("(%d,%d,%d) Index = %d", y, z, x, POS_TO_INDEX(y,z,x));
-                blocks[POS_TO_INDEX(y,z,x)].active = false;
+                blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, false);
+                blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_SHOULD_MESH, false);
                 blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_GRASS;
                 if(y <= height)
                 {
-                    blocks[POS_TO_INDEX(y,z,x)].active = true;
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_GRASS;
                     if(y >= 0 && y <= 5)
                     {
@@ -65,23 +66,23 @@ void Chunk::setupFromTerrain(const ChunkPos& position, const std::shared_ptr<Ter
                 }
                 if(y > height && y <= 4)
                 {
-                    blocks[POS_TO_INDEX(y,z,x)].active = true;
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_WATER;
                 }
                 // if in chunk 0,0
                 if(position.x == 0 && position.z == 0)
                 {
-                    if(x == 0 && z == 0 && y == 60)
+                    if(x == 0 && z == 0 && y >= 50 && y <= 60)
                     {
-                        blocks[POS_TO_INDEX(y,z,x)].active = true;
-                        blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_STONE;
+                        blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
+                        blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_GOLD;
                     }
-                    if(x == 15 && z == 0 && y == 60
-                       || x == 15 && z == 15 && y == 60
-                          || x == 0 && z == 15 && y == 60)
+                    if(x == 15 && z == 0 && y >= 50 && y <= 60
+                       || x == 15 && z == 15 && y >= 50 && y <= 60
+                          || x == 0 && z == 15 && y >= 50 && y <= 60)
                     {
-                        blocks[POS_TO_INDEX(y,z,x)].active = true;
-                        blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_STONE;
+                        blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
+                        blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_DEBUG;
                     }
                 }
             }
@@ -119,23 +120,18 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
             for(int x = 0; x < CHUNK_SIZE; x++)
             {
                 Block &block = blocks[POS_TO_INDEX(y,z,x)];
-                if(block.active) {
+                if(block.isFlagSet(BLOCK_FLAG_ACTIVE)) {
                     auto pos = z_m * origin;
-                    bool should_mesh = false;
+                    auto should_mesh = false;
+                    if (!isBlockActiveAt(neighbours, x, y, z - 1)) should_mesh = true; // back
+                    if (!isBlockActiveAt(neighbours, x, y, z + 1)) should_mesh = true; // front
+                    if (!isBlockActiveAt(neighbours, x - 1, y, z)) should_mesh = true; // left
+                    if (!isBlockActiveAt(neighbours, x + 1, y, z)) should_mesh = true; // right
+                    if (!isBlockActiveAt(neighbours, x, y - 1, z)) should_mesh = true; // bottom
+                    if (!isBlockActiveAt(neighbours, x, y + 1, z)) should_mesh = true; // top
 
-                    // if we're on the bottom only check directly above
-                    if(y == 0 && isBlockActiveAt(neighbours, x, 1, z))
-                        should_mesh = false;
-                    else {
-                        // Check if each of the cubes side is not active, if then we need to mesh it
-                        if (!isBlockActiveAt(neighbours, x, y, z - 1)) should_mesh = true; // back
-                        if (!isBlockActiveAt(neighbours, x, y, z + 1)) should_mesh = true; // front
-                        if (!isBlockActiveAt(neighbours, x - 1, y, z)) should_mesh = true; // left
-                        if (!isBlockActiveAt(neighbours, x + 1, y, z)) should_mesh = true; // right
-                        if (!isBlockActiveAt(neighbours, x, y + 1, z)) should_mesh = true; // bottom
-                        if (!isBlockActiveAt(neighbours, x, y - 1, z)) should_mesh = true; // top
-                    }
                     if (should_mesh) {
+                        block.setFlag(BLOCK_FLAG_SHOULD_MESH, true);
                         auto batch = materialBatchMap.find(block.type);
                         if(batch == materialBatchMap.end()) // batch does not exist, create
                         {
@@ -156,15 +152,27 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
         m = old;
         m = glm::translate(m, glm::vec3(0.0f, 1.0f, 0.0f));
     }
-    BlockFaces faces;
-    //faces.bottom = false;
+
     for(auto const& kv : materialBatchMap)
     {
         kv.second->start = static_cast<u32>(mesh->vertices.size());
-        for(auto const& mb : kv.second->blocks)
+        for(auto& mb : kv.second->blocks)
         {
+            Block &block = blocks[POS_TO_INDEX(mb.y,mb.z,mb.x)];
+            if(block.isFlagSet(BLOCK_FLAG_SHOULD_MESH) && block.isFlagSet(BLOCK_FLAG_ACTIVE))
+            {
+                mb.faces.disableAll();
+                if (!shouldBlockMeshAt(neighbours, mb.x, mb.y, mb.z - 1)) mb.faces.back = true; // back
+                if (!shouldBlockMeshAt(neighbours, mb.x, mb.y, mb.z + 1)) mb.faces.front = true; // front
+                if (!shouldBlockMeshAt(neighbours, mb.x - 1, mb.y, mb.z)) mb.faces.left = true; // left
+                if (!shouldBlockMeshAt(neighbours, mb.x + 1, mb.y, mb.z)) mb.faces.right = true; // right
+                if (!shouldBlockMeshAt(neighbours, mb.x, mb.y - 1, mb.z)) mb.faces.bottom = true; // bottom
+                if (!shouldBlockMeshAt(neighbours, mb.x, mb.y + 1, mb.z)) mb.faces.top = true; // top
+            }
+
             //SDL_Log("Meshing cube at %d,%d,%d", mb.x, mb.y, mb.z);
-            mesh->generateTexturedCubeAt(mb.x, mb.y, mb.z, faces);
+            if(mb.faces.anyFacesEnabled())
+                mesh->generateTexturedCubeAt(mb.x, mb.y, mb.z, mb.faces);
         }
         kv.second->count = static_cast<u32>(mesh->vertices.size() - kv.second->start);
     }

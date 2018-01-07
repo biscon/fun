@@ -43,7 +43,7 @@ bool IntroGameMode::init() {
     cubeRenderer = std::unique_ptr<CubeRenderer>(new CubeRenderer(textureAtlas));
     */
 
-    camera = std::make_shared<Camera>(glm::vec3(0.0f, 65.0f, 0.0f));
+    camera = std::make_shared<Camera>(glm::vec3(0.0f, 85.0f, 0.0f));
     terrain = std::make_shared<Terrain>();
     //lightSceneRenderer = std::unique_ptr<LightSceneRenderer>(new LightSceneRenderer(*game->getSystem(), camera));
 
