@@ -17,7 +17,7 @@ public:
     virtual ~IRenderer(){}
     virtual bool init(u32 screenWidth, u32 screenHeight)=0;
     virtual void shutdown()=0;
-    virtual void fixedUpdate()=0;
+    virtual void render()=0;
     virtual void startFrame()=0;
     virtual void renderDefaultLoadScreen(double progress)=0;
     virtual i32 getWidth()=0;

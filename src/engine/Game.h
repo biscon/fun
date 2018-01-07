@@ -17,7 +17,6 @@
 #include "video/IRenderer.h"
 #include "asset/FontAsset.h"
 #include "engine/system/ISystem.h"
-#include "engine/system/FPSCounter.h"
 #include "engine/video/font/FontRenderer.h"
 
 class Game : public IGame, public IQuitEventListener, public IKeyboardEventListener, public IWindowEventListener {
@@ -47,32 +46,27 @@ public:
     std::shared_ptr<IAssetLoader> getAssetLoader() override;
     std::shared_ptr<ISystem> getSystem() override;
     double getTime() override;
-    double getDelta() override;
 
 private:
     std::shared_ptr<IRenderer> renderer;
     std::shared_ptr<IInput> input;
     std::shared_ptr<IAssetLoader> assetLoader;
     std::shared_ptr<ISystem> system;
-    const u32 TARGET_FPS = 100;
-    const u32 MAX_FRAMESKIP = 10;
-    u64 skipTicks;
     bool shouldQuit;
     std::stack<std::shared_ptr<IGameMode>> modeStack;
     std::vector<std::shared_ptr<IGameMode>> modes;
     std::shared_ptr<FontRenderer> defaultFontRenderer;
     i32 defaultFont = -1;
-    std::unique_ptr<FPSCounter> fixedFpsCounter;
-    std::unique_ptr<FPSCounter> fpsCounter;
     char fpsStr[256];
-    void fixedUpdate();
-    void update();
+    void render(double delta);
+    void update(double delta);
     void initFpsTimer();
     u64 initTimeStamp = 0;
     i32 screenWidth;
     i32 screenHeight;
     bool paused = false;
     bool fullscreen = false;
+    double frameTime;
 };
 
 

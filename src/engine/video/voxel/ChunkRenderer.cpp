@@ -64,13 +64,11 @@ ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera,
     //glm::vec3 color = glm::vec3(135.0f/255.0f, 206.0f/255.0f, 250.0f/255.0f);
     glm::vec3 color = glm::vec3(0.3294f, 0.92157f, 1.0f);
     //fog = std::unique_ptr<Fog>(new Fog(color, 0.0075f, true));
-    fog = std::unique_ptr<Fog>(new Fog(color, 0.0035f, false));
+    fog = std::unique_ptr<Fog>(new Fog(color, 0.0025f, true));
     directionalLight = std::unique_ptr<DirectionalLight>(new DirectionalLight());
-
-    SDL_Log("size of BlockMeshVertex %d", sizeof(BlockMeshVertex));
 }
 
-void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
+void ChunkRenderer::render(float screenWidth, float screenHeight, double delta) {
     glEnable(GL_DEPTH_TEST);
 
     glEnable(GL_CULL_FACE);     // Cull back facing polygons
@@ -78,12 +76,12 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
     glFrontFace(GL_CCW);
 
     // view/projection transformations
-    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), screenWidth / screenHeight, 0.1f, 800.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), screenWidth / screenHeight, 0.1f, 1000.0f);
     glm::mat4 view = camera->GetViewMatrix();
-    viewFrustrum->setCamInternals(camera->Zoom, screenWidth / screenHeight, 0.1f, 800.0f);
+    viewFrustrum->setCamInternals(camera->Zoom, screenWidth / screenHeight, 0.1f, 1000.0f);
 
     // update directional light
-    updateDirectionalLight((float) game.getDelta());
+    updateDirectionalLight((float) delta);
 
     skybox->render(view, projection, directionalLight->intensity);
 
@@ -104,12 +102,14 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
     directionalLight->applyShader(*shader);
 
     // point light
+    /*
     float radius = 4.0f;
     float camX = sin(0.50f * time) * radius;
     float camZ = cos(0.50f * time) * radius;
     lightPos = glm::vec3(camX, 34.0f, camZ);
     // point light
     shader->setVec3("pointLight.position", lightPos);
+    */
     shader->setVec3("pointLight.color", 1.0f, 1.0f, 1.0f);
     shader->setFloat("pointLight.intensity", 1.0f);
     shader->setFloat("pointLight.att.constant", 1.0f);

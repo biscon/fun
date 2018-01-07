@@ -30,7 +30,7 @@
 class ChunkRenderer : public ILoadTask {
 public:
     ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain);
-    void render(float screenWidth, float screenHeight, double time);
+    void render(float screenWidth, float screenHeight, double delta);
 
     bool load(IGame &game) override;
     bool prepare(IGame &game) override;

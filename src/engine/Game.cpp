@@ -17,12 +17,6 @@ Game::Game(std::shared_ptr<IRenderer> renderer, std::shared_ptr<IInput> input, s
 
 void Game::run() {
     shouldQuit = false;
-    skipTicks = SDL_GetPerformanceFrequency() / TARGET_FPS;
-    uint64_t next_game_tick = SDL_GetPerformanceCounter();
-    int loops;
-
-    fixedFpsCounter = std::unique_ptr<FPSCounter>(new FPSCounter(system));
-    fpsCounter = std::unique_ptr<FPSCounter>(new FPSCounter(system));
 
     // init input
     input->init();
@@ -53,16 +47,27 @@ void Game::run() {
 
     initTimeStamp = system->getPerformanceCounter();
 
-    while(!shouldQuit)
+
+    double t = 0.0;
+    const double dt = 0.005;
+
+    double currentTime = getTime();
+    double accumulator = 0.0;
+
+    while ( !shouldQuit )
     {
-        update();
-        fixedUpdate();
-        loops = 0;
-        while(SDL_GetPerformanceCounter() > next_game_tick && loops < MAX_FRAMESKIP) {
-            update();
-            next_game_tick += skipTicks;
-            loops++;
+        double newTime = getTime();
+        frameTime = newTime - currentTime;
+        currentTime = newTime;
+        accumulator += frameTime;
+        while ( accumulator >= dt )
+        {
+            //integrate( state, t, dt );
+            update(dt);
+            accumulator -= dt;
+            t += dt;
         }
+        render(frameTime);
     }
 
     // pause running game mode before shutdown
@@ -92,15 +97,14 @@ void Game::run() {
     input->shutdown();
 }
 
-void Game::fixedUpdate() {
-    //SDL_Log("Running fixedUpdate");
+void Game::render(double delta) {
     if(renderer != nullptr)
         renderer->startFrame();
     defaultFontRenderer->startFrame();
 
     if(!assetLoader->isLoading()) {
         if (!modeStack.empty() && !paused)
-            modeStack.top()->fixedUpdate();
+            modeStack.top()->render(delta);
     }
     else
     {
@@ -109,25 +113,17 @@ void Game::fixedUpdate() {
     }
     if(renderer != nullptr) {
         memset(fpsStr, 0, sizeof(fpsStr));
-        double fps = fpsCounter->getFps();
-        auto vertex_count = 0;
+        double fps = 1/delta;
         auto elapsed_time = getTime();
-        if(fps > 1000)
-        {
-            sprintf(fpsStr, "RENDERER FPS: %.0f GAME FPS: >1000 TIME: %.2f", fixedFpsCounter->getFps(), elapsed_time);
-        }
-        else
-        {
-            sprintf(fpsStr, "RENDERER FPS: %.0f GAME FPS: %.0f TIME: %.2f", fixedFpsCounter->getFps(), fps, elapsed_time);
-        }
+        sprintf(fpsStr, "FPS: %.0f TIME: %.2f", fps, elapsed_time);
+
         defaultFontRenderer->renderText(defaultFont, 0, 0, std::string(fpsStr));
         defaultFontRenderer->render(screenWidth, screenHeight);
-        renderer->fixedUpdate();
+        renderer->render();
     }
-    fixedFpsCounter->update();
 }
 
-void Game::update() {
+void Game::update(double delta) {
     //SDL_Delay(5);
     //SDL_Log("Running update");
     input->update();
@@ -135,9 +131,8 @@ void Game::update() {
     if(!assetLoader->isLoading())
     {
         if (!modeStack.empty() && !paused)
-            modeStack.top()->update();
+            modeStack.top()->update(delta);
     }
-    fpsCounter->update();
 }
 
 void Game::onQuit() {
@@ -263,10 +258,6 @@ std::shared_ptr<ISystem> Game::getSystem() {
 
 double Game::getTime() {
     return ((double) (system->getPerformanceCounter() - initTimeStamp)) / (double) system->getPerformanceFreq();
-}
-
-double Game::getDelta() {
-    return fpsCounter->getDelta();
 }
 
 void Game::onWindowResize(i32 width, i32 height) {

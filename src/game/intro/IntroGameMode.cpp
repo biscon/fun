@@ -101,32 +101,32 @@ void IntroGameMode::pause() {
 }
 
 static bool fuckme = true;
-void IntroGameMode::update() {
+void IntroGameMode::update(double delta) {
     if(!fuckme)
     {
         fuckme = true;
         game->pushMode("MenuGameMode");
     }
     if(movingRight)
-        camera->ProcessKeyboard(Camera_Movement::RIGHT, (float) game->getDelta());
+        camera->ProcessKeyboard(Camera_Movement::RIGHT, (float) delta);
     if(movingLeft)
-        camera->ProcessKeyboard(Camera_Movement::LEFT, (float) game->getDelta());
+        camera->ProcessKeyboard(Camera_Movement::LEFT, (float) delta);
     if(movingUp)
-        camera->ProcessKeyboard(Camera_Movement::FORWARD, (float) game->getDelta());
+        camera->ProcessKeyboard(Camera_Movement::FORWARD, (float) delta);
     if(movingDown)
-        camera->ProcessKeyboard(Camera_Movement::BACKWARD, (float) game->getDelta());
+        camera->ProcessKeyboard(Camera_Movement::BACKWARD, (float) delta);
 
     if(zoomingIn)
-        camera->ProcessMouseScroll(50.0f * (float) game->getDelta());
+        camera->ProcessMouseScroll(50.0f * (float) delta);
     if(zoomingOut)
-        camera->ProcessMouseScroll(50.0f * (float) -game->getDelta());
-    //camera->P
+        camera->ProcessMouseScroll(50.0f * (float) delta);
+
     chunkRenderer->update();
 }
 
-void IntroGameMode::fixedUpdate() {
+void IntroGameMode::render(double delta) {
     game->getRenderer()->setRealViewport();
-    chunkRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight(), game->getTime());
+    chunkRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight(), delta);
 
     //game->getRenderer()->setLogicalViewport();
     fontRenderer->startFrame();
