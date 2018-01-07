@@ -8,6 +8,7 @@
 #define CHUNK_STAGE_SETUP 0
 #define CHUNK_STAGE_BUILD 1
 #define CHUNK_STAGE_IDLE 2
+#define CHUNK_STAGE_REBUILD 3
 
 #include <memory>
 #include <vector>
@@ -17,7 +18,7 @@ class ChunkManager {
 public:
     const int CHUNKS_SETUP_PER_FRAME = 2;
     const int CHUNKS_BUILD_PER_FRAME = 2;
-    const int VISIBLE_RADIUS = 32;
+    const int VISIBLE_RADIUS = 8;
 
     ChunkManager(const std::shared_ptr<Terrain> &terrain);
 
@@ -48,7 +49,6 @@ public:
         return sqrt(dx*dx + dy*dy) <= VISIBLE_RADIUS;
     }
 
-    void beginBuild();
     void runIncrementalChunkBuild();
     void update(glm::vec3& campos, BlockTypeDictionary& blockTypeDict);
 
@@ -61,6 +61,8 @@ public:
                 return "SETUP";
             case CHUNK_STAGE_BUILD:
                 return "BUILD";
+            case CHUNK_STAGE_REBUILD:
+                return "REBUILD";
             default:
                 return "UNKNOWN";
         }
@@ -82,9 +84,12 @@ private:
     }
 
     void findNeighbours(ChunkNeighbours &neighbours, const ChunkPos& chunk_pos);
-    void discardChunks();
+    void findNeighbours(const std::map<ChunkPos, std::unique_ptr<Chunk>>&chunk_map, ChunkNeighbours &neighbours, const ChunkPos& chunk_pos);
+    void recycleChunks();
     ChunkPos getChunkFromWorld(glm::vec3 &worldpos);
     void createChunks(BlockTypeDictionary& blockTypeDict);
+
+    void determineChunksToRebuild();
 };
 
 

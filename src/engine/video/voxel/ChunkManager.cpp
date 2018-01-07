@@ -45,14 +45,21 @@ void ChunkManager::runIncrementalChunkBuild()
         }
         if(buildChunks.empty())
         {
-            SDL_Log("CHUNK_STAGE_IDLE Incremental build completed");
-            buildStage = CHUNK_STAGE_IDLE;
+            SDL_Log("BUILD stage completed");
+            if(!rebuildList.empty())
+            {
+                SDL_Log("CHUNK_STAGE_REBUILD");
+                buildStage = CHUNK_STAGE_REBUILD;
+            }
+            else {
+                SDL_Log("CHUNK_STAGE_IDLE");
+                buildStage = CHUNK_STAGE_IDLE;
+            }
             return;
         }
     }
 
-    /*
-    if(buildStage == CHUNK_STAGE_IDLE && !rebuildList.empty())
+    if(buildStage == CHUNK_STAGE_REBUILD)
     {
         ChunkNeighbours neighbours;
         i32 count = 0;
@@ -65,65 +72,12 @@ void ChunkManager::runIncrementalChunkBuild()
             count++;
         }
         //SDL_Log("Remeshed %d chunks this frame", count);
-    }
-     */
-}
-
-void ChunkManager::beginBuild() {
-    SDL_Log("CHUNK_STAGE_SETUP");
-    buildStage = CHUNK_STAGE_SETUP;
-    setupIterator = buildChunks.begin();
-}
-
-void ChunkManager::update(glm::vec3& campos, BlockTypeDictionary& blockTypeDict) {
-    // Update camera's position in chunk coords
-    worldToChunk(campos, camChunkPos);
-    if(buildStage == CHUNK_STAGE_IDLE)
-    {
-        // scan for new chunks and start building if any are found
-        createChunks(blockTypeDict);
-        if(!buildChunks.empty())
-            beginBuild();
-    }
-
-    /*
-    if(!buildChunks.empty() && buildStage == CHUNK_STAGE_IDLE)
-    {
-        beginBuild();
-        if(activeChunks.empty())
+        if(rebuildList.empty())
         {
-            SDL_Log("First build detected, not updating neighbours");
-            beginBuild();
-        }
-        else
-        {
-            ChunkNeighbours neighbours;
-            for(const auto& chunk : buildChunks)
-            {
-                findActiveNeighbours(neighbours, chunk.first);
-                //SDL_Log("Build chunk xy = %d,%d has neighbours n=%d s=%d w=%d e=%d", chunk.first.x, chunk.first.z, neighbours.n, neighbours.s, neighbours.w, neighbours.e);
-                if(neighbours.n != nullptr)
-                    rebuildList.push_back(neighbours.n);
-                if(neighbours.s != nullptr)
-                    rebuildList.push_back(neighbours.s);
-                if(neighbours.w != nullptr)
-                    rebuildList.push_back(neighbours.w);
-                if(neighbours.e != nullptr)
-                    rebuildList.push_back(neighbours.e);
-            }
-            SDL_Log("Added %d old neighbours from active list to rebuild list", rebuildList.size());
-            // delete duplicates
-            std::sort(rebuildList.begin(), rebuildList.end());
-            rebuildList.erase( std::unique(rebuildList.begin(), rebuildList.end()), rebuildList.end());
-            beginBuild();
+            SDL_Log("CHUNK_STAGE_IDLE");
+            buildStage = CHUNK_STAGE_IDLE;
         }
     }
-    */
-
-    runIncrementalChunkBuild();
-
-    if(!activeChunks.empty())
-        discardChunks();
 }
 
 void ChunkManager::createChunks(BlockTypeDictionary& blockTypeDict)
@@ -147,10 +101,12 @@ void ChunkManager::createChunks(BlockTypeDictionary& blockTypeDict)
                 if(chunk == nullptr && build_chunk == nullptr)
                 {
                     //SDL_Log("No chunk found at pos %d,%d, adding one.", testpos.x, testpos.z);
+                    /*
                     if(buildStage != CHUNK_STAGE_IDLE) {
                         SDL_Log("Adding chunks to build list while not in state idle");
                         exit(-2);
                     }
+                     */
                     if(!recycleList.empty())
                     {
                         chunks_recycled++;
@@ -172,7 +128,7 @@ void ChunkManager::createChunks(BlockTypeDictionary& blockTypeDict)
     }
 }
 
-void ChunkManager::discardChunks()
+void ChunkManager::recycleChunks()
 {
     totalMeshSizeBytes = 0;
     // check if chunks need to be removed
@@ -199,6 +155,52 @@ void ChunkManager::discardChunks()
     }
 }
 
+void ChunkManager::determineChunksToRebuild()
+{
+    ChunkNeighbours neighbours;
+    for(const auto& chunk : buildChunks)
+    {
+        findNeighbours(activeChunks, neighbours, chunk.first);
+        //SDL_Log("Build chunk xy = %d,%d has neighbours n=%d s=%d w=%d e=%d", chunk.first.x, chunk.first.z, neighbours.n, neighbours.s, neighbours.w, neighbours.e);
+        if(neighbours.n != nullptr)
+            rebuildList.push_back(neighbours.n);
+        if(neighbours.s != nullptr)
+            rebuildList.push_back(neighbours.s);
+        if(neighbours.w != nullptr)
+            rebuildList.push_back(neighbours.w);
+        if(neighbours.e != nullptr)
+            rebuildList.push_back(neighbours.e);
+    }
+    // delete duplicates
+    std::sort(rebuildList.begin(), rebuildList.end());
+    rebuildList.erase( std::unique(rebuildList.begin(), rebuildList.end()), rebuildList.end());
+    SDL_Log("Added %d old neighbours from active list to rebuild list", rebuildList.size());
+}
+
+void ChunkManager::update(glm::vec3& campos, BlockTypeDictionary& blockTypeDict) {
+    // Update camera's position in chunk coords
+    worldToChunk(campos, camChunkPos);
+    if(buildStage == CHUNK_STAGE_IDLE)
+    {
+        // recycle chunks out of view
+        if(!activeChunks.empty())
+            recycleChunks();
+        // scan for new chunks needed and start building if any are found
+        createChunks(blockTypeDict);
+        if(!buildChunks.empty()) {
+            if(!activeChunks.empty())   // if not first build, mark fringe neighbours for rebuild
+            {
+                determineChunksToRebuild();
+            }
+            SDL_Log("CHUNK_STAGE_SETUP");
+            buildStage = CHUNK_STAGE_SETUP;
+            setupIterator = buildChunks.begin();
+        }
+    }
+
+    runIncrementalChunkBuild();
+
+}
 
 void ChunkManager::worldToChunk(glm::vec3& worldpos, ChunkPos& chunkpos)
 {
@@ -252,4 +254,24 @@ void ChunkManager::findNeighbours(ChunkNeighbours& neighbours, const ChunkPos& c
     neighbours.e = findBuildChunkAt(pos);
     if(neighbours.e == nullptr)
         neighbours.e = findActiveChunkAt(pos);
+}
+
+void ChunkManager::findNeighbours(const std::map<ChunkPos, std::unique_ptr<Chunk>> &chunk_map, ChunkNeighbours &neighbours,
+                             const ChunkPos &chunk_pos) {
+    ChunkPos pos;
+    // find north
+    pos.set(chunk_pos.x, chunk_pos.z - 1);
+    neighbours.n = findChunkAt(chunk_map, pos);
+
+    // find south
+    pos.set(chunk_pos.x, chunk_pos.z + 1);
+    neighbours.s = findChunkAt(chunk_map, pos);
+
+    // find west
+    pos.set(chunk_pos.x - 1, chunk_pos.z);
+    neighbours.w = findChunkAt(chunk_map, pos);
+
+    // find east
+    pos.set(chunk_pos.x + 1, chunk_pos.z);
+    neighbours.e = findChunkAt(chunk_map, pos);
 }
