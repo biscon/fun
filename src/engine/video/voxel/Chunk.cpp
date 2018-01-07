@@ -64,7 +64,7 @@ void Chunk::setupFromTerrain(const ChunkPos& position, const std::shared_ptr<Ter
                     }
 
                 }
-                if(y > height && y <= 4)
+                if(y > height && y <= 2)
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_WATER;
