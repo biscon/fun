@@ -22,6 +22,7 @@
 struct MaterialBlock
 {
     i8 x,y,z;
+    BlockFaces faces;
     MaterialBlock(i8 x, i8 y, i8 z) : x(x), y(y), z(z) {}
 };
 
@@ -70,17 +71,20 @@ private:
     std::unique_ptr<BlockMesh> mesh;
     std::map<i32, std::unique_ptr<MaterialBatch>> materialBatchMap;
 
-    inline bool isBlockActiveAt(ChunkNeighbours& neighbours, i32 x, i32 y, i32 z)
+    inline bool shouldBlockMeshAt(ChunkNeighbours& neighbours, i32 x, i32 y, i32 z)
     {
         // early out since our chunk grid is 2d
-        if(y < 0 || y >= CHUNK_HEIGHT)
+        if(y < 0)
+            return false;
+        if(y >= CHUNK_HEIGHT)
             return false;
 
         // within the same chunk
         if(x >= 0 && x < CHUNK_SIZE && z >= 0 && z < CHUNK_SIZE)
         {
-            return blocks[POS_TO_INDEX(y,z,x)].active;
+            return blocks[POS_TO_INDEX(y,z,x)].isFlagSet(BLOCK_FLAG_SHOULD_MESH);
         }
+
 
         // within neighbouring chunk
         // check west
@@ -89,7 +93,7 @@ private:
             if(neighbours.w == nullptr)
                 return true;
             auto nx = CHUNK_SIZE + x;
-            return neighbours.w->blocks[POS_TO_INDEX(y,z,nx)].active;
+            return neighbours.w->blocks[POS_TO_INDEX(y,z,nx)].isFlagSet(BLOCK_FLAG_SHOULD_MESH);
         }
 
         // check east
@@ -99,7 +103,7 @@ private:
                 return true;
 
             auto nx = x - CHUNK_SIZE;
-            return neighbours.e->blocks[POS_TO_INDEX(y,z,nx)].active;
+            return neighbours.e->blocks[POS_TO_INDEX(y,z,nx)].isFlagSet(BLOCK_FLAG_SHOULD_MESH);
         }
 
         // check south
@@ -109,7 +113,7 @@ private:
                 return true;
 
             auto nz = z - CHUNK_SIZE;
-            return neighbours.s->blocks[POS_TO_INDEX(y,nz,x)].active;
+            return neighbours.s->blocks[POS_TO_INDEX(y,nz,x)].isFlagSet(BLOCK_FLAG_SHOULD_MESH);
         }
 
         // check north
@@ -118,7 +122,63 @@ private:
             if(neighbours.n == nullptr)
                 return true;
             auto nz = CHUNK_SIZE + z;
-            return neighbours.n->blocks[POS_TO_INDEX(y,nz,x)].active;
+            return neighbours.n->blocks[POS_TO_INDEX(y,nz,x)].isFlagSet(BLOCK_FLAG_SHOULD_MESH);
+        }
+
+        return true;
+    }
+
+    inline bool isBlockActiveAt(ChunkNeighbours& neighbours, i32 x, i32 y, i32 z)
+    {
+        // early out since our chunk grid is 2d
+        if(y < 0)
+            return true;
+        if(y >= CHUNK_HEIGHT)
+            return false;
+
+        // within the same chunk
+        if(x >= 0 && x < CHUNK_SIZE && z >= 0 && z < CHUNK_SIZE)
+        {
+            return blocks[POS_TO_INDEX(y,z,x)].isFlagSet(BLOCK_FLAG_ACTIVE);
+        }
+
+        // within neighbouring chunk
+        // check west
+        if(x < 0)
+        {
+            if(neighbours.w == nullptr)
+                return true;
+            auto nx = CHUNK_SIZE + x;
+            return neighbours.w->blocks[POS_TO_INDEX(y,z,nx)].isFlagSet(BLOCK_FLAG_ACTIVE);
+        }
+
+        // check east
+        if(x >= CHUNK_SIZE)
+        {
+            if(neighbours.e == nullptr)
+                return true;
+
+            auto nx = x - CHUNK_SIZE;
+            return neighbours.e->blocks[POS_TO_INDEX(y,z,nx)].isFlagSet(BLOCK_FLAG_ACTIVE);
+        }
+
+        // check south
+        if(z >= CHUNK_SIZE)
+        {
+            if(neighbours.s == nullptr)
+                return true;
+
+            auto nz = z - CHUNK_SIZE;
+            return neighbours.s->blocks[POS_TO_INDEX(y,nz,x)].isFlagSet(BLOCK_FLAG_ACTIVE);
+        }
+
+        // check north
+        if(z < 0)
+        {
+            if(neighbours.n == nullptr)
+                return true;
+            auto nz = CHUNK_SIZE + z;
+            return neighbours.n->blocks[POS_TO_INDEX(y,nz,x)].isFlagSet(BLOCK_FLAG_ACTIVE);
         }
 
         return false;

@@ -55,6 +55,12 @@ ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera,
                                  glm::vec4(0.393548f, 0.271906f, 0.166721f, 1.0f),
                                  0.2f*128.0f);
 
+    blockTypeDict->createBlockType("noget",
+                                   glm::vec4(0.2125f, 0.1275f, 0.054f, 1.0f),
+                                   glm::vec4(0.714f, 0.4284f, 0.18144f, 1.0f),
+                                   glm::vec4(0.393548f, 0.271906f, 0.166721f, 1.0f),
+                                   0.2f*128.0f);
+
     //glm::vec3 color = glm::vec3(135.0f/255.0f, 206.0f/255.0f, 250.0f/255.0f);
     glm::vec3 color = glm::vec3(0.3294f, 0.92157f, 1.0f);
     //fog = std::unique_ptr<Fog>(new Fog(color, 0.0075f, true));
@@ -91,7 +97,7 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double time) {
     fog->applyShader(*shader);
 
     // ambient light
-    shader->setVec3("ambientLight", 0.35f, 0.35f, 0.35f);
+    shader->setVec3("ambientLight", 0.15f, 0.15f, 0.15f);
 
     // directional light
 

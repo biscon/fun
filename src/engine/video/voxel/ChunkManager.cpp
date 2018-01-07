@@ -192,6 +192,15 @@ void ChunkManager::update(glm::vec3& campos, BlockTypeDictionary& blockTypeDict)
             {
                 determineChunksToRebuild();
             }
+            else
+            {
+                // add all chunks to rebuild
+                for(const auto& chunk : buildChunks)
+                {
+                    rebuildList.push_back(chunk.second.get());
+                    SDL_Log("Added new chunks to rebuild list", rebuildList.size());
+                }
+            }
             SDL_Log("CHUNK_STAGE_SETUP");
             buildStage = CHUNK_STAGE_SETUP;
             setupIterator = buildChunks.begin();

@@ -18,7 +18,7 @@ class ChunkManager {
 public:
     const int CHUNKS_SETUP_PER_FRAME = 2;
     const int CHUNKS_BUILD_PER_FRAME = 2;
-    const int VISIBLE_RADIUS = 16;
+    const int VISIBLE_RADIUS = 32;
 
     ChunkManager(const std::shared_ptr<Terrain> &terrain);
 
