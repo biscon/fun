@@ -199,7 +199,6 @@ void ChunkManager::update(glm::vec3& campos, BlockTypeDictionary& blockTypeDict)
     }
 
     runIncrementalChunkBuild();
-
 }
 
 void ChunkManager::worldToChunk(glm::vec3& worldpos, ChunkPos& chunkpos)
