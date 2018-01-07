@@ -124,8 +124,7 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
                     bool should_mesh = false;
 
                     // if we're on the bottom only check directly above
-                    //if(y == 0 && isBlockActiveAt(neighbours, x, 1, z))
-                    if(y == 0)
+                    if(y == 0 && isBlockActiveAt(neighbours, x, 1, z))
                         should_mesh = false;
                     else {
                         // Check if each of the cubes side is not active, if then we need to mesh it

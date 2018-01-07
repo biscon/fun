@@ -43,7 +43,7 @@ bool IntroGameMode::init() {
     cubeRenderer = std::unique_ptr<CubeRenderer>(new CubeRenderer(textureAtlas));
     */
 
-    camera = std::make_shared<Camera>(glm::vec3(0.0f, 65.0f, 0.0f));
+    camera = std::make_shared<Camera>(glm::vec3(0.0f, 165.0f, 0.0f));
     terrain = std::make_shared<Terrain>();
     //lightSceneRenderer = std::unique_ptr<LightSceneRenderer>(new LightSceneRenderer(*game->getSystem(), camera));
 
@@ -132,10 +132,10 @@ void IntroGameMode::fixedUpdate() {
     fontRenderer->startFrame();
     fontRenderer->renderText(font2, 50, 50, "Use WASD and mouse look to fly around");
     fontRenderer->renderText(font2, 50, 80, "Mousewheel adjusts FOV, F12 toggles fullscreen");
-    fontRenderer->renderText(font2, 50, game->getRenderer()->getRealHeight() - 50, stringFormat("pos = %.2f,%.2f,%.2f chunkPosXZ = %d,%d activeChunks: %d visChunks: %d voxMeshSize: %d MB visRad: %d",
+    fontRenderer->renderText(font2, 50, game->getRenderer()->getRealHeight() - 50, stringFormat("pos = %.2f,%.2f,%.2f chunkPosXZ = %d,%d activeChunks: %d visChunks: %d voxMeshSize: %d MB visRad: %d buildStage: %s",
                                                            camera->Position.x, camera->Position.y, camera->Position.z,
                                                            chunkRenderer->chunkManager->camChunkPos.x, chunkRenderer->chunkManager->camChunkPos.z,
-                                                           chunkRenderer->getActiveChunks(), chunkRenderer->getRenderedChunks(), (chunkRenderer->chunkManager->totalMeshSizeBytes / 1024) / 1024, chunkRenderer->chunkManager->VISIBLE_RADIUS));
+                                                           chunkRenderer->getActiveChunks(), chunkRenderer->getRenderedChunks(), (chunkRenderer->chunkManager->totalMeshSizeBytes / 1024) / 1024, chunkRenderer->chunkManager->VISIBLE_RADIUS, chunkRenderer->chunkManager->getBuildStageAsString().c_str()));
     fontRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight());
 }
 

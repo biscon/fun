@@ -17,7 +17,7 @@ class ChunkManager {
 public:
     const int CHUNKS_SETUP_PER_FRAME = 2;
     const int CHUNKS_BUILD_PER_FRAME = 2;
-    const int VISIBLE_RADIUS = 8;
+    const int VISIBLE_RADIUS = 32;
 
     ChunkManager(const std::shared_ptr<Terrain> &terrain);
 
@@ -25,7 +25,6 @@ public:
     std::map<ChunkPos, std::unique_ptr<Chunk>> buildChunks;
     std::vector<std::unique_ptr<Chunk>> recycleList;
     std::vector<Chunk*> rebuildList;
-    std::vector<Chunk*> prevBuildList;
 
     ChunkPos camChunkPos;
     size_t totalMeshSizeBytes = 0;
@@ -53,6 +52,20 @@ public:
     void runIncrementalChunkBuild();
     void update(glm::vec3& campos, BlockTypeDictionary& blockTypeDict);
 
+    inline std::string getBuildStageAsString() {
+        switch(buildStage)
+        {
+            case CHUNK_STAGE_IDLE:
+                return "IDLE";
+            case CHUNK_STAGE_SETUP:
+                return "SETUP";
+            case CHUNK_STAGE_BUILD:
+                return "BUILD";
+            default:
+                return "UNKNOWN";
+        }
+    }
+
 private:
     float halfChunkSize = (float) CHUNK_SIZE/2;
     float fChunkSize = (float) CHUNK_SIZE;
@@ -69,14 +82,9 @@ private:
     }
 
     void findNeighbours(ChunkNeighbours &neighbours, const ChunkPos& chunk_pos);
-
-    void findActiveNeighbours(ChunkNeighbours &neighbours, const ChunkPos &chunk_pos);
-
-    void findBuildNeighbours(ChunkNeighbours &neighbours, const ChunkPos &chunk_pos);
-
     void discardChunks();
-
     ChunkPos getChunkFromWorld(glm::vec3 &worldpos);
+    void createChunks(BlockTypeDictionary& blockTypeDict);
 };
 
 
