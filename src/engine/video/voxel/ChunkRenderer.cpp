@@ -18,8 +18,8 @@ ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera,
     chunkManager = std::unique_ptr<ChunkManager>(new ChunkManager(terrain));
 
     auto& system = *game.getSystem();
-    auto lighting_vs = system.readTextFile("shaders/voxel_shader2_vs.glsl");
-    auto lighting_fs = system.readTextFile("shaders/voxel_shader2_fs.glsl");
+    auto lighting_vs = system.readTextFile("shaders/voxel_shader3_vs.glsl");
+    auto lighting_fs = system.readTextFile("shaders/voxel_shader3_fs.glsl");
 
     //auto lighting_fs = system.readTextFile("shaders/lamp_shader_fs.glsl");
     shader = std::unique_ptr<Shader>(new Shader(lighting_vs.c_str(), lighting_fs.c_str(), nullptr));
@@ -55,9 +55,9 @@ ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera,
                                  glm::vec4(0.393548f, 0.271906f, 0.166721f, 1.0f),
                                  0.2f*128.0f);
 
-    blockTypeDict->createBlockType("noget",
+    blockTypeDict->createBlockType("debug",
                                    glm::vec4(0.2125f, 0.1275f, 0.054f, 1.0f),
-                                   glm::vec4(0.714f, 0.4284f, 0.18144f, 1.0f),
+                                   glm::vec4(1.0f, 0.0f, 1.0f, 1.0f),
                                    glm::vec4(0.393548f, 0.271906f, 0.166721f, 1.0f),
                                    0.2f*128.0f);
 
@@ -101,21 +101,6 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double delta) 
 
     directionalLight->applyShader(*shader);
 
-    // point light
-    /*
-    float radius = 4.0f;
-    float camX = sin(0.50f * time) * radius;
-    float camZ = cos(0.50f * time) * radius;
-    lightPos = glm::vec3(camX, 34.0f, camZ);
-    // point light
-    shader->setVec3("pointLight.position", lightPos);
-    */
-    shader->setVec3("pointLight.color", 1.0f, 1.0f, 1.0f);
-    shader->setFloat("pointLight.intensity", 1.0f);
-    shader->setFloat("pointLight.att.constant", 1.0f);
-    shader->setFloat("pointLight.att.linear", 0.09f);
-    shader->setFloat("pointLight.att.exponent", 0.032f);
-
 
     Vec3 cam_pos(camera->Position.x, camera->Position.y, camera->Position.z);
     Vec3 cam_front(camera->Front.x, camera->Front.y, camera->Front.z);
@@ -133,6 +118,8 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double delta) 
         corner.x = chunk.second->position.x;
         corner.y = chunk.second->position.y;
         corner.z = chunk.second->position.z;
+        //corner.x -= halfChunkSize;
+        //corner.z -= halfChunkSize;
         chunkbox.setBox(corner, CHUNK_SIZE, CHUNK_HEIGHT, CHUNK_SIZE);
         //SDL_Log("Chunk pos %.2f,%.2f,%.2f", chunk.second->position.x, chunk.second->position.y, chunk.second->position.z);
         //SDL_Log("Box Corner pos %.2f,%.2f,%.2f, xyz = %.2f,%.2f,%.2f", chunkbox.corner.x, chunkbox.corner.y, chunkbox.corner.z, chunkbox.x, chunkbox.y, chunkbox.z);

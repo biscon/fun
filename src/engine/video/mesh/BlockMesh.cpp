@@ -38,7 +38,7 @@ void BlockMesh::prepare()
     // vertex colors
     if(hasColors) {
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 4, GL_BYTE, GL_FALSE, vsize, (void *) 4);
+        glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, vsize, (void *) 4);
     }
     // vertex texture coords
     if(hasTexcoords) {
@@ -80,238 +80,99 @@ void BlockMesh::drawRange(const Shader& shader, i32 start, i32 count, Material* 
     //glBindVertexArray(0);
 }
 
-/*
-void BlockMesh::generateCubeAt(float x, float y, float z) {
-    vertices.insert(vertices.end(),{
-            // Back face
-            x-0.5f, y-0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, // Bottom-left
-            x+0.5f, y+0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, // top-right
-            x+0.5f, y-0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, // bottom-right
-            x+0.5f, y+0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, // top-right
-            x-0.5f, y-0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, // bottom-left
-            x-0.5f, y+0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, // top-left
-            // Front face
-            x-0.5f, y-0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, // bottom-left
-            x+0.5f, y-0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, // bottom-right
-            x+0.5f, y+0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, // top-right
-            x+0.5f, y+0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, // top-right
-            x-0.5f, y+0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, // top-left
-            x-0.5f, y-0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, // bottom-left
-            // Left face
-            x-0.5f, y+0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, // top-right
-            x-0.5f, y+0.5f, z-0.5f, -1.0f,  0.0f,  0.0f,  // top-left
-            x-0.5f, y-0.5f, z-0.5f, -1.0f,  0.0f,  0.0f,  // bottom-left
-            x-0.5f, y-0.5f, z-0.5f, -1.0f,  0.0f,  0.0f, // bottom-left
-            x-0.5f, y-0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, // bottom-right
-            x-0.5f, y+0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, // top-right
-            // Right face
-            x+0.5f, y+0.5f, z+0.5f, 1.0f,  0.0f,  0.0f, // top-left
-            x+0.5f, y-0.5f, z-0.5f, 1.0f,  0.0f,  0.0f, // bottom-right
-            x+0.5f, y+0.5f, z-0.5f, 1.0f,  0.0f,  0.0f, // top-right
-            x+0.5f, y-0.5f, z-0.5f, 1.0f,  0.0f,  0.0f, // bottom-right
-            x+0.5f, y+0.5f, z+0.5f, 1.0f,  0.0f,  0.0f, // top-left
-            x+0.5f, y-0.5f, z+0.5f, 1.0f,  0.0f,  0.0f, // bottom-left
-            // Bottom face
-            x-0.5f, y-0.5f, z-0.5f, 0.0f, -1.0f,  0.0f, // top-right
-            x+0.5f, y-0.5f, z-0.5f, 0.0f, -1.0f,  0.0f, // top-left
-            x+0.5f, y-0.5f, z+0.5f, 0.0f, -1.0f,  0.0f, // bottom-left
-            x+0.5f, y-0.5f, z+0.5f, 0.0f, -1.0f,  0.0f, // bottom-left
-            x-0.5f, y-0.5f, z+0.5f, 0.0f, -1.0f,  0.0f, // bottom-right
-            x-0.5f, y-0.5f, z-0.5f, 0.0f, -1.0f,  0.0f, // top-right
-            // Top face
-            x-0.5f, y+0.5f, z-0.5f, 0.0f,  1.0f,  0.0f, // top-left
-            x+0.5f, y+0.5f, z+0.5f, 0.0f,  1.0f,  0.0f, // bottom-right
-            x+0.5f, y+0.5f, z-0.5f, 0.0f,  1.0f,  0.0f, // top-right
-            x+0.5f, y+0.5f, z+0.5f, 0.0f,  1.0f,  0.0f, // bottom-right
-            x-0.5f, y+0.5f, z-0.5f, 0.0f,  1.0f,  0.0f, // top-left
-            x-0.5f, y+0.5f, z+0.5f, 0.0f,  1.0f,  0.0f, // bottom-left
-    });
-}
-*/
-
 void BlockMesh::clear() {
     vertices.clear();
     indices.clear();
 }
 
 
-void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces) {
-   /*
-    vertices.insert(vertices.end(),{
-            // Back face
-            x-0.5f, y-0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, r.left, r.bottom, // Bottom-left
-            x+0.5f, y+0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, r.right, r.top, // top-right
-            x+0.5f, y-0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, r.right, r.bottom, // bottom-right
-            x+0.5f, y+0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, r.right, r.top, // top-right
-            x-0.5f, y-0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, r.left, r.bottom, // bottom-left
-            x-0.5f, y+0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, r.left, r.top, // top-left
-            // Front face
-            x-0.5f, y-0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, r.left, r.bottom, // bottom-left
-            x+0.5f, y-0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, r.right, r.bottom, // bottom-right
-            x+0.5f, y+0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, r.right, r.top, // top-right
-            x+0.5f, y+0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, r.right, r.top, // top-right
-            x-0.5f, y+0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, r.left, r.top, // top-left
-            x-0.5f, y-0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, r.left, r.bottom, // bottom-left
-            // Left face
-            x-0.5f, y+0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, r.right, r.bottom, // top-right
-            x-0.5f, y+0.5f, z-0.5f, -1.0f,  0.0f,  0.0f, r.right, r.top, // top-left
-            x-0.5f, y-0.5f, z-0.5f, -1.0f,  0.0f,  0.0f, r.left, r.top, // bottom-left
-            x-0.5f, y-0.5f, z-0.5f, -1.0f,  0.0f,  0.0f, r.left, r.top, // bottom-left
-            x-0.5f, y-0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, r.left, r.bottom, // bottom-right
-            x-0.5f, y+0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, r.right, r.bottom, // top-right
-            // Right face
-            x+0.5f, y+0.5f, z+0.5f, 1.0f,  0.0f,  0.0f, r.right, r.bottom, // top-left
-            x+0.5f, y-0.5f, z-0.5f, 1.0f,  0.0f,  0.0f, r.left, r.top, // bottom-right
-            x+0.5f, y+0.5f, z-0.5f, 1.0f,  0.0f,  0.0f, r.right, r.top, // top-right
-            x+0.5f, y-0.5f, z-0.5f, 1.0f,  0.0f,  0.0f, r.left, r.top, // bottom-right
-            x+0.5f, y+0.5f, z+0.5f, 1.0f,  0.0f,  0.0f, r.right, r.bottom, // top-left
-            x+0.5f, y-0.5f, z+0.5f, 1.0f,  0.0f,  0.0f, r.left, r.bottom, // bottom-left
-            // Bottom face
-            x-0.5f, y-0.5f, z-0.5f, 0.0f, -1.0f,  0.0f, r.left, r.top, // top-right
-            x+0.5f, y-0.5f, z-0.5f, 0.0f, -1.0f,  0.0f, r.right, r.top, // top-left
-            x+0.5f, y-0.5f, z+0.5f, 0.0f, -1.0f,  0.0f, r.right, r.bottom, // bottom-left
-            x+0.5f, y-0.5f, z+0.5f, 0.0f, -1.0f,  0.0f, r.right, r.bottom, // bottom-left
-            x-0.5f, y-0.5f, z+0.5f, 0.0f, -1.0f,  0.0f, r.left, r.bottom, // bottom-right
-            x-0.5f, y-0.5f, z-0.5f, 0.0f, -1.0f,  0.0f, r.left, r.top, // top-right
-            // Top face
-            x-0.5f, y+0.5f, z-0.5f, 0.0f,  1.0f,  0.0f, r.left, r.top, // top-left
-            x+0.5f, y+0.5f, z+0.5f, 0.0f,  1.0f,  0.0f, r.right, r.bottom, // bottom-right
-            x+0.5f, y+0.5f, z-0.5f, 0.0f,  1.0f,  0.0f, r.right, r.top, // top-right
-            x+0.5f, y+0.5f, z+0.5f, 0.0f,  1.0f,  0.0f, r.right, r.bottom, // bottom-right
-            x-0.5f, y+0.5f, z-0.5f, 0.0f,  1.0f,  0.0f, r.left, r.top, // top-left
-            x-0.5f, y+0.5f, z+0.5f, 0.0f,  1.0f,  0.0f, r.left, r.bottom  // bottom-left
-    });
+void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, FaceLight &faceLight) {
+    if(faceLight.back == 0)
+        faceLight.back = 1;
+    if(faceLight.front == 0)
+        faceLight.front = 1;
+    if(faceLight.left == 0)
+        faceLight.left = 1;
+    if(faceLight.right == 0)
+        faceLight.right = 1;
+    if(faceLight.bottom == 0)
+        faceLight.bottom = 1;
+    if(faceLight.top == 0)
+        faceLight.top = 1;
+    
+    u8 ba_l = (u8)(((float)faceLight.back / 15.0f) * 255.0f);
+    u8 fr_l = (u8)(((float)faceLight.front / 15.0f) * 255.0f);
+    u8 le_l = (u8)(((float)faceLight.left / 15.0f) * 255.0f);
+    u8 ri_l = (u8)(((float)faceLight.right / 15.0f) * 255.0f);
+    u8 bo_l = (u8)(((float)faceLight.bottom / 15.0f) * 255.0f);
+    u8 to_l = (u8)(((float)faceLight.top / 15.0f) * 255.0f);
+
+    /*
+    if(level == 1)
+    {
+        SDL_Log("Converted lightlevel %d to rgb intensity %d", level, l);
+    }
     */
-
-    /*
-     * uvRect.left = 0.0f;
-    uvRect.right = 1.0f;
-    uvRect.top = 1.0f;
-    uvRect.bottom = 0.0f;
-     */
-
-    /*
+    // first 3 vertices is right triangle
     if(faces.back)
         vertices.insert(vertices.end(),{
                 // Back face (The North Face ;)
-                {byte4(x,y,z,0), byte4(0,0,-1,0), short2(0, 0)},
-                {byte4(x+1,y+1,z,0), byte4(0,0,-1,3), short2(1, 1)},
-                {byte4(x+1,y,z,0), byte4(0,0,-1,2), short2(1, 0)},
-                {byte4(x+1,y+1,z,0), byte4(0,0,-1,3), short2(1, 1)},
-                {byte4(x,y,z,0), byte4(0,0,-1,0), short2(0, 0)},
-                {byte4(x,y+1,z,0), byte4(0,0,-1,1), short2(0, 1)}
+                {byte4(x,y,z,0), ubyte4(ba_l,ba_l,ba_l,0)},
+                {byte4(x+1,y+1,z,0), ubyte4(ba_l,ba_l,ba_l,3)},
+                {byte4(x+1,y,z,0), ubyte4(ba_l,ba_l,ba_l,2)},
+                {byte4(x+1,y+1,z,0), ubyte4(ba_l,ba_l,ba_l,3)},
+                {byte4(x,y,z,0), ubyte4(ba_l,ba_l,ba_l,0)},
+                {byte4(x,y+1,z,0), ubyte4(ba_l,ba_l,ba_l,1)}
         });
     if(faces.front)
         vertices.insert(vertices.end(),{
                 // Front face
-                {byte4(x,y,z+1,1), byte4(0,0,1,0), short2(0, 0)},
-                {byte4(x+1,y,z+1,1), byte4(0,0,1,2), short2(1, 0)},
-                {byte4(x+1,y+1,z+1,1), byte4(0,0,1,3), short2(1, 1)},
-                {byte4(x+1,y+1,z+1,1), byte4(0,0,1,3), short2(1, 1)},
-                {byte4(x,y+1,z+1,1), byte4(0,0,1,1), short2(0, 1)},
-                {byte4(x,y,z+1,1), byte4(0,0,1,0), short2(0, 0)}
+                {byte4(x,y,z+1,1), ubyte4(fr_l,fr_l,fr_l,0)},
+                {byte4(x+1,y,z+1,1), ubyte4(fr_l,fr_l,fr_l,2)},
+                {byte4(x+1,y+1,z+1,1), ubyte4(fr_l,fr_l,fr_l,3)},
+                {byte4(x+1,y+1,z+1,1), ubyte4(fr_l,fr_l,fr_l,3)},
+                {byte4(x,y+1,z+1,1), ubyte4(fr_l,fr_l,fr_l,1)},
+                {byte4(x,y,z+1,1), ubyte4(fr_l,fr_l,fr_l,0)}
         });
     if(faces.left)
         vertices.insert(vertices.end(),{
                 // Left face
-                {byte4(x,y+1,z+1,2), byte4(-1,0,0,3), short2(1, 1)},
-                {byte4(x,y+1,z,2), byte4(-1,0,0,1), short2(0, 1)},
-                {byte4(x,y,z,2), byte4(-1,0,0,0), short2(0, 0)},
-                {byte4(x,y,z,2), byte4(-1,0,0,0), short2(0, 0)},
-                {byte4(x,y,z+1,2), byte4(-1,0,0,2), short2(1, 0)},
-                {byte4(x,y+1,z+1,2), byte4(-1,0,0,3), short2(1, 1)}
+                {byte4(x,y+1,z+1,2), ubyte4(le_l,le_l,le_l,3)},
+                {byte4(x,y+1,z,2), ubyte4(le_l,le_l,le_l,1)},
+                {byte4(x,y,z,2), ubyte4(le_l,le_l,le_l,0)},
+                {byte4(x,y,z,2), ubyte4(le_l,le_l,le_l,0)},
+                {byte4(x,y,z+1,2), ubyte4(le_l,le_l,le_l,2)},
+                {byte4(x,y+1,z+1,2), ubyte4(le_l,le_l,le_l,3)}
         });
     if(faces.right)
         vertices.insert(vertices.end(),{
                 // Right face
-                {byte4(x+1,y+1,z+1,3), byte4(1,0,0,1), short2(0, 1)},
-                {byte4(x+1,y,z,3), byte4(1,0,0,2), short2(1, 0)},
-                {byte4(x+1,y+1,z,3), byte4(1,0,0,3), short2(1, 1)},
-                {byte4(x+1,y,z,3), byte4(1,0,0,2), short2(1, 0)},
-                {byte4(x+1,y+1,z+1,3), byte4(1,0,0,1), short2(0, 1)},
-                {byte4(x+1,y,z+1,3), byte4(1,0,0,0), short2(0, 0)}
+                {byte4(x+1,y+1,z+1,3), ubyte4(ri_l,ri_l,ri_l,1)},
+                {byte4(x+1,y,z,3), ubyte4(ri_l,ri_l,ri_l,2)},
+                {byte4(x+1,y+1,z,3), ubyte4(ri_l,ri_l,ri_l,3)},
+                {byte4(x+1,y,z,3), ubyte4(ri_l,ri_l,ri_l,2)},
+                {byte4(x+1,y+1,z+1,3), ubyte4(ri_l,ri_l,ri_l,1)},
+                {byte4(x+1,y,z+1,3), ubyte4(ri_l,ri_l,ri_l,0)}
         });
     if(faces.bottom)
         vertices.insert(vertices.end(),{
                 // Bottom face
-                {byte4(x,y,z,4), byte4(0,-1,0,3), short2(1, 1)},
-                {byte4(x+1,y,z,4), byte4(0,-1,0,1), short2(0, 1)},
-                {byte4(x+1,y,z+1,4), byte4(0,-1,0,0), short2(0, 0)},
-                {byte4(x+1,y,z+1,4), byte4(0,-1,0,0), short2(0, 0)},
-                {byte4(x,y,z+1,4), byte4(0,-1,0,2), short2(1, 0)},
-                {byte4(x,y,z,4), byte4(0,-1,0,3), short2(1, 1)}
+                {byte4(x,y,z,4), ubyte4(bo_l,bo_l,bo_l,3)},
+                {byte4(x+1,y,z,4), ubyte4(bo_l,bo_l,bo_l,1)},
+                {byte4(x+1,y,z+1,4), ubyte4(bo_l,bo_l,bo_l,0)},
+                {byte4(x+1,y,z+1,4), ubyte4(bo_l,bo_l,bo_l,0)},
+                {byte4(x,y,z+1,4), ubyte4(bo_l,bo_l,bo_l,2)},
+                {byte4(x,y,z,4), ubyte4(bo_l,bo_l,bo_l,3)}
         });
     if(faces.top)
         vertices.insert(vertices.end(),{
                 // Top face
-                {byte4(x,y+1,z,5), byte4(0,1,0,1), short2(0, 1)},
-                {byte4(x+1,y+1,z+1,5), byte4(0,1,0,2), short2(1, 0)},
-                {byte4(x+1,y+1,z,5), byte4(0,1,0,3), short2(1, 1)},
-                {byte4(x+1,y+1,z+1,5), byte4(0,1,0,2), short2(1, 0)},
-                {byte4(x,y+1,z,5), byte4(0,1,0,1), short2(0, 1)},
-                {byte4(x,y+1,z+1,5), byte4(0,1,0,0), short2(0, 0)}
-        });
-     */
-
-    if(faces.back)
-        vertices.insert(vertices.end(),{
-                // Back face (The North Face ;)
-                {byte4(x,y,z,0), byte4(0,0,-1,0)},
-                {byte4(x+1,y+1,z,0), byte4(0,0,-1,3)},
-                {byte4(x+1,y,z,0), byte4(0,0,-1,2)},
-                {byte4(x+1,y+1,z,0), byte4(0,0,-1,3)},
-                {byte4(x,y,z,0), byte4(0,0,-1,0)},
-                {byte4(x,y+1,z,0), byte4(0,0,-1,1)}
-        });
-    if(faces.front)
-        vertices.insert(vertices.end(),{
-                // Front face
-                {byte4(x,y,z+1,1), byte4(0,0,1,0)},
-                {byte4(x+1,y,z+1,1), byte4(0,0,1,2)},
-                {byte4(x+1,y+1,z+1,1), byte4(0,0,1,3)},
-                {byte4(x+1,y+1,z+1,1), byte4(0,0,1,3)},
-                {byte4(x,y+1,z+1,1), byte4(0,0,1,1)},
-                {byte4(x,y,z+1,1), byte4(0,0,1,0)}
-        });
-    if(faces.left)
-        vertices.insert(vertices.end(),{
-                // Left face
-                {byte4(x,y+1,z+1,2), byte4(-1,0,0,3)},
-                {byte4(x,y+1,z,2), byte4(-1,0,0,1)},
-                {byte4(x,y,z,2), byte4(-1,0,0,0)},
-                {byte4(x,y,z,2), byte4(-1,0,0,0)},
-                {byte4(x,y,z+1,2), byte4(-1,0,0,2)},
-                {byte4(x,y+1,z+1,2), byte4(-1,0,0,3)}
-        });
-    if(faces.right)
-        vertices.insert(vertices.end(),{
-                // Right face
-                {byte4(x+1,y+1,z+1,3), byte4(1,0,0,1)},
-                {byte4(x+1,y,z,3), byte4(1,0,0,2)},
-                {byte4(x+1,y+1,z,3), byte4(1,0,0,3)},
-                {byte4(x+1,y,z,3), byte4(1,0,0,2)},
-                {byte4(x+1,y+1,z+1,3), byte4(1,0,0,1)},
-                {byte4(x+1,y,z+1,3), byte4(1,0,0,0)}
-        });
-    if(faces.bottom)
-        vertices.insert(vertices.end(),{
-                // Bottom face
-                {byte4(x,y,z,4), byte4(0,-1,0,3)},
-                {byte4(x+1,y,z,4), byte4(0,-1,0,1)},
-                {byte4(x+1,y,z+1,4), byte4(0,-1,0,0)},
-                {byte4(x+1,y,z+1,4), byte4(0,-1,0,0)},
-                {byte4(x,y,z+1,4), byte4(0,-1,0,2)},
-                {byte4(x,y,z,4), byte4(0,-1,0,3)}
-        });
-    if(faces.top)
-        vertices.insert(vertices.end(),{
-                // Top face
-                {byte4(x,y+1,z,5), byte4(0,1,0,1)},
-                {byte4(x+1,y+1,z+1,5), byte4(0,1,0,2)},
-                {byte4(x+1,y+1,z,5), byte4(0,1,0,3)},
-                {byte4(x+1,y+1,z+1,5), byte4(0,1,0,2)},
-                {byte4(x,y+1,z,5), byte4(0,1,0,1)},
-                {byte4(x,y+1,z+1,5), byte4(0,1,0,0)}
+                {byte4(x,y+1,z,5), ubyte4(to_l,to_l,to_l,1)},
+                {byte4(x+1,y+1,z+1,5), ubyte4(to_l,to_l,to_l,2)},
+                {byte4(x+1,y+1,z,5), ubyte4(to_l,to_l,to_l,3)},
+                {byte4(x+1,y+1,z+1,5), ubyte4(to_l,to_l,to_l,2)},
+                {byte4(x,y+1,z,5), ubyte4(to_l,to_l,to_l,1)},
+                {byte4(x,y+1,z+1,5), ubyte4(to_l,to_l,to_l,0)}
         });
 }
 

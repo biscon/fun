@@ -21,7 +21,10 @@ void ChunkManager::runIncrementalChunkBuild()
             }
             else
             {
-                setupIterator->second->setupFromTerrain(setupIterator->first, terrain);
+                if(setupIterator->first.x == 0 && setupIterator->first.z == 0)
+                    setupIterator->second->setupDebugChunk();
+                else
+                    setupIterator->second->setupFromTerrain(setupIterator->first, terrain);
             }
             setupIterator++;
         }
@@ -198,8 +201,8 @@ void ChunkManager::update(glm::vec3& campos, BlockTypeDictionary& blockTypeDict)
                 for(const auto& chunk : buildChunks)
                 {
                     rebuildList.push_back(chunk.second.get());
-                    SDL_Log("Added new chunks to rebuild list", rebuildList.size());
                 }
+                SDL_Log("Added new chunks to rebuild list %d", rebuildList.size());
             }
             SDL_Log("CHUNK_STAGE_SETUP");
             buildStage = CHUNK_STAGE_SETUP;

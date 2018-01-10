@@ -3,9 +3,9 @@ project(game)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(CMAKE_CXX_FLAGS_DEBUG "-O3")
+#set(CMAKE_CXX_FLAGS_DEBUG "-O3 -mwindows")
 # uncomment this to compile as gui app (doesnt open the console)
-#set(CMAKE_CXX_FLAGS_DEBUG "-mwindows")
+set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
 
 # includes cmake/FindSDL2.cmake
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)

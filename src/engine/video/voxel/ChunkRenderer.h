@@ -42,7 +42,7 @@ public:
 
 private:
     IGame& game;
-
+    float halfChunkSize = (float) CHUNK_SIZE/2;
     std::shared_ptr<Camera> camera = nullptr;
     std::unique_ptr<Shader> shader = nullptr;
     std::unique_ptr<BlockTypeDictionary> blockTypeDict;

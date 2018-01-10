@@ -18,7 +18,7 @@
 // block flags
 #define BLOCK_FLAG_ACTIVE 0x01
 #define BLOCK_FLAG_SHOULD_MESH 0x02
-#define BLOCK_FLAG_UNUSED1 0x04
+#define BLOCK_FLAG_TRANSPARENT 0x04
 #define BLOCK_FLAG_UNUSED2 0x08
 #define BLOCK_FLAG_UNUSED3 0x10
 #define BLOCK_FLAG_UNUSED4 0x20
@@ -52,6 +52,11 @@ struct BlockFaces {
     {
         return back || front || left || right || bottom || top;
     }
+};
+
+struct FaceLight
+{
+    u8 back, front, left, right, bottom, top;
 };
 
 struct Block {
