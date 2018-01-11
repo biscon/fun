@@ -86,19 +86,20 @@ void BlockMesh::clear() {
 }
 
 
-void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, FaceLight &faceLight) {
+void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, FaceLight &faceLight, VertexBlockNeighbours* neighbours) {
+    u8 min_level = 15;
     if(faceLight.back == 0)
-        faceLight.back = 1;
+        faceLight.back = min_level;
     if(faceLight.front == 0)
-        faceLight.front = 1;
+        faceLight.front = min_level;
     if(faceLight.left == 0)
-        faceLight.left = 1;
+        faceLight.left = min_level;
     if(faceLight.right == 0)
-        faceLight.right = 1;
+        faceLight.right = min_level;
     if(faceLight.bottom == 0)
-        faceLight.bottom = 1;
+        faceLight.bottom = min_level;
     if(faceLight.top == 0)
-        faceLight.top = 1;
+        faceLight.top = min_level;
     
     u8 ba_l = (u8)(((float)faceLight.back / 15.0f) * 255.0f);
     u8 fr_l = (u8)(((float)faceLight.front / 15.0f) * 255.0f);
@@ -107,6 +108,7 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Face
     u8 bo_l = (u8)(((float)faceLight.bottom / 15.0f) * 255.0f);
     u8 to_l = (u8)(((float)faceLight.top / 15.0f) * 255.0f);
 
+    u8 v1,v2,v3,v4;
     /*
     if(level == 1)
     {
@@ -125,14 +127,20 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Face
                 {byte4(x,y+1,z,0), ubyte4(ba_l,ba_l,ba_l,1)}
         });
     if(faces.front)
+        v1 = (u8)(((float)neighbours[LEFT_TOP_FRONT].AO / 7.0f) * fr_l);
+        v2 = (u8)(((float)neighbours[LEFT_BOTTOM_FRONT].AO / 7.0f) * fr_l);
+        v3 = (u8)(((float)neighbours[RIGHT_BOTTOM_FRONT].AO / 7.0f) * fr_l);
+        v4 = (u8)(((float)neighbours[RIGHT_TOP_FRONT].AO / 7.0f) * fr_l);
+
         vertices.insert(vertices.end(),{
                 // Front face
-                {byte4(x,y,z+1,1), ubyte4(fr_l,fr_l,fr_l,0)},
-                {byte4(x+1,y,z+1,1), ubyte4(fr_l,fr_l,fr_l,2)},
-                {byte4(x+1,y+1,z+1,1), ubyte4(fr_l,fr_l,fr_l,3)},
-                {byte4(x+1,y+1,z+1,1), ubyte4(fr_l,fr_l,fr_l,3)},
-                {byte4(x,y+1,z+1,1), ubyte4(fr_l,fr_l,fr_l,1)},
-                {byte4(x,y,z+1,1), ubyte4(fr_l,fr_l,fr_l,0)}
+                {byte4(x,y,z+1,1), ubyte4(v1,v1,v1,0)},
+                {byte4(x+1,y,z+1,1), ubyte4(v3,v3,v3,2)},
+                {byte4(x+1,y+1,z+1,1), ubyte4(v4,v4,v4,3)},
+
+                {byte4(x+1,y+1,z+1,1), ubyte4(v4,v4,v4,3)},
+                {byte4(x,y+1,z+1,1), ubyte4(v1,v1,v1,1)},
+                {byte4(x,y,z+1,1), ubyte4(v2,v2,v2,0)}
         });
     if(faces.left)
         vertices.insert(vertices.end(),{
@@ -164,16 +172,18 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Face
                 {byte4(x,y,z+1,4), ubyte4(bo_l,bo_l,bo_l,2)},
                 {byte4(x,y,z,4), ubyte4(bo_l,bo_l,bo_l,3)}
         });
-    if(faces.top)
-        vertices.insert(vertices.end(),{
+    if(faces.top) {
+
+        vertices.insert(vertices.end(), {
                 // Top face
-                {byte4(x,y+1,z,5), ubyte4(to_l,to_l,to_l,1)},
-                {byte4(x+1,y+1,z+1,5), ubyte4(to_l,to_l,to_l,2)},
-                {byte4(x+1,y+1,z,5), ubyte4(to_l,to_l,to_l,3)},
-                {byte4(x+1,y+1,z+1,5), ubyte4(to_l,to_l,to_l,2)},
-                {byte4(x,y+1,z,5), ubyte4(to_l,to_l,to_l,1)},
-                {byte4(x,y+1,z+1,5), ubyte4(to_l,to_l,to_l,0)}
+                {byte4(x, y + 1, z, 5),         ubyte4(to_l, to_l, to_l, 1)}, // V1
+                {byte4(x + 1, y + 1, z + 1, 5), ubyte4(to_l, to_l, to_l, 2)}, // V2
+                {byte4(x + 1, y + 1, z, 5),     ubyte4(to_l, to_l, to_l, 3)}, // V3
+                {byte4(x + 1, y + 1, z + 1, 5), ubyte4(to_l, to_l, to_l, 2)}, // V2
+                {byte4(x, y + 1, z, 5),         ubyte4(to_l, to_l, to_l, 1)}, // V1
+                {byte4(x, y + 1, z + 1, 5),     ubyte4(to_l, to_l, to_l, 0)}  // V4
         });
+    }
 }
 
 

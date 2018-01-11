@@ -135,7 +135,7 @@ set(SOURCE_FILES
         src/engine/video/shader/Fog.h
         src/engine/video/sky/Skybox.cpp
         src/engine/video/sky/Skybox.h
-        src/engine/video/shader/DirectionalLight.h)
+        src/engine/video/shader/DirectionalLight.h src/engine/video/voxel/VertexBlockNeighbours.h)
 add_executable(game ${SOURCE_FILES})
 
 target_link_libraries(game ${GLEW_LIBRARY} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY})

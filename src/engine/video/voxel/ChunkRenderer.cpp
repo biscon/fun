@@ -57,7 +57,7 @@ ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera,
 
     blockTypeDict->createBlockType("debug",
                                    glm::vec4(0.2125f, 0.1275f, 0.054f, 1.0f),
-                                   glm::vec4(1.0f, 0.0f, 1.0f, 1.0f),
+                                   glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
                                    glm::vec4(0.393548f, 0.271906f, 0.166721f, 1.0f),
                                    0.2f*128.0f);
 

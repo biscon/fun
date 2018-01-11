@@ -3,6 +3,7 @@
 //
 
 #include "Chunk.h"
+#include "VertexBlockNeighbours.h"
 
 #define GLEW_STATIC
 
@@ -45,11 +46,19 @@ void Chunk::setupDebugChunk()
                     blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_GRASS;
                 }
 
-                if(x >= 6 && x <= 12 && z == 9 && y >= 100 && y <= 103)
+                if(y == 100)
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
                     blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_STONE;
+                }
+
+                // wall
+                if(x >= 6 && x <= 12 && z == 9 && y >= 100 && y <= 103)
+                {
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
+                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_DEBUG;
                 }
                 if(x == 12 && z == 2 && y >= 100 && y <= 110
                    || x == 12 && z == 12 && y >= 100 && y <= 110
@@ -58,9 +67,9 @@ void Chunk::setupDebugChunk()
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
-                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_STONE;
+                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_DEBUG;
                 }
-                if(x == 7 && z == 7 && y == 102)
+                if(x == 7 && z == 7 && y == 102 || x == 7 && z == 11 && y == 102 || x == 7 && z == 11 && y == 110)
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
@@ -69,7 +78,8 @@ void Chunk::setupDebugChunk()
             }
         }
     }
-    placeTorchLight(7, 102, 7, 14);
+    //placeTorchLight(7, 102, 11, 14);
+    //placeTorchLight(7, 102, 7, 14);
     //auto ll = getTorchlight(7, 105, 7);
     //SDL_Log("light level read %d", ll);
 }
@@ -191,6 +201,7 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
     }
 
     FaceLight face_light;
+    VertexBlockNeighbours vertexBlockNeighbours[8];
 
     for(auto const& kv : materialBatchMap)
     {
@@ -230,13 +241,16 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
                 if (!shouldBlockMeshAt(neighbours, mb.x, mb.y + 1, mb.z)) {
                     mb.faces.top = true;
                     face_light.top = getLightTorchLightAt(neighbours, mb.x, mb.y + 1, mb.z);
+
                 }
             }
 
 
             //SDL_Log("Meshing cube at %d,%d,%d", mb.x, mb.y, mb.z);
             if(mb.faces.anyFacesEnabled()) {
-                mesh->generateTexturedCubeAt(mb.x, mb.y, mb.z, mb.faces, face_light);
+                calculateAO(neighbours, vertexBlockNeighbours, mb);
+
+                mesh->generateTexturedCubeAt(mb.x, mb.y, mb.z, mb.faces, face_light, vertexBlockNeighbours);
             }
         }
         kv.second->count = static_cast<u32>(mesh->vertices.size() - kv.second->start);
@@ -245,6 +259,28 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
         mesh->prepare();
     else
         mesh->upload();
+}
+
+void Chunk::calculateAO(ChunkNeighbours& neighbours, VertexBlockNeighbours* vertexNeighbours, MaterialBlock& mb)
+{
+    // calculate ambient occlusion positions
+    for(i32 i = 0; i < 8; i++)
+    {
+        vertexNeighbours[i].calculate(mb.x, mb.y, mb.z, i);
+        vertexNeighbours[i].AO = 0;
+        for(i32 j = 0; j < 8; j++)
+        {
+            BlockPos& pos = vertexNeighbours[i].positions[j];
+            // TODO do not clip here, isblockactive cannot deal with two coord components being outside the chunk at the same time
+            if(pos.x >= 0 && pos.x <= CHUNK_SIZE && pos.y >= 0 && pos.y < CHUNK_HEIGHT && pos.z >= 0 && pos.z < CHUNK_SIZE)
+                vertexNeighbours[i].AO += (isBlockActiveAt(neighbours, pos.x, pos.y, pos.z) ? 0 : 1); // count air blocks
+        }
+        //SDL_Log("AO: %d", vertexNeighbours[i].AO);
+        /*
+        if(vertexNeighbours[i].AO < 7)
+            vertexNeighbours[i].AO++;
+            */
+    }
 }
 
 void Chunk::draw(const Shader &shader) {
@@ -283,7 +319,7 @@ void Chunk::placeTorchLight(i32 x, i32 y, i32 z, u8 level) {
     SDL_Log("Placing torchlight at %d,%d,%d light level %d", x, y ,z, level);
     setTorchlight(x,y,z,level);
     u16 idx = POS_TO_INDEX(y, z, x);
-    clearLightQueue();
+    //clearLightQueue();
     lightQueue.emplace(idx, this);
     while(!lightQueue.empty())
     {

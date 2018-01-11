@@ -28,6 +28,7 @@
 
 #include "defs.h"
 
+// TODO make this one byte (bitflag) instead of wasting a byte on each boolean
 struct BlockFaces {
     bool back = true, front = true, left = true, right = true, bottom = true, top = true;
     inline void disableAll()
@@ -57,6 +58,7 @@ struct BlockFaces {
 struct FaceLight
 {
     u8 back, front, left, right, bottom, top;
+    u8 ao;
 };
 
 struct Block {
@@ -74,6 +76,5 @@ struct Block {
             flags &= ~mask;
     }
 };
-
 
 #endif //GAME_BLOCK_H

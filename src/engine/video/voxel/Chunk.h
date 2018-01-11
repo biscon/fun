@@ -285,6 +285,8 @@ private:
 
     void propagateTorchLight(Chunk *chunk, i32 x, i32 y, i32 z, i32 lightlevel);
     void clearLightMap();
+
+    void calculateAO(ChunkNeighbours &neighbours, VertexBlockNeighbours *vertexNeighbours, MaterialBlock &mb);
 };
 
 
