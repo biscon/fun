@@ -53,13 +53,36 @@ void Chunk::setupDebugChunk()
                     blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_STONE;
                 }
 
-                // wall
-                if(x >= 6 && x <= 12 && z == 9 && y >= 100 && y <= 103)
+                if(y == 106)
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
                     blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_DEBUG;
                 }
+
+                // wall
+                if(x >= 6 && x <= 12 && z == 5 && y >= 100 && y <= 105)
+                {
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
+                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_DEBUG;
+                }
+                // wall 2
+                if(z >= 6 && z <= 12 && x == 5 && y >= 100 && y <= 105)
+                {
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
+                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_DEBUG;
+                }
+
+                // wall 2
+                if(z >= 6 && z <= 12 && x == 12 && y >= 100 && y <= 105)
+                {
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
+                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_DEBUG;
+                }
+
                 if(x == 12 && z == 2 && y >= 100 && y <= 110
                    || x == 12 && z == 12 && y >= 100 && y <= 110
                    || x == 2 && z == 12 && y >= 100 && y <= 110
@@ -69,7 +92,7 @@ void Chunk::setupDebugChunk()
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
                     blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_DEBUG;
                 }
-                if(x == 7 && z == 7 && y == 102 || x == 7 && z == 11 && y == 102 || x == 7 && z == 11 && y == 110)
+                if(x == 7 && z == 11 && y == 110)
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
@@ -201,7 +224,7 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
     }
 
     FaceLight face_light;
-    VertexBlockNeighbours vertexBlockNeighbours[8];
+    AOBlock ao_block;
 
     for(auto const& kv : materialBatchMap)
     {
@@ -248,9 +271,9 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
 
             //SDL_Log("Meshing cube at %d,%d,%d", mb.x, mb.y, mb.z);
             if(mb.faces.anyFacesEnabled()) {
-                calculateAO(neighbours, vertexBlockNeighbours, mb);
+                calculateAO(neighbours, ao_block, mb);
 
-                mesh->generateTexturedCubeAt(mb.x, mb.y, mb.z, mb.faces, face_light, vertexBlockNeighbours);
+                mesh->generateTexturedCubeAt(mb.x, mb.y, mb.z, mb.faces, face_light, ao_block);
             }
         }
         kv.second->count = static_cast<u32>(mesh->vertices.size() - kv.second->start);
@@ -261,25 +284,34 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
         mesh->upload();
 }
 
-void Chunk::calculateAO(ChunkNeighbours& neighbours, VertexBlockNeighbours* vertexNeighbours, MaterialBlock& mb)
+static inline i32 vertexAO(i32 side1, i32 side2, i32 corner) {
+    if(side1 && side2) {
+        return 0;
+    }
+    return 3 - (side1 + side2 + corner);
+}
+
+bool Chunk::isBlockActiveAtClipped(ChunkNeighbours& neighbours, i32 x, i32 y, i32 z)
 {
-    // calculate ambient occlusion positions
-    for(i32 i = 0; i < 8; i++)
+    if(x >= 0 && x < CHUNK_SIZE
+       && y >= 0 && y < CHUNK_HEIGHT
+       && z >= 0 && z < CHUNK_SIZE) {
+        return blocks[POS_TO_INDEX(y, z, x)].isFlagSet(BLOCK_FLAG_ACTIVE);
+    }
+}
+
+void Chunk::calculateAO(ChunkNeighbours& neighbours, AOBlock &aob, MaterialBlock& mb)
+{
+    aob.calcPositions(mb.x, mb.y, mb.z);
+    for(auto &face : aob.faces)
     {
-        vertexNeighbours[i].calculate(mb.x, mb.y, mb.z, i);
-        vertexNeighbours[i].AO = 0;
-        for(i32 j = 0; j < 8; j++)
+        for(auto &vertex : face.vertices)
         {
-            BlockPos& pos = vertexNeighbours[i].positions[j];
-            // TODO do not clip here, isblockactive cannot deal with two coord components being outside the chunk at the same time
-            if(pos.x >= 0 && pos.x <= CHUNK_SIZE && pos.y >= 0 && pos.y < CHUNK_HEIGHT && pos.z >= 0 && pos.z < CHUNK_SIZE)
-                vertexNeighbours[i].AO += (isBlockActiveAt(neighbours, pos.x, pos.y, pos.z) ? 0 : 1); // count air blocks
+            vertex.AO = vertexAO((isBlockActiveAtClipped(neighbours, vertex.positions[SIDE1].x, vertex.positions[SIDE1].y, vertex.positions[SIDE1].z) ? 1 : 0),
+                                 (isBlockActiveAtClipped(neighbours, vertex.positions[SIDE2].x, vertex.positions[SIDE2].y, vertex.positions[SIDE2].z) ? 1 : 0),
+                                 (isBlockActiveAtClipped(neighbours, vertex.positions[CORNER].x, vertex.positions[CORNER].y, vertex.positions[CORNER].z) ? 1 : 0));
+
         }
-        //SDL_Log("AO: %d", vertexNeighbours[i].AO);
-        /*
-        if(vertexNeighbours[i].AO < 7)
-            vertexNeighbours[i].AO++;
-            */
     }
 }
 

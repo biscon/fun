@@ -86,7 +86,7 @@ void BlockMesh::clear() {
 }
 
 
-void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, FaceLight &faceLight, VertexBlockNeighbours* neighbours) {
+void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, FaceLight &faceLight, AOBlock& aob) {
     u8 min_level = 15;
     if(faceLight.back == 0)
         faceLight.back = min_level;
@@ -109,6 +109,7 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Face
     u8 to_l = (u8)(((float)faceLight.top / 15.0f) * 255.0f);
 
     u8 v1,v2,v3,v4;
+    float minLight = 0.3f;
     /*
     if(level == 1)
     {
@@ -116,72 +117,99 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Face
     }
     */
     // first 3 vertices is right triangle
-    if(faces.back)
-        vertices.insert(vertices.end(),{
+    if(faces.back) {
+        v1 = 0;
+        v2 = 255/4;
+        v3 = 255/2;
+        v4 = 255;
+        vertices.insert(vertices.end(), {
                 // Back face (The North Face ;)
-                {byte4(x,y,z,0), ubyte4(ba_l,ba_l,ba_l,0)},
-                {byte4(x+1,y+1,z,0), ubyte4(ba_l,ba_l,ba_l,3)},
-                {byte4(x+1,y,z,0), ubyte4(ba_l,ba_l,ba_l,2)},
-                {byte4(x+1,y+1,z,0), ubyte4(ba_l,ba_l,ba_l,3)},
-                {byte4(x,y,z,0), ubyte4(ba_l,ba_l,ba_l,0)},
-                {byte4(x,y+1,z,0), ubyte4(ba_l,ba_l,ba_l,1)}
+                {byte4(x, y, z, 0),         ubyte4(v3, v3, v3, 0)},
+                {byte4(x + 1, y + 1, z, 0), ubyte4(v1, v1, v1, 3)},
+                {byte4(x + 1, y, z, 0),     ubyte4(v2, v2, v2, 2)},
+
+                {byte4(x + 1, y + 1, z, 0), ubyte4(v1, v1, v1, 3)},
+                {byte4(x, y, z, 0),         ubyte4(v3, v3, v3, 0)},
+                {byte4(x, y + 1, z, 0),     ubyte4(v4, v4, v4, 1)}
         });
+    }
     if(faces.front)
-        v1 = (u8)(((float)neighbours[LEFT_TOP_FRONT].AO / 7.0f) * fr_l);
-        v2 = (u8)(((float)neighbours[LEFT_BOTTOM_FRONT].AO / 7.0f) * fr_l);
-        v3 = (u8)(((float)neighbours[RIGHT_BOTTOM_FRONT].AO / 7.0f) * fr_l);
-        v4 = (u8)(((float)neighbours[RIGHT_TOP_FRONT].AO / 7.0f) * fr_l);
-
-        vertices.insert(vertices.end(),{
-                // Front face
-                {byte4(x,y,z+1,1), ubyte4(v1,v1,v1,0)},
-                {byte4(x+1,y,z+1,1), ubyte4(v3,v3,v3,2)},
-                {byte4(x+1,y+1,z+1,1), ubyte4(v4,v4,v4,3)},
-
-                {byte4(x+1,y+1,z+1,1), ubyte4(v4,v4,v4,3)},
-                {byte4(x,y+1,z+1,1), ubyte4(v1,v1,v1,1)},
-                {byte4(x,y,z+1,1), ubyte4(v2,v2,v2,0)}
-        });
-    if(faces.left)
-        vertices.insert(vertices.end(),{
-                // Left face
-                {byte4(x,y+1,z+1,2), ubyte4(le_l,le_l,le_l,3)},
-                {byte4(x,y+1,z,2), ubyte4(le_l,le_l,le_l,1)},
-                {byte4(x,y,z,2), ubyte4(le_l,le_l,le_l,0)},
-                {byte4(x,y,z,2), ubyte4(le_l,le_l,le_l,0)},
-                {byte4(x,y,z+1,2), ubyte4(le_l,le_l,le_l,2)},
-                {byte4(x,y+1,z+1,2), ubyte4(le_l,le_l,le_l,3)}
-        });
-    if(faces.right)
-        vertices.insert(vertices.end(),{
-                // Right face
-                {byte4(x+1,y+1,z+1,3), ubyte4(ri_l,ri_l,ri_l,1)},
-                {byte4(x+1,y,z,3), ubyte4(ri_l,ri_l,ri_l,2)},
-                {byte4(x+1,y+1,z,3), ubyte4(ri_l,ri_l,ri_l,3)},
-                {byte4(x+1,y,z,3), ubyte4(ri_l,ri_l,ri_l,2)},
-                {byte4(x+1,y+1,z+1,3), ubyte4(ri_l,ri_l,ri_l,1)},
-                {byte4(x+1,y,z+1,3), ubyte4(ri_l,ri_l,ri_l,0)}
-        });
-    if(faces.bottom)
-        vertices.insert(vertices.end(),{
-                // Bottom face
-                {byte4(x,y,z,4), ubyte4(bo_l,bo_l,bo_l,3)},
-                {byte4(x+1,y,z,4), ubyte4(bo_l,bo_l,bo_l,1)},
-                {byte4(x+1,y,z+1,4), ubyte4(bo_l,bo_l,bo_l,0)},
-                {byte4(x+1,y,z+1,4), ubyte4(bo_l,bo_l,bo_l,0)},
-                {byte4(x,y,z+1,4), ubyte4(bo_l,bo_l,bo_l,2)},
-                {byte4(x,y,z,4), ubyte4(bo_l,bo_l,bo_l,3)}
-        });
-    if(faces.top) {
+    {
+        v1 = (u8) (((float) aob.faces[FRONT_FACE].vertices[LEFT_TOP].AO / 3.0f) * fr_l);
+        v2 = (u8) (((float) aob.faces[FRONT_FACE].vertices[LEFT_BTM].AO / 3.0f) * fr_l);
+        v3 = (u8) (((float) aob.faces[FRONT_FACE].vertices[RIGHT_BTM].AO / 3.0f) * fr_l);
+        v4 = (u8) (((float) aob.faces[FRONT_FACE].vertices[RIGHT_TOP].AO / 3.0f) * fr_l);
 
         vertices.insert(vertices.end(), {
+                // Front face
+                {byte4(x, y, z + 1, 1),         ubyte4(v2, v2, v2, 0)},
+                {byte4(x + 1, y, z + 1, 1),     ubyte4(v3, v3, v3, 2)},
+                {byte4(x + 1, y + 1, z + 1, 1), ubyte4(v4, v4, v4, 3)},
+
+                {byte4(x + 1, y + 1, z + 1, 1), ubyte4(v4, v4, v4, 3)},
+                {byte4(x, y + 1, z + 1, 1),     ubyte4(v1, v1, v1, 1)},
+                {byte4(x, y, z + 1, 1),         ubyte4(v2, v2, v2, 0)}
+        });
+    }
+    if(faces.left) {
+        v1 = 0;
+        v2 = 255/4;
+        v3 = 255/2;
+        v4 = 255;
+        vertices.insert(vertices.end(), {
+                // Left face
+                {byte4(x, y + 1, z + 1, 2), ubyte4(v4, v4, v4, 3)},
+                {byte4(x, y + 1, z, 2),     ubyte4(v1, v1, v1, 1)},
+                {byte4(x, y, z, 2),         ubyte4(v2, v2, v2, 0)},
+
+                {byte4(x, y, z, 2),         ubyte4(v2, v2, v2, 0)},
+                {byte4(x, y, z + 1, 2),     ubyte4(v3, v3, v3, 2)},
+                {byte4(x, y + 1, z + 1, 2), ubyte4(v4, v4, v4, 3)}
+        });
+    }
+    if(faces.right) {
+        v1 = 0;
+        v2 = 255/4;
+        v3 = 255/2;
+        v4 = 255;
+        vertices.insert(vertices.end(), {
+                // Right face
+                {byte4(x + 1, y + 1, z + 1, 3), ubyte4(v1, v1, v1, 1)},
+                {byte4(x + 1, y, z, 3),         ubyte4(v3, v3, v3, 2)},
+                {byte4(x + 1, y + 1, z, 3),     ubyte4(v4, v4, v4, 3)},
+                {byte4(x + 1, y, z, 3),         ubyte4(v3, v3, v3, 2)},
+                {byte4(x + 1, y + 1, z + 1, 3), ubyte4(v1, v1, v1, 1)},
+                {byte4(x + 1, y, z + 1, 3),     ubyte4(v2, v2, v2, 0)}
+        });
+    }
+    if(faces.bottom) {
+        v1 = 0;
+        v2 = 255/4;
+        v3 = 255/2;
+        v4 = 255;
+        vertices.insert(vertices.end(), {
+                // Bottom face
+                {byte4(x, y, z, 4),         ubyte4(v2, v2, v2, 3)},
+                {byte4(x + 1, y, z, 4),     ubyte4(v3, v3, v3, 1)},
+                {byte4(x + 1, y, z + 1, 4), ubyte4(v4, v4, v4, 0)},
+                {byte4(x + 1, y, z + 1, 4), ubyte4(v4, v4, v4, 0)},
+                {byte4(x, y, z + 1, 4),     ubyte4(v1, v1, v1, 2)},
+                {byte4(x, y, z, 4),         ubyte4(v2, v2, v2, 3)}
+        });
+    }
+    if(faces.top) {
+        v1 = 0;
+        v2 = 255/4;
+        v3 = 255/2;
+        v4 = 255;
+        vertices.insert(vertices.end(), {
                 // Top face
-                {byte4(x, y + 1, z, 5),         ubyte4(to_l, to_l, to_l, 1)}, // V1
-                {byte4(x + 1, y + 1, z + 1, 5), ubyte4(to_l, to_l, to_l, 2)}, // V2
-                {byte4(x + 1, y + 1, z, 5),     ubyte4(to_l, to_l, to_l, 3)}, // V3
-                {byte4(x + 1, y + 1, z + 1, 5), ubyte4(to_l, to_l, to_l, 2)}, // V2
-                {byte4(x, y + 1, z, 5),         ubyte4(to_l, to_l, to_l, 1)}, // V1
-                {byte4(x, y + 1, z + 1, 5),     ubyte4(to_l, to_l, to_l, 0)}  // V4
+                {byte4(x, y + 1, z, 5),         ubyte4(v1, v1, v1, 1)},
+                {byte4(x + 1, y + 1, z + 1, 5), ubyte4(v3, v3, v3, 2)},
+                {byte4(x + 1, y + 1, z, 5),     ubyte4(v4, v4, v4, 3)},
+                {byte4(x + 1, y + 1, z + 1, 5), ubyte4(v3, v3, v3, 2)},
+                {byte4(x, y + 1, z, 5),         ubyte4(v1, v1, v1, 1)},
+                {byte4(x, y + 1, z + 1, 5),     ubyte4(v2, v2, v2, 0)}
         });
     }
 }

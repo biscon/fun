@@ -286,7 +286,9 @@ private:
     void propagateTorchLight(Chunk *chunk, i32 x, i32 y, i32 z, i32 lightlevel);
     void clearLightMap();
 
-    void calculateAO(ChunkNeighbours &neighbours, VertexBlockNeighbours *vertexNeighbours, MaterialBlock &mb);
+    void calculateAO(ChunkNeighbours &neighbours, AOBlock &aob, MaterialBlock &mb);
+
+    bool isBlockActiveAtClipped(ChunkNeighbours &neighbours, int32_t x, int32_t y, int32_t z);
 };
 
 
