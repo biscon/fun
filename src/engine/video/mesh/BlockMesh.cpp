@@ -180,10 +180,16 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Face
         });
     }
     if(faces.right) {
+        /*
         v1 = 0;
         v2 = 255/4;
         v3 = 255/2;
         v4 = 255;
+         */
+        v1 = (u8) (((float) aob.faces[RIGHT_FACE].vertices[LEFT_TOP].AO / 3.0f) * fr_l);
+        v2 = (u8) (((float) aob.faces[RIGHT_FACE].vertices[LEFT_BTM].AO / 3.0f) * fr_l);
+        v3 = (u8) (((float) aob.faces[RIGHT_FACE].vertices[RIGHT_BTM].AO / 3.0f) * fr_l);
+        v4 = (u8) (((float) aob.faces[RIGHT_FACE].vertices[RIGHT_TOP].AO / 3.0f) * fr_l);
         vertices.insert(vertices.end(), {
                 // Right face
                 {byte4(x + 1, y + 1, z + 1, 3), ubyte4(v1, v1, v1, 1)},
@@ -195,10 +201,16 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Face
         });
     }
     if(faces.bottom) {
+        /*
         v1 = 0;
         v2 = 255/4;
         v3 = 255/2;
         v4 = 255;
+        */
+        v1 = (u8) (((float) aob.faces[BOTTOM_FACE].vertices[LEFT_TOP].AO / 3.0f) * fr_l);
+        v2 = (u8) (((float) aob.faces[BOTTOM_FACE].vertices[LEFT_BTM].AO / 3.0f) * fr_l);
+        v3 = (u8) (((float) aob.faces[BOTTOM_FACE].vertices[RIGHT_BTM].AO / 3.0f) * fr_l);
+        v4 = (u8) (((float) aob.faces[BOTTOM_FACE].vertices[RIGHT_TOP].AO / 3.0f) * fr_l);
         vertices.insert(vertices.end(), {
                 // Bottom face
                 {byte4(x, y, z, 4),         ubyte4(v2, v2, v2, 3)},
@@ -210,10 +222,16 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Face
         });
     }
     if(faces.top) {
+        /*
         v1 = 0;
         v2 = 255/4;
         v3 = 255/2;
         v4 = 255;
+        */
+        v1 = (u8) (((float) aob.faces[TOP_FACE].vertices[LEFT_TOP].AO / 3.0f) * fr_l);
+        v2 = (u8) (((float) aob.faces[TOP_FACE].vertices[LEFT_BTM].AO / 3.0f) * fr_l);
+        v3 = (u8) (((float) aob.faces[TOP_FACE].vertices[RIGHT_BTM].AO / 3.0f) * fr_l);
+        v4 = (u8) (((float) aob.faces[TOP_FACE].vertices[RIGHT_TOP].AO / 3.0f) * fr_l);
         vertices.insert(vertices.end(), {
                 // Top face
                 {byte4(x, y + 1, z, 5),         ubyte4(v1, v1, v1, 1)},

@@ -50,7 +50,7 @@ void Chunk::setupDebugChunk()
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
-                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_STONE;
+                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_DEBUG;
                 }
 
                 if(y == 106)
@@ -298,6 +298,7 @@ bool Chunk::isBlockActiveAtClipped(ChunkNeighbours& neighbours, i32 x, i32 y, i3
        && z >= 0 && z < CHUNK_SIZE) {
         return blocks[POS_TO_INDEX(y, z, x)].isFlagSet(BLOCK_FLAG_ACTIVE);
     }
+    return false;
 }
 
 void Chunk::calculateAO(ChunkNeighbours& neighbours, AOBlock &aob, MaterialBlock& mb)
