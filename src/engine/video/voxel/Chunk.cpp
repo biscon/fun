@@ -61,7 +61,7 @@ void Chunk::setupDebugChunk()
                 }
 
                 // wall
-                if(x >= 6 && x <= 12 && z == 5 && y >= 100 && y <= 105)
+                if(x >= 6 && x <= 12 && z == 8 && y >= 100 && y <= 105)
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);

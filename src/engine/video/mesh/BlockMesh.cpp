@@ -118,10 +118,16 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Face
     */
     // first 3 vertices is right triangle
     if(faces.back) {
+        /*
         v1 = 0;
         v2 = 255/4;
         v3 = 255/2;
         v4 = 255;
+         */
+        v1 = (u8) (((float) aob.faces[BACK_FACE].vertices[LEFT_TOP].AO / 3.0f) * fr_l);
+        v2 = (u8) (((float) aob.faces[BACK_FACE].vertices[LEFT_BTM].AO / 3.0f) * fr_l);
+        v3 = (u8) (((float) aob.faces[BACK_FACE].vertices[RIGHT_BTM].AO / 3.0f) * fr_l);
+        v4 = (u8) (((float) aob.faces[BACK_FACE].vertices[RIGHT_TOP].AO / 3.0f) * fr_l);
         vertices.insert(vertices.end(), {
                 // Back face (The North Face ;)
                 {byte4(x, y, z, 0),         ubyte4(v3, v3, v3, 0)},
@@ -152,10 +158,16 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Face
         });
     }
     if(faces.left) {
+        /*
         v1 = 0;
         v2 = 255/4;
         v3 = 255/2;
         v4 = 255;
+         */
+        v1 = (u8) (((float) aob.faces[LEFT_FACE].vertices[LEFT_TOP].AO / 3.0f) * fr_l);
+        v2 = (u8) (((float) aob.faces[LEFT_FACE].vertices[LEFT_BTM].AO / 3.0f) * fr_l);
+        v3 = (u8) (((float) aob.faces[LEFT_FACE].vertices[RIGHT_BTM].AO / 3.0f) * fr_l);
+        v4 = (u8) (((float) aob.faces[LEFT_FACE].vertices[RIGHT_TOP].AO / 3.0f) * fr_l);
         vertices.insert(vertices.end(), {
                 // Left face
                 {byte4(x, y + 1, z + 1, 2), ubyte4(v4, v4, v4, 3)},

@@ -143,21 +143,21 @@ struct AOBlock
                 case BACK_FACE:
                 {
                     // neighbours
-                    faces[i].vertices[LEFT_TOP].positions[SIDE1] = {x-1, y, z-1};
+                    faces[i].vertices[LEFT_TOP].positions[SIDE1] = {x+1, y, z-1};
                     faces[i].vertices[LEFT_TOP].positions[SIDE2] = {x, y+1, z-1};
-                    faces[i].vertices[LEFT_TOP].positions[CORNER] = {x-1, y+1, z-1};
+                    faces[i].vertices[LEFT_TOP].positions[CORNER] = {x+1, y+1, z-1};
 
-                    faces[i].vertices[LEFT_BTM].positions[SIDE1] = {x-1, y, z-1};
+                    faces[i].vertices[LEFT_BTM].positions[SIDE1] = {x+1, y, z-1};
                     faces[i].vertices[LEFT_BTM].positions[SIDE2] = {x, y-1, z-1};
-                    faces[i].vertices[LEFT_BTM].positions[CORNER] = {x-1, y-1, z-1};
+                    faces[i].vertices[LEFT_BTM].positions[CORNER] = {x+1, y-1, z-1};
 
                     faces[i].vertices[RIGHT_TOP].positions[SIDE1] = {x, y+1, z-1};
-                    faces[i].vertices[RIGHT_TOP].positions[SIDE2] = {x+1, y, z-1};
-                    faces[i].vertices[RIGHT_TOP].positions[CORNER] = {x+1, y+1, z-1};
+                    faces[i].vertices[RIGHT_TOP].positions[SIDE2] = {x-1, y, z-1};
+                    faces[i].vertices[RIGHT_TOP].positions[CORNER] = {x-1, y+1, z-1};
 
                     faces[i].vertices[RIGHT_BTM].positions[SIDE1] = {x, y-1, z-1};
-                    faces[i].vertices[RIGHT_BTM].positions[SIDE2] = {x+1, y, z-1};
-                    faces[i].vertices[RIGHT_BTM].positions[CORNER] = {x+1, y-1, z-1};
+                    faces[i].vertices[RIGHT_BTM].positions[SIDE2] = {x-1, y, z-1};
+                    faces[i].vertices[RIGHT_BTM].positions[CORNER] = {x-1, y-1, z-1};
                     break;
                 }
                 case FRONT_FACE:
@@ -182,14 +182,22 @@ struct AOBlock
                 }
                 case LEFT_FACE:
                 {
-                    // iterate vertices
-                    for(i32 j = 0; j < 4; j++)
-                    {
-                        // neighbours
-                        faces[i].vertices[j].positions[SIDE1] = {0,0,0};
-                        faces[i].vertices[j].positions[SIDE2] = {0,0,0};
-                        faces[i].vertices[j].positions[CORNER] = {0,0,0};
-                    }
+                    // neighbours
+                    faces[i].vertices[LEFT_TOP].positions[SIDE1] = {x-1, y, z-1};
+                    faces[i].vertices[LEFT_TOP].positions[SIDE2] = {x-1, y+1, z};
+                    faces[i].vertices[LEFT_TOP].positions[CORNER] = {x-1, y+1, z-1};
+
+                    faces[i].vertices[LEFT_BTM].positions[SIDE1] = {x-1, y, z-1};
+                    faces[i].vertices[LEFT_BTM].positions[SIDE2] = {x-1, y-1, z};
+                    faces[i].vertices[LEFT_BTM].positions[CORNER] = {x-1, y-1, z-1};
+
+                    faces[i].vertices[RIGHT_TOP].positions[SIDE1] = {x-1, y+1, z};
+                    faces[i].vertices[RIGHT_TOP].positions[SIDE2] = {x-1, y, z+1};
+                    faces[i].vertices[RIGHT_TOP].positions[CORNER] = {x-1, y+1, z+1};
+
+                    faces[i].vertices[RIGHT_BTM].positions[SIDE1] = {x-1, y, z+1};
+                    faces[i].vertices[RIGHT_BTM].positions[SIDE2] = {x-1, y-1, z};
+                    faces[i].vertices[RIGHT_BTM].positions[CORNER] = {x-1, y-1, z+1};
                     break;
                 }
                 case RIGHT_FACE:
