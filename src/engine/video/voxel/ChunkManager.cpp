@@ -245,7 +245,7 @@ ChunkPos ChunkManager::getChunkFromWorld(glm::vec3 &worldpos)
 void ChunkManager::findNeighbours(ChunkNeighbours& neighbours, const ChunkPos& chunk_pos)
 {
     ChunkPos pos;
-// find north
+    // find north
     pos.set(chunk_pos.x, chunk_pos.z - 1);
     neighbours.n = findBuildChunkAt(pos);
     if(neighbours.n == nullptr)
@@ -268,6 +268,30 @@ void ChunkManager::findNeighbours(ChunkNeighbours& neighbours, const ChunkPos& c
     neighbours.e = findBuildChunkAt(pos);
     if(neighbours.e == nullptr)
         neighbours.e = findActiveChunkAt(pos);
+
+    // find north west
+    pos.set(chunk_pos.x - 1, chunk_pos.z - 1);
+    neighbours.nw = findBuildChunkAt(pos);
+    if(neighbours.nw == nullptr)
+        neighbours.nw = findActiveChunkAt(pos);
+
+    // find north east
+    pos.set(chunk_pos.x + 1, chunk_pos.z - 1);
+    neighbours.ne = findBuildChunkAt(pos);
+    if(neighbours.ne == nullptr)
+        neighbours.ne = findActiveChunkAt(pos);
+
+    // find south west
+    pos.set(chunk_pos.x - 1, chunk_pos.z + 1);
+    neighbours.sw = findBuildChunkAt(pos);
+    if(neighbours.sw == nullptr)
+        neighbours.sw = findActiveChunkAt(pos);
+
+    // find south east
+    pos.set(chunk_pos.x + 1, chunk_pos.z + 1);
+    neighbours.se = findBuildChunkAt(pos);
+    if(neighbours.se == nullptr)
+        neighbours.se = findActiveChunkAt(pos);
 }
 
 void ChunkManager::findNeighbours(const std::map<ChunkPos, std::unique_ptr<Chunk>> &chunk_map, ChunkNeighbours &neighbours,
@@ -288,4 +312,20 @@ void ChunkManager::findNeighbours(const std::map<ChunkPos, std::unique_ptr<Chunk
     // find east
     pos.set(chunk_pos.x + 1, chunk_pos.z);
     neighbours.e = findChunkAt(chunk_map, pos);
+
+    // find north west
+    pos.set(chunk_pos.x - 1, chunk_pos.z - 1);
+    neighbours.nw = findChunkAt(chunk_map, pos);
+
+    // find north east
+    pos.set(chunk_pos.x + 1, chunk_pos.z - 1);
+    neighbours.ne = findChunkAt(chunk_map, pos);
+
+    // find south west
+    pos.set(chunk_pos.x - 1, chunk_pos.z + 1);
+    neighbours.sw = findChunkAt(chunk_map, pos);
+
+    // find south east
+    pos.set(chunk_pos.x + 1, chunk_pos.z + 1);
+    neighbours.se = findChunkAt(chunk_map, pos);
 }

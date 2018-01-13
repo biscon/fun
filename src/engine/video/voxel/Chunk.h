@@ -43,8 +43,13 @@ struct ChunkNeighbours {
     Chunk *w;
     Chunk *e;
 
-    ChunkNeighbours() : n(nullptr), s(nullptr), w(nullptr), e(nullptr) {}
-    ChunkNeighbours(Chunk *n, Chunk *s, Chunk *w, Chunk *e) : n(n), s(s), w(w), e(e) {}
+    Chunk *nw;
+    Chunk *ne;
+    Chunk *sw;
+    Chunk *se;
+
+    ChunkNeighbours() : n(nullptr), s(nullptr), w(nullptr), e(nullptr), nw(nullptr), ne(nullptr), sw(nullptr), se(nullptr) {}
+    ChunkNeighbours(Chunk *n, Chunk *s, Chunk *w, Chunk *e, Chunk *nw, Chunk *ne, Chunk *sw, Chunk *se) : n(n), s(s), w(w), e(e), nw(nw), ne(ne), sw(sw), se(se) {}
 };
 
 struct LightNode {
@@ -81,6 +86,7 @@ private:
     std::unique_ptr<BlockMesh> mesh;
     std::map<i32, std::unique_ptr<MaterialBatch>> materialBatchMap;
 
+    // function cannot handle lookups in diagonal chunk neighbours
     inline bool shouldBlockMeshAt(ChunkNeighbours& neighbours, i32 x, i32 y, i32 z)
     {
         // early out since our chunk grid is 2d
@@ -138,6 +144,7 @@ private:
         return true;
     }
 
+    // function cannot handle lookups in diagonal chunk neighbours
     inline bool isBlockActiveAt(ChunkNeighbours& neighbours, i32 x, i32 y, i32 z)
     {
         // early out since our chunk grid is 2d

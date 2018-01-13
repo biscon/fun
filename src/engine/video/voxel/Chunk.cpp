@@ -294,11 +294,120 @@ static inline i32 vertexAO(i32 side1, i32 side2, i32 corner) {
 
 bool Chunk::isBlockActiveAtClipped(ChunkNeighbours& neighbours, i32 x, i32 y, i32 z)
 {
+    // early out since our chunk grid is 2d
+    if(y < 0)
+        return true;
+    if(y >= CHUNK_HEIGHT)
+        return false;
+
+    // within this chunk
     if(x >= 0 && x < CHUNK_SIZE
        && y >= 0 && y < CHUNK_HEIGHT
        && z >= 0 && z < CHUNK_SIZE) {
         return blocks[POS_TO_INDEX(y, z, x)].isFlagSet(BLOCK_FLAG_ACTIVE);
     }
+
+    // find chunk neighbour offset
+    i32 offset_x = 0;
+    i32 offset_z = 0;
+    // north
+    if(z < 0) {
+        offset_z = -1;
+    }
+    // south
+    if(z >= CHUNK_SIZE)
+    {
+        offset_z = 1;
+    }
+    // west
+    if(x < 0) {
+        offset_x = -1;
+    }
+    // east
+    if(x >= CHUNK_SIZE)
+    {
+        offset_x = 1;
+    }
+
+    // if north
+    if(offset_x == 0 && offset_z == -1)
+    {
+        if(neighbours.n == nullptr)
+            return false;
+        auto nz = CHUNK_SIZE + z;
+        return neighbours.n->blocks[POS_TO_INDEX(y,nz,x)].isFlagSet(BLOCK_FLAG_ACTIVE);
+    }
+
+    // if south
+    if(offset_x == 0 && offset_z == 1)
+    {
+        if(neighbours.s == nullptr)
+            return false;
+        auto nz = z - CHUNK_SIZE;
+        return neighbours.s->blocks[POS_TO_INDEX(y,nz,x)].isFlagSet(BLOCK_FLAG_ACTIVE);
+    }
+
+    // if west
+    if(offset_x == -1 && offset_z == 0)
+    {
+        if(neighbours.w == nullptr)
+            return false;
+        auto nx = CHUNK_SIZE + x;
+        return neighbours.w->blocks[POS_TO_INDEX(y,z,nx)].isFlagSet(BLOCK_FLAG_ACTIVE);
+    }
+
+    // if east
+    if(offset_x == 1 && offset_z == 0)
+    {
+        if(neighbours.e == nullptr)
+            return true;
+
+        auto nx = x - CHUNK_SIZE;
+        return neighbours.e->blocks[POS_TO_INDEX(y,z,nx)].isFlagSet(BLOCK_FLAG_ACTIVE);
+    }
+
+    // diagonals -------------------------------------------------------------------------
+
+    // if north west
+    if(offset_x == -1 && offset_z == -1)
+    {
+        if(neighbours.nw == nullptr)
+            return true;
+        auto nx = CHUNK_SIZE + x;
+        auto nz = CHUNK_SIZE + z;
+        return neighbours.nw->blocks[POS_TO_INDEX(y,nz,nx)].isFlagSet(BLOCK_FLAG_ACTIVE);
+    }
+
+    // if north east
+    if(offset_x == 1 && offset_z == -1) {
+        if (neighbours.ne == nullptr)
+            return true;
+        auto nz = CHUNK_SIZE + z;
+        auto nx = x - CHUNK_SIZE;
+        return neighbours.ne->blocks[POS_TO_INDEX(y,nz,nx)].isFlagSet(BLOCK_FLAG_ACTIVE);
+    }
+
+    // if south west
+    if(offset_x == -1 && offset_z == 1)
+    {
+        if(neighbours.sw == nullptr)
+            return true;
+        auto nx = CHUNK_SIZE + x;
+        auto nz = z - CHUNK_SIZE;
+        return neighbours.sw->blocks[POS_TO_INDEX(y,nz,nx)].isFlagSet(BLOCK_FLAG_ACTIVE);
+    }
+
+    // if south east
+    if(offset_x == 1 && offset_z == 1)
+    {
+        if(neighbours.se == nullptr)
+            return true;
+        auto nx = x - CHUNK_SIZE;
+        auto nz = z - CHUNK_SIZE;
+        return neighbours.se->blocks[POS_TO_INDEX(y,nz,nx)].isFlagSet(BLOCK_FLAG_ACTIVE);
+    }
+
+    SDL_Log("Not handled requested chunk offset %d,%d", offset_x, offset_z);
     return false;
 }
 
