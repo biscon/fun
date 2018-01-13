@@ -21,7 +21,10 @@ void ChunkManager::runIncrementalChunkBuild()
             }
             else
             {
-                if(setupIterator->first.x == 0 && setupIterator->first.z == 0)
+                if(setupIterator->first.x == 0 && setupIterator->first.z == 0
+                   || setupIterator->first.x == 1 && setupIterator->first.z == 0
+                    || setupIterator->first.x == 0 && setupIterator->first.z == 1
+                       || setupIterator->first.x == 1 && setupIterator->first.z == 1)
                     setupIterator->second->setupDebugChunk();
                 else
                     setupIterator->second->setupFromTerrain(setupIterator->first, terrain);

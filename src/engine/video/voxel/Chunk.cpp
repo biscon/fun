@@ -27,6 +27,7 @@ Chunk::~Chunk() {
 void Chunk::setupDebugChunk()
 {
     clearLightMap();
+    u8 temple_block = BLOCK_STONE;
 
     for(int y = 0; y < CHUNK_HEIGHT; y++)
     {
@@ -50,14 +51,14 @@ void Chunk::setupDebugChunk()
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
-                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_DEBUG;
+                    blocks[POS_TO_INDEX(y,z,x)].type = temple_block;
                 }
 
                 if(y == 106)
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
-                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_DEBUG;
+                    blocks[POS_TO_INDEX(y,z,x)].type = temple_block;
                 }
 
                 // wall
@@ -65,14 +66,14 @@ void Chunk::setupDebugChunk()
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
-                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_DEBUG;
+                    blocks[POS_TO_INDEX(y,z,x)].type = temple_block;
                 }
                 // wall 2
                 if(z >= 6 && z <= 12 && x == 5 && y >= 100 && y <= 105)
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
-                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_DEBUG;
+                    blocks[POS_TO_INDEX(y,z,x)].type = temple_block;
                 }
 
                 // wall 2
@@ -80,23 +81,23 @@ void Chunk::setupDebugChunk()
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
-                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_DEBUG;
+                    blocks[POS_TO_INDEX(y,z,x)].type = temple_block;
                 }
 
-                if(x == 12 && z == 2 && y >= 100 && y <= 110
-                   || x == 12 && z == 12 && y >= 100 && y <= 110
-                   || x == 2 && z == 12 && y >= 100 && y <= 110
-                   || x == 2 && z == 2 && y >= 100 && y <= 110)
+                if(x == 14 && z == 1 && y >= 100 && y <= 110
+                   || x == 14 && z == 14 && y >= 100 && y <= 110
+                   || x == 1 && z == 14 && y >= 100 && y <= 110
+                   || x == 1 && z == 1 && y >= 100 && y <= 110)
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
-                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_DEBUG;
+                    blocks[POS_TO_INDEX(y,z,x)].type = temple_block;
                 }
                 if(x == 7 && z == 11 && y == 110)
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
-                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_DEBUG;
+                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_GOLD;
                 }
             }
         }
