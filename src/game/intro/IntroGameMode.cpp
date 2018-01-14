@@ -177,10 +177,6 @@ void IntroGameMode::onKeyDown(const SDL_Event *event) {
         return;
     }
 
-    if(event->key.keysym.sym == SDLK_SPACE)
-    {
-        return;
-    }
 }
 
 void IntroGameMode::onKeyUp(const SDL_Event *event) {
@@ -212,6 +208,11 @@ void IntroGameMode::onKeyUp(const SDL_Event *event) {
     if(event->key.keysym.sym == SDLK_e)
     {
         zoomingOut = false;
+        return;
+    }
+    if(event->key.keysym.sym == SDLK_SPACE)
+    {
+        chunkRenderer->chunkManager->testStuff();
         return;
     }
 }

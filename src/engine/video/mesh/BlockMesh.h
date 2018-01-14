@@ -11,7 +11,7 @@
 #include <glm.hpp>
 #include <memory>
 #include <string>
-#include <engine/video/voxel/VertexBlockNeighbours.h>
+#include <engine/video/voxel/AOBlock.h>
 #include <engine/video/voxel/Block.h>
 #include "MeshUpdateType.h"
 #include "engine/video/shader/Shader.h"

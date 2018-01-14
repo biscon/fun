@@ -12,6 +12,7 @@
 #include "Block.h"
 #include "ChunkPos.h"
 #include "Terrain.h"
+#include "IChunkManager.h"
 
 #define CHUNK_SIZE 16
 #define CHUNK_HEIGHT 128
@@ -50,17 +51,102 @@ struct ChunkNeighbours {
 
     ChunkNeighbours() : n(nullptr), s(nullptr), w(nullptr), e(nullptr), nw(nullptr), ne(nullptr), sw(nullptr), se(nullptr) {}
     ChunkNeighbours(Chunk *n, Chunk *s, Chunk *w, Chunk *e, Chunk *nw, Chunk *ne, Chunk *sw, Chunk *se) : n(n), s(s), w(w), e(e), nw(nw), ne(ne), sw(sw), se(se) {}
+
+    inline Chunk *getChunkByOffset(i32 offset_x, i32 offset_z, i32 x, i32 y, i32 z, i32& nx, i32& nz)
+    {
+        // if north
+        if(offset_x == 0 && offset_z == -1)
+        {
+            if(n == nullptr)
+                return nullptr;
+            nx = x;
+            nz = CHUNK_SIZE + z;
+            return n;
+        }
+
+        // if south
+        if(offset_x == 0 && offset_z == 1)
+        {
+            if(s == nullptr)
+                return nullptr;
+            nx = x;
+            nz = z - CHUNK_SIZE;
+            return s;
+        }
+
+        // if west
+        if(offset_x == -1 && offset_z == 0)
+        {
+            if(w == nullptr)
+                return nullptr;
+            nx = CHUNK_SIZE + x;
+            nz = z;
+            return w;
+        }
+
+        // if east
+        if(offset_x == 1 && offset_z == 0)
+        {
+            if(e == nullptr)
+                return nullptr;
+
+            nx = x - CHUNK_SIZE;
+            nz = z;
+            return e;
+        }
+
+        // diagonals -------------------------------------------------------------------------
+
+        // if north west
+        if(offset_x == -1 && offset_z == -1)
+        {
+            if(nw == nullptr)
+                return nullptr;
+            nx = CHUNK_SIZE + x;
+            nz = CHUNK_SIZE + z;
+            return nw;
+        }
+
+        // if north east
+        if(offset_x == 1 && offset_z == -1) {
+            if (ne == nullptr)
+                return nullptr;
+            nz = CHUNK_SIZE + z;
+            nx = x - CHUNK_SIZE;
+            return ne;
+        }
+
+        // if south west
+        if(offset_x == -1 && offset_z == 1)
+        {
+            if(sw == nullptr)
+                return nullptr;
+            nx = CHUNK_SIZE + x;
+            nz = z - CHUNK_SIZE;
+            return sw;
+        }
+
+        // if south east
+        if(offset_x == 1 && offset_z == 1)
+        {
+            if(se == nullptr)
+                return nullptr;
+            auto nx = x - CHUNK_SIZE;
+            auto nz = z - CHUNK_SIZE;
+            return se;
+        }
+    }
 };
 
 struct LightNode {
-    LightNode(u16 indx, Chunk* ch) : index(indx), chunk(ch) {}
-    u16 index;
+    LightNode(Chunk* chunk, i32 x, i32 y, i32 z) : chunk(chunk), x(x), y(y), z(z) {}
     Chunk* chunk;
+    i32 x,y,z;
 };
 
 class Chunk {
 public:
-    Chunk(BlockTypeDictionary &blockTypeDict);
+    Chunk(BlockTypeDictionary &blockTypeDict, IChunkManager *chunkManager);
     virtual ~Chunk();
     void setupDebugChunk();
     void setupFromTerrain(const ChunkPos &position, const std::shared_ptr<Terrain> &terrain);
@@ -80,7 +166,28 @@ public:
     ChunkPos chunkPosition;
     void placeTorchLight(int x, int y, int z, u8 level);
 
+    // Get the bits XXXX0000
+    inline int getSunlight(int x, int y, int z) {
+        return (lightMap[POS_TO_INDEX(y,z,x)] >> 4) & 0xF;
+    }
+
+    // Set the bits XXXX0000
+    inline void setSunlight(int x, int y, int z, int val) {
+        lightMap[POS_TO_INDEX(y,z,x)] = (lightMap[POS_TO_INDEX(y,z,x)] & 0xF) | (val << 4);
+    }
+
+    // Get the bits 0000XXXX
+    inline int getTorchlight(int x, int y, int z) {
+        return lightMap[POS_TO_INDEX(y,z,x)] & 0xF;
+    }
+
+    // Set the bits 0000XXXX
+    inline void setTorchlight(int x, int y, int z, int val) {
+        lightMap[POS_TO_INDEX(y,z,x)] = (lightMap[POS_TO_INDEX(y,z,x)] & 0xF0) | val;
+    }
+
 private:
+    IChunkManager *chunkManager;
     i32 lightMapSize = 0;
     BlockTypeDictionary& blockTypeDict;
     std::unique_ptr<BlockMesh> mesh;
@@ -144,7 +251,7 @@ private:
         return true;
     }
 
-    // function cannot handle lookups in diagonal chunk neighbours
+
     inline bool isBlockActiveAt(ChunkNeighbours& neighbours, i32 x, i32 y, i32 z)
     {
         // early out since our chunk grid is 2d
@@ -153,55 +260,89 @@ private:
         if(y >= CHUNK_HEIGHT)
             return false;
 
-        // within the same chunk
-        if(x >= 0 && x < CHUNK_SIZE && z >= 0 && z < CHUNK_SIZE)
-        {
-            return blocks[POS_TO_INDEX(y,z,x)].isFlagSet(BLOCK_FLAG_ACTIVE);
+        // within this chunk
+        if(x >= 0 && x < CHUNK_SIZE
+           && y >= 0 && y < CHUNK_HEIGHT
+           && z >= 0 && z < CHUNK_SIZE) {
+            return blocks[POS_TO_INDEX(y, z, x)].isFlagSet(BLOCK_FLAG_ACTIVE);
         }
 
-        // within neighbouring chunk
-        // check west
-        if(x < 0)
-        {
-            if(neighbours.w == nullptr)
-                return true;
-            auto nx = CHUNK_SIZE + x;
-            return neighbours.w->blocks[POS_TO_INDEX(y,z,nx)].isFlagSet(BLOCK_FLAG_ACTIVE);
+        // find chunk neighbour offset
+        i32 offset_x = 0;
+        i32 offset_z = 0;
+        // north
+        if(z < 0) {
+            offset_z = -1;
         }
-
-        // check east
-        if(x >= CHUNK_SIZE)
-        {
-            if(neighbours.e == nullptr)
-                return true;
-
-            auto nx = x - CHUNK_SIZE;
-            return neighbours.e->blocks[POS_TO_INDEX(y,z,nx)].isFlagSet(BLOCK_FLAG_ACTIVE);
-        }
-
-        // check south
+        // south
         if(z >= CHUNK_SIZE)
         {
-            if(neighbours.s == nullptr)
-                return true;
-
-            auto nz = z - CHUNK_SIZE;
-            return neighbours.s->blocks[POS_TO_INDEX(y,nz,x)].isFlagSet(BLOCK_FLAG_ACTIVE);
+            offset_z = 1;
         }
-
-        // check north
-        if(z < 0)
+        // west
+        if(x < 0) {
+            offset_x = -1;
+        }
+        // east
+        if(x >= CHUNK_SIZE)
         {
-            if(neighbours.n == nullptr)
-                return true;
-            auto nz = CHUNK_SIZE + z;
-            return neighbours.n->blocks[POS_TO_INDEX(y,nz,x)].isFlagSet(BLOCK_FLAG_ACTIVE);
+            offset_x = 1;
         }
 
-        return false;
+        i32 nx = 0;
+        i32 nz = 0;
+        Chunk* chunk = neighbours.getChunkByOffset(offset_x, offset_z, x, y, z, nx, nz);
+        if(chunk == nullptr)
+            return false;
+        return chunk->blocks[POS_TO_INDEX(y,nz,nx)].isFlagSet(BLOCK_FLAG_ACTIVE);
     }
 
-    inline u8 getLightTorchLightAt(ChunkNeighbours& neighbours, i32 x, i32 y, i32 z) {
+    inline Block* getBlockAt(ChunkNeighbours& neighbours, i32 x, i32 y, i32 z)
+    {
+        // early out since our chunk grid is 2d
+        if(y < 0)
+            return nullptr;
+        if(y >= CHUNK_HEIGHT)
+            return nullptr;
+
+        // within this chunk
+        if(x >= 0 && x < CHUNK_SIZE
+           && y >= 0 && y < CHUNK_HEIGHT
+           && z >= 0 && z < CHUNK_SIZE) {
+            return &blocks[POS_TO_INDEX(y, z, x)];
+        }
+
+        // find chunk neighbour offset
+        i32 offset_x = 0;
+        i32 offset_z = 0;
+        // north
+        if(z < 0) {
+            offset_z = -1;
+        }
+        // south
+        if(z >= CHUNK_SIZE)
+        {
+            offset_z = 1;
+        }
+        // west
+        if(x < 0) {
+            offset_x = -1;
+        }
+        // east
+        if(x >= CHUNK_SIZE)
+        {
+            offset_x = 1;
+        }
+
+        i32 nx = 0;
+        i32 nz = 0;
+        Chunk* chunk = neighbours.getChunkByOffset(offset_x, offset_z, x, y, z, nx, nz);
+        if(chunk == nullptr)
+            return nullptr;
+        return &chunk->blocks[POS_TO_INDEX(y,nz,nx)];
+    }
+
+    inline u8 getTorchLightAt(ChunkNeighbours &neighbours, i32 x, i32 y, i32 z) {
         // early out since our chunk grid is 2d
         if(y < 0)
             return 0;
@@ -214,68 +355,36 @@ private:
             return getTorchlight(x,y,z);
         }
 
-        // within neighbouring chunk
-        // check west
-        if(x < 0)
-        {
-            if(neighbours.w == nullptr)
-                return 0;
-            auto nx = CHUNK_SIZE + x;
-            return static_cast<u8>(neighbours.w->getTorchlight(nx, y, z));
+
+        // find chunk neighbour offset
+        i32 offset_x = 0;
+        i32 offset_z = 0;
+        // north
+        if(z < 0) {
+            offset_z = -1;
         }
-
-        // check east
-        if(x >= CHUNK_SIZE)
-        {
-            if(neighbours.e == nullptr)
-                return 0;
-
-            auto nx = x - CHUNK_SIZE;
-            return static_cast<u8>(neighbours.e->getTorchlight(nx, y, z));
-        }
-
-        // check south
+        // south
         if(z >= CHUNK_SIZE)
         {
-            if(neighbours.s == nullptr)
-                return 0;
-
-            auto nz = z - CHUNK_SIZE;
-            return static_cast<u8>(neighbours.s->getTorchlight(x, y, nz));
+            offset_z = 1;
         }
-
-        // check north
-        if(z < 0)
+        // west
+        if(x < 0) {
+            offset_x = -1;
+        }
+        // east
+        if(x >= CHUNK_SIZE)
         {
-            if(neighbours.n == nullptr)
-                return 0;
-            auto nz = CHUNK_SIZE + z;
-            return static_cast<u8>(neighbours.n->getTorchlight(x, y, nz));
+            offset_x = 1;
         }
 
-        return 0;
+        i32 nx = 0;
+        i32 nz = 0;
+        Chunk* chunk = neighbours.getChunkByOffset(offset_x, offset_z, x, y, z, nx, nz);
+        if(chunk == nullptr)
+            return 0;
+        return chunk->getTorchlight(nz, y, nz);
     }
-
-    // Get the bits XXXX0000
-    inline int getSunlight(int x, int y, int z) {
-        return (lightMap[POS_TO_INDEX(y,z,x)] >> 4) & 0xF;
-    }
-
-    // Set the bits XXXX0000
-    inline void setSunlight(int x, int y, int z, int val) {
-        lightMap[POS_TO_INDEX(y,z,x)] = (lightMap[POS_TO_INDEX(y,z,x)] & 0xF) | (val << 4);
-    }
-
-    // Get the bits 0000XXXX
-    inline int getTorchlight(int x, int y, int z) {
-        return lightMap[POS_TO_INDEX(y,z,x)] & 0xF;
-    }
-
-    // Set the bits 0000XXXX
-    inline void setTorchlight(int x, int y, int z, int val) {
-        lightMap[POS_TO_INDEX(y,z,x)] = (lightMap[POS_TO_INDEX(y,z,x)] & 0xF0) | val;
-    }
-
 
     inline void clearLightQueue()
     {
@@ -295,7 +404,6 @@ private:
 
     void calculateAO(ChunkNeighbours &neighbours, AOBlock &aob, MaterialBlock &mb);
 
-    bool isBlockActiveAtClipped(ChunkNeighbours &neighbours, int32_t x, int32_t y, int32_t z);
 };
 
 

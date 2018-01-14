@@ -34,6 +34,7 @@
 
 #include <defs.h>
 
+
 struct BlockPos
 {
     i32 x,y,z;

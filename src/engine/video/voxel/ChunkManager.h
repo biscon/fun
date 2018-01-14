@@ -13,12 +13,14 @@
 #include <memory>
 #include <vector>
 #include "Chunk.h"
+#include "ChunkBlockPos.h"
+#include "IChunkManager.h"
 
-class ChunkManager {
+class ChunkManager : public IChunkManager {
 public:
     const int CHUNKS_SETUP_PER_FRAME = 4;
     const int CHUNKS_BUILD_PER_FRAME = 4;
-    const int VISIBLE_RADIUS = 32;
+    const int VISIBLE_RADIUS = 8;
 
     ChunkManager(const std::shared_ptr<Terrain> &terrain);
 
@@ -36,6 +38,13 @@ public:
 
     inline Chunk *findBuildChunkAt(const ChunkPos &pos) {
         return findChunkAt(buildChunks, pos);
+    }
+
+    inline Chunk *findChunkAt(const ChunkPos &pos) {
+        auto c = findActiveChunkAt(pos);
+        if(c == nullptr)
+            c =findBuildChunkAt(pos);
+        return c;
     }
 
     void worldToChunk(glm::vec3 &worldpos, ChunkPos &chunkpos);
@@ -68,6 +77,66 @@ public:
         }
     }
 
+    inline void relativePosToChunkBlockPos(Chunk *chunk, i32 x, i32 y, i32 z, ChunkBlockPos& chunkBlockPos)
+    {
+        // early out reducing this to a two dimensional problem
+        if(y < 0 || y >= CHUNK_HEIGHT)
+        {
+            SDL_Log("%d,%d,%d Y coordinate is outside range, returning invalid pos", x, y, z);
+            chunkBlockPos.setInvalid();
+            return;
+        }
+        // within the same chunk
+        if(x >= 0 && x < CHUNK_SIZE && z >= 0 && z < CHUNK_SIZE)
+        {
+            //SDL_Log("%d,%d,%d Y coordinate is within same chunk", x, y, z);
+            chunkBlockPos.chunk = chunk;
+            chunkBlockPos.x = x;
+            chunkBlockPos.y = y;
+            chunkBlockPos.z = z;
+            return;
+        }
+
+        i32 chk_off_x, l_x;
+        if(x >= 0) {
+            chk_off_x = x / CHUNK_SIZE;
+            l_x = x % CHUNK_SIZE;
+        }
+        else // subtract -1 because the first position was in the original chunk
+        {
+            auto abs_x = abs(x) - 1;
+            chk_off_x = -1 * (((abs_x + CHUNK_SIZE) / CHUNK_SIZE));
+            l_x = ((abs_x) % CHUNK_SIZE);
+        }
+
+        i32 chk_off_z, l_z;
+        if(z >= 0) {
+            chk_off_z = z / CHUNK_SIZE;
+            l_z = z % CHUNK_SIZE;
+        }
+        else // subtract -1 because the first position was in the original chunk
+        {
+            i32 abs_z = abs(z) - 1;
+            chk_off_z = -1 * (((abs_z + CHUNK_SIZE) / CHUNK_SIZE));
+            l_z = ((abs_z + CHUNK_SIZE) % CHUNK_SIZE);
+        }
+        ChunkPos c_pos = {chunk->chunkPosition.x + chk_off_x, chunk->chunkPosition.z + chk_off_z};
+        //SDL_Log("New chunk pos %d,%d", c_pos.x, c_pos.z);
+        chunkBlockPos.chunk = findChunkAt(c_pos);
+        if(chunkBlockPos.chunk == nullptr)
+        {
+            SDL_Log("Chunk could not be found at that pos, returning invalid");
+            chunkBlockPos.setInvalid();
+            return;
+        }
+        chunkBlockPos.x = l_x;
+        chunkBlockPos.y = y;
+        chunkBlockPos.z = l_z;
+        //SDL_Log("Transformed block %d,%d,%d (chunk: %d,%d) to %d,%d,%d (chunk: %d,%d)", x, y, z, chunk->chunkPosition.x, chunk->chunkPosition.z, chunkBlockPos.x, chunkBlockPos.y, chunkBlockPos.z, c_pos.x, c_pos.z);
+    }
+
+    void testStuff();
+
 private:
     float halfChunkSize = (float) CHUNK_SIZE/2;
     float fChunkSize = (float) CHUNK_SIZE;
@@ -88,7 +157,6 @@ private:
     void recycleChunks();
     ChunkPos getChunkFromWorld(glm::vec3 &worldpos);
     void createChunks(BlockTypeDictionary& blockTypeDict);
-
     void determineChunksToRebuild();
 };
 

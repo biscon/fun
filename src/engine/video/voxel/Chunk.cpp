@@ -3,7 +3,7 @@
 //
 
 #include "Chunk.h"
-#include "VertexBlockNeighbours.h"
+#include "AOBlock.h"
 
 #define GLEW_STATIC
 
@@ -11,7 +11,7 @@
 #include <gtc/type_ptr.hpp>
 
 // cache friendly order y,z,x
-Chunk::Chunk(BlockTypeDictionary &blockTypeDict) : blockTypeDict(blockTypeDict) {
+Chunk::Chunk(BlockTypeDictionary &blockTypeDict, IChunkManager *chunkManager) : blockTypeDict(blockTypeDict), chunkManager(chunkManager) {
     blocks = (Block*) malloc(CHUNK_HEIGHT*CHUNK_SIZE*CHUNK_SIZE*sizeof(Block));
     lightMapSize = CHUNK_HEIGHT*CHUNK_SIZE*CHUNK_SIZE*sizeof(u8);
     lightMap = (u8*) malloc(lightMapSize);
@@ -61,12 +61,26 @@ void Chunk::setupDebugChunk()
                     blocks[POS_TO_INDEX(y,z,x)].type = temple_block;
                 }
 
+                // punch a few holes
+                if(y == 106 && x == 4 && z == 4)
+                {
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, false);
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, true);
+                }
+
                 // wall
                 if(x >= 6 && x <= 12 && z == 8 && y >= 100 && y <= 105)
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
                     blocks[POS_TO_INDEX(y,z,x)].type = temple_block;
+                }
+
+                // hole
+                if(x == 8 && z == 8 && y == 103)
+                {
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, false);
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, true);
                 }
                 // wall 2
                 if(z >= 6 && z <= 12 && x == 5 && y >= 100 && y <= 105)
@@ -93,7 +107,7 @@ void Chunk::setupDebugChunk()
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
                     blocks[POS_TO_INDEX(y,z,x)].type = temple_block;
                 }
-                if(x == 7 && z == 11 && y == 110)
+                if(x == 8 && z == 11 && y == 103)
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
@@ -102,7 +116,6 @@ void Chunk::setupDebugChunk()
             }
         }
     }
-    //placeTorchLight(7, 102, 11, 14);
     //placeTorchLight(7, 102, 7, 14);
     //auto ll = getTorchlight(7, 105, 7);
     //SDL_Log("light level read %d", ll);
@@ -178,6 +191,15 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
 
     materialBatchMap.clear();
 
+    // place torchlights
+    if(position.x == 0 && position.z == 0
+      /* || position.x == 1 && position.z == 1
+       || position.x == 0 && position.z == 1
+       || position.x == 1 && position.z == 0 */) {
+        placeTorchLight(7, 107, 7, 14);
+        placeTorchLight(8, 103, 11, 15);
+    }
+
     auto m = glm::mat4();
     auto origin = glm::vec4(0,0,0,1);
     m = glm::translate(m, glm::vec3(-0.5*CHUNK_SIZE, 0.0f, -0.5*CHUNK_SIZE));
@@ -239,32 +261,32 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
                 // back
                 if (!shouldBlockMeshAt(neighbours, mb.x, mb.y, mb.z - 1)) {
                     mb.faces.back = true; // back
-                    face_light.back = getLightTorchLightAt(neighbours, mb.x, mb.y, mb.z - 1);
+                    face_light.back = getTorchLightAt(neighbours, mb.x, mb.y, mb.z - 1);
                 }
                 // front
                 if (!shouldBlockMeshAt(neighbours, mb.x, mb.y, mb.z + 1)) {
                     mb.faces.front = true;
-                    face_light.front = getLightTorchLightAt(neighbours, mb.x, mb.y, mb.z + 1);
+                    face_light.front = getTorchLightAt(neighbours, mb.x, mb.y, mb.z + 1);
                 }
                 // left
                 if (!shouldBlockMeshAt(neighbours, mb.x - 1, mb.y, mb.z)) {
                     mb.faces.left = true;
-                    face_light.left = getLightTorchLightAt(neighbours, mb.x -1, mb.y, mb.z);
+                    face_light.left = getTorchLightAt(neighbours, mb.x - 1, mb.y, mb.z);
                 }
                 // right
                 if (!shouldBlockMeshAt(neighbours, mb.x + 1, mb.y, mb.z)) {
                     mb.faces.right = true;
-                    face_light.right = getLightTorchLightAt(neighbours, mb.x + 1, mb.y, mb.z);
+                    face_light.right = getTorchLightAt(neighbours, mb.x + 1, mb.y, mb.z);
                 }
                 // bottom
                 if (!shouldBlockMeshAt(neighbours, mb.x, mb.y - 1, mb.z)) {
                     mb.faces.bottom = true;
-                    face_light.bottom = getLightTorchLightAt(neighbours, mb.x, mb.y - 1, mb.z);
+                    face_light.bottom = getTorchLightAt(neighbours, mb.x, mb.y - 1, mb.z);
                 }
                 // top
                 if (!shouldBlockMeshAt(neighbours, mb.x, mb.y + 1, mb.z)) {
                     mb.faces.top = true;
-                    face_light.top = getLightTorchLightAt(neighbours, mb.x, mb.y + 1, mb.z);
+                    face_light.top = getTorchLightAt(neighbours, mb.x, mb.y + 1, mb.z);
 
                 }
             }
@@ -292,124 +314,6 @@ static inline i32 vertexAO(i32 side1, i32 side2, i32 corner) {
     return 3 - (side1 + side2 + corner);
 }
 
-bool Chunk::isBlockActiveAtClipped(ChunkNeighbours& neighbours, i32 x, i32 y, i32 z)
-{
-    // early out since our chunk grid is 2d
-    if(y < 0)
-        return true;
-    if(y >= CHUNK_HEIGHT)
-        return false;
-
-    // within this chunk
-    if(x >= 0 && x < CHUNK_SIZE
-       && y >= 0 && y < CHUNK_HEIGHT
-       && z >= 0 && z < CHUNK_SIZE) {
-        return blocks[POS_TO_INDEX(y, z, x)].isFlagSet(BLOCK_FLAG_ACTIVE);
-    }
-
-    // find chunk neighbour offset
-    i32 offset_x = 0;
-    i32 offset_z = 0;
-    // north
-    if(z < 0) {
-        offset_z = -1;
-    }
-    // south
-    if(z >= CHUNK_SIZE)
-    {
-        offset_z = 1;
-    }
-    // west
-    if(x < 0) {
-        offset_x = -1;
-    }
-    // east
-    if(x >= CHUNK_SIZE)
-    {
-        offset_x = 1;
-    }
-
-    // if north
-    if(offset_x == 0 && offset_z == -1)
-    {
-        if(neighbours.n == nullptr)
-            return false;
-        auto nz = CHUNK_SIZE + z;
-        return neighbours.n->blocks[POS_TO_INDEX(y,nz,x)].isFlagSet(BLOCK_FLAG_ACTIVE);
-    }
-
-    // if south
-    if(offset_x == 0 && offset_z == 1)
-    {
-        if(neighbours.s == nullptr)
-            return false;
-        auto nz = z - CHUNK_SIZE;
-        return neighbours.s->blocks[POS_TO_INDEX(y,nz,x)].isFlagSet(BLOCK_FLAG_ACTIVE);
-    }
-
-    // if west
-    if(offset_x == -1 && offset_z == 0)
-    {
-        if(neighbours.w == nullptr)
-            return false;
-        auto nx = CHUNK_SIZE + x;
-        return neighbours.w->blocks[POS_TO_INDEX(y,z,nx)].isFlagSet(BLOCK_FLAG_ACTIVE);
-    }
-
-    // if east
-    if(offset_x == 1 && offset_z == 0)
-    {
-        if(neighbours.e == nullptr)
-            return true;
-
-        auto nx = x - CHUNK_SIZE;
-        return neighbours.e->blocks[POS_TO_INDEX(y,z,nx)].isFlagSet(BLOCK_FLAG_ACTIVE);
-    }
-
-    // diagonals -------------------------------------------------------------------------
-
-    // if north west
-    if(offset_x == -1 && offset_z == -1)
-    {
-        if(neighbours.nw == nullptr)
-            return true;
-        auto nx = CHUNK_SIZE + x;
-        auto nz = CHUNK_SIZE + z;
-        return neighbours.nw->blocks[POS_TO_INDEX(y,nz,nx)].isFlagSet(BLOCK_FLAG_ACTIVE);
-    }
-
-    // if north east
-    if(offset_x == 1 && offset_z == -1) {
-        if (neighbours.ne == nullptr)
-            return true;
-        auto nz = CHUNK_SIZE + z;
-        auto nx = x - CHUNK_SIZE;
-        return neighbours.ne->blocks[POS_TO_INDEX(y,nz,nx)].isFlagSet(BLOCK_FLAG_ACTIVE);
-    }
-
-    // if south west
-    if(offset_x == -1 && offset_z == 1)
-    {
-        if(neighbours.sw == nullptr)
-            return true;
-        auto nx = CHUNK_SIZE + x;
-        auto nz = z - CHUNK_SIZE;
-        return neighbours.sw->blocks[POS_TO_INDEX(y,nz,nx)].isFlagSet(BLOCK_FLAG_ACTIVE);
-    }
-
-    // if south east
-    if(offset_x == 1 && offset_z == 1)
-    {
-        if(neighbours.se == nullptr)
-            return true;
-        auto nx = x - CHUNK_SIZE;
-        auto nz = z - CHUNK_SIZE;
-        return neighbours.se->blocks[POS_TO_INDEX(y,nz,nx)].isFlagSet(BLOCK_FLAG_ACTIVE);
-    }
-
-    SDL_Log("Not handled requested chunk offset %d,%d", offset_x, offset_z);
-    return false;
-}
 
 void Chunk::calculateAO(ChunkNeighbours& neighbours, AOBlock &aob, MaterialBlock& mb)
 {
@@ -418,9 +322,9 @@ void Chunk::calculateAO(ChunkNeighbours& neighbours, AOBlock &aob, MaterialBlock
     {
         for(auto &vertex : face.vertices)
         {
-            vertex.AO = vertexAO((isBlockActiveAtClipped(neighbours, vertex.positions[SIDE1].x, vertex.positions[SIDE1].y, vertex.positions[SIDE1].z) ? 1 : 0),
-                                 (isBlockActiveAtClipped(neighbours, vertex.positions[SIDE2].x, vertex.positions[SIDE2].y, vertex.positions[SIDE2].z) ? 1 : 0),
-                                 (isBlockActiveAtClipped(neighbours, vertex.positions[CORNER].x, vertex.positions[CORNER].y, vertex.positions[CORNER].z) ? 1 : 0));
+            vertex.AO = vertexAO((isBlockActiveAt(neighbours, vertex.positions[SIDE1].x, vertex.positions[SIDE1].y, vertex.positions[SIDE1].z) ? 1 : 0),
+                                 (isBlockActiveAt(neighbours, vertex.positions[SIDE2].x, vertex.positions[SIDE2].y, vertex.positions[SIDE2].z) ? 1 : 0),
+                                 (isBlockActiveAt(neighbours, vertex.positions[CORNER].x, vertex.positions[CORNER].y, vertex.positions[CORNER].z) ? 1 : 0));
 
         }
     }
@@ -440,20 +344,22 @@ void Chunk::draw(const Shader &shader) {
 
 void Chunk::propagateTorchLight(Chunk *chunk, i32 x, i32 y, i32 z, i32 lightlevel)
 {
-    // we need to do the usual neighbour check and fetch here, but for now we just clip
-    if(x >= 0 && x < CHUNK_SIZE
-                 && y >= 0 && y < CHUNK_HEIGHT
-                             && z >= 0 && z < CHUNK_SIZE)
+    ChunkBlockPos cbpos;
+    chunkManager->relativePosToChunkBlockPos(chunk, x, y, z, cbpos);
+    if(cbpos.isValid())
     {
-        if (chunk->getTorchlight(x, y, z) + 2 <= lightlevel && chunk->blocks[POS_TO_INDEX(y, z, x)].isFlagSet(BLOCK_FLAG_TRANSPARENT)) {
-            // Set its light level
-            chunk->setTorchlight(x, y, z, lightlevel - 1);
-            //SDL_Log("Setting block %d,%d,%d to light level %d", x, y ,z, lightlevel-1);
-            // Construct index
-            u16 idx = POS_TO_INDEX(y, z, x);
+        if(cbpos.chunk->getTorchlight(cbpos.x, cbpos.y, cbpos.z) + 2 <= lightlevel && cbpos.chunk->blocks[POS_TO_INDEX(cbpos.y, cbpos.z, cbpos.x)].isFlagSet(BLOCK_FLAG_TRANSPARENT))
+        {
+            cbpos.chunk->setTorchlight(cbpos.x, cbpos.y, cbpos.z, lightlevel-1);
+
             // Emplace new node to queue. (could use push as well)
-            lightQueue.emplace(idx, chunk);
+            //SDL_Log("Placing pos %d,%d,%d ", x,y,z);
+            lightQueue.emplace(chunk, x, y, z);
         }
+    }
+    else
+    {
+        SDL_Log("Can't propagate light into invalid position %d,%d,%d", x, y, z);
     }
 }
 
@@ -461,39 +367,40 @@ void Chunk::propagateTorchLight(Chunk *chunk, i32 x, i32 y, i32 z, i32 lightleve
 void Chunk::placeTorchLight(i32 x, i32 y, i32 z, u8 level) {
     SDL_Log("Placing torchlight at %d,%d,%d light level %d", x, y ,z, level);
     setTorchlight(x,y,z,level);
-    u16 idx = POS_TO_INDEX(y, z, x);
-    //clearLightQueue();
-    lightQueue.emplace(idx, this);
+    ChunkBlockPos cbpos;
+    lightQueue.emplace(this, x, y, z);
     while(!lightQueue.empty())
     {
         // Get a reference to the front node.
         auto &node = lightQueue.front();
-        u16 index = node.index;
         Chunk* chunk = node.chunk;
         lightQueue.pop();
 
-        // inflate coords from index
-        i32 nx = index % CHUNK_SIZE;
-        i32 nz = index / (CHUNK_SIZE * CHUNK_HEIGHT);
-        i32 ny = (index % (CHUNK_SIZE * CHUNK_HEIGHT) ) / CHUNK_SIZE;
+        //SDL_Log("Reading lightnode pos %d,%d,%d", node.x, node.y, node.z);
 
         // Grab the light level of the current node
-        i32 lightlevel = chunk->getTorchlight(nx, ny, nz);
-
+        chunkManager->relativePosToChunkBlockPos(chunk, node.x, node.y, node.z, cbpos);
+        if(!cbpos.isValid())
+        {
+            SDL_Log("Current lightnode %d,%d,%d position invalid", node.x, node.y, node.z);
+            continue;
+        }
+        i32 lightlevel = cbpos.chunk->getTorchlight(cbpos.x, cbpos.y, cbpos.z);
         //SDL_Log("Current lightnode %d,%d,%d light level %d (index = %d)", nx, ny, nz, lightlevel, index);
 
         // propagate light to all 6 surrounding blocks
         // sides
-        propagateTorchLight(chunk, nx - 1, ny, nz, lightlevel);
-        propagateTorchLight(chunk, nx + 1, ny, nz, lightlevel);
+
+        propagateTorchLight(chunk, node.x - 1, node.y, node.z, lightlevel);
+        propagateTorchLight(chunk, node.x + 1, node.y, node.z, lightlevel);
 
         // top bottom
-        propagateTorchLight(chunk, nx, ny - 1, nz, lightlevel);
-        propagateTorchLight(chunk, nx, ny + 1, nz, lightlevel);
+        propagateTorchLight(chunk, node.x, node.y - 1, node.z, lightlevel);
+        propagateTorchLight(chunk, node.x, node.y + 1, node.z, lightlevel);
 
         // front and back
-        propagateTorchLight(chunk, nx, ny, nz - 1, lightlevel);
-        propagateTorchLight(chunk, nx, ny, nz + 1, lightlevel);
+        propagateTorchLight(chunk, node.x, node.y, node.z - 1, lightlevel);
+        propagateTorchLight(chunk, node.x, node.y, node.z + 1, lightlevel);
 
     }
 }

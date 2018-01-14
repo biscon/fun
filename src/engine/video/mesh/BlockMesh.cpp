@@ -87,7 +87,7 @@ void BlockMesh::clear() {
 
 
 void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, FaceLight &faceLight, AOBlock& aob) {
-    u8 min_level = 15;
+    u8 min_level = 1;
     if(faceLight.back == 0)
         faceLight.back = min_level;
     if(faceLight.front == 0)

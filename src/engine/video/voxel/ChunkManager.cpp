@@ -5,7 +5,8 @@
 #include <algorithm>
 #include "ChunkManager.h"
 
-ChunkManager::ChunkManager(const std::shared_ptr<Terrain> &terrain) : terrain(terrain) {}
+ChunkManager::ChunkManager(const std::shared_ptr<Terrain> &terrain) : terrain(terrain) {
+}
 
 void ChunkManager::runIncrementalChunkBuild()
 {
@@ -124,7 +125,7 @@ void ChunkManager::createChunks(BlockTypeDictionary& blockTypeDict)
                     }
                     else {
                         chunks_allocated++;
-                        buildChunks[testpos] = std::unique_ptr<Chunk>(new Chunk(blockTypeDict));
+                        buildChunks[testpos] = std::unique_ptr<Chunk>(new Chunk(blockTypeDict, this));
                         buildChunks[testpos]->position = worldpos;
                         buildChunks[testpos]->chunkPosition = testpos;
                     }
@@ -328,4 +329,17 @@ void ChunkManager::findNeighbours(const std::map<ChunkPos, std::unique_ptr<Chunk
     // find south east
     pos.set(chunk_pos.x + 1, chunk_pos.z + 1);
     neighbours.se = findChunkAt(chunk_map, pos);
+}
+
+void ChunkManager::testStuff()
+{
+    SDL_Log("Chunkman test stuff:");
+    ChunkBlockPos cbpos;
+    Chunk *chunk = findActiveChunkAt(ChunkPos(0,0));
+    if(chunk != nullptr) {
+        for(auto i = 0; i < 35; i++)
+            relativePosToChunkBlockPos(chunk, i, 8, -i, cbpos);
+    }
+    else
+        SDL_Log("Could not find origin chunk");
 }
