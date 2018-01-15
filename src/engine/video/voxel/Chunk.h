@@ -140,7 +140,7 @@ private:
         ChunkBlockPos cbpos;
         chunkManager->relativePosToChunkBlockPos(this, x, y, z, cbpos);
         if(cbpos.chunk == nullptr)
-            return false;
+            return true;
         return cbpos.chunk->blocks[POS_TO_INDEX(cbpos.y, cbpos.z, cbpos.x)].isFlagSet(BLOCK_FLAG_ACTIVE);
     }
 
