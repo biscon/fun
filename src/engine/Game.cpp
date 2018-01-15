@@ -56,6 +56,7 @@ void Game::run() {
 
     while ( !shouldQuit )
     {
+        input->update();
         double newTime = getTime();
         frameTime = newTime - currentTime;
         currentTime = newTime;
@@ -126,7 +127,6 @@ void Game::render(double delta) {
 void Game::update(double delta) {
     //SDL_Delay(5);
     //SDL_Log("Running update");
-    input->update();
     assetLoader->update();
     if(!assetLoader->isLoading())
     {
@@ -276,18 +276,22 @@ void Game::onMouseLeave() {
 void Game::onFocusGained() {
     SDL_Log("Focus gained");
     paused = false;
+    /*
     if(!modeStack.empty())
     {
         modeStack.top()->resume();
     }
+     */
 }
 
 void Game::onFocusLost() {
     SDL_Log("Focus lost");
     paused = true;
+    /*
     if(!modeStack.empty())
     {
         modeStack.top()->pause();
     }
+     */
 }
 
