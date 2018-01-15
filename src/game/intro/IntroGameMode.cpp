@@ -225,7 +225,7 @@ void IntroGameMode::onKeyUp(const SDL_Event *event) {
         // TODO prevent this from being called twice lol
         if(localpos.isValid() && (localpos.y >= 0 && localpos.y < CHUNK_HEIGHT))
         {
-            chunkRenderer->chunkManager->placeTorchLight(localpos.chunk, localpos.x, localpos.y, localpos.z, 14);
+            chunkRenderer->chunkManager->placeTorchLight(localpos.chunk, localpos.x, localpos.y, localpos.z, 31);
         }
         //chunkRenderer->chunkManager->testStuff();
         return;

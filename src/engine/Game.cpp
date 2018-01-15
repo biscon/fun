@@ -49,7 +49,7 @@ void Game::run() {
 
 
     double t = 0.0;
-    const double dt = 0.005;
+    const double dt = 0.0025;
 
     double currentTime = getTime();
     double accumulator = 0.0;

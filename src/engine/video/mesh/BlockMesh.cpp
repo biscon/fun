@@ -86,27 +86,23 @@ void BlockMesh::clear() {
 }
 
 
-void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, FaceLight &faceLight, AOBlock& aob) {
+void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, BlockLight &blockLight, AOBlock& aob) {
     u8 min_level = 1;
-    if(faceLight.back == 0)
-        faceLight.back = min_level;
-    if(faceLight.front == 0)
-        faceLight.front = min_level;
-    if(faceLight.left == 0)
-        faceLight.left = min_level;
-    if(faceLight.right == 0)
-        faceLight.right = min_level;
-    if(faceLight.bottom == 0)
-        faceLight.bottom = min_level;
-    if(faceLight.top == 0)
-        faceLight.top = min_level;
-    
-    u8 ba_l = (u8)(((float)faceLight.back / 15.0f) * 255.0f);
-    u8 fr_l = (u8)(((float)faceLight.front / 15.0f) * 255.0f);
-    u8 le_l = (u8)(((float)faceLight.left / 15.0f) * 255.0f);
-    u8 ri_l = (u8)(((float)faceLight.right / 15.0f) * 255.0f);
-    u8 bo_l = (u8)(((float)faceLight.bottom / 15.0f) * 255.0f);
-    u8 to_l = (u8)(((float)faceLight.top / 15.0f) * 255.0f);
+    for(i32 i = 0; i < 6; i++)
+    {
+        if(blockLight.faces[i].v1 < min_level) blockLight.faces[i].v1 = min_level;
+        if(blockLight.faces[i].v2 < min_level) blockLight.faces[i].v2 = min_level;
+        if(blockLight.faces[i].v3 < min_level) blockLight.faces[i].v3 = min_level;
+        if(blockLight.faces[i].v4 < min_level) blockLight.faces[i].v4 = min_level;
+    }
+
+    u8 light[6][4];
+    for(i32 i = 0; i < 6; i++) {
+        light[i][0] = (u8)(((float)blockLight.faces[i].v1 / 31.0f) * 255.0f);
+        light[i][1] = (u8)(((float)blockLight.faces[i].v2 / 31.0f) * 255.0f);
+        light[i][2] = (u8)(((float)blockLight.faces[i].v3 / 31.0f) * 255.0f);
+        light[i][3] = (u8)(((float)blockLight.faces[i].v4 / 31.0f) * 255.0f);
+    }
 
     u8 v1,v2,v3,v4;
     float minLight = 0.3f;
@@ -117,10 +113,10 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Face
     }
     */
     if(faces.back) {
-        v1 = (u8) (((float) aob.faces[BACK_FACE].vertices[LEFT_TOP].AO / 3.0f) * ba_l);
-        v2 = (u8) (((float) aob.faces[BACK_FACE].vertices[LEFT_BTM].AO / 3.0f) * ba_l);
-        v3 = (u8) (((float) aob.faces[BACK_FACE].vertices[RIGHT_BTM].AO / 3.0f) * ba_l);
-        v4 = (u8) (((float) aob.faces[BACK_FACE].vertices[RIGHT_TOP].AO / 3.0f) * ba_l);
+        v1 = (u8) (((float) aob.faces[BACK_FACE].vertices[LEFT_TOP].AO / 3.0f) * light[BACK_FACE][0]);
+        v2 = (u8) (((float) aob.faces[BACK_FACE].vertices[LEFT_BTM].AO / 3.0f) * light[BACK_FACE][1]);
+        v3 = (u8) (((float) aob.faces[BACK_FACE].vertices[RIGHT_BTM].AO / 3.0f) * light[BACK_FACE][2]);
+        v4 = (u8) (((float) aob.faces[BACK_FACE].vertices[RIGHT_TOP].AO / 3.0f) * light[BACK_FACE][3]);
         if(aob.faces[BACK_FACE].vertices[LEFT_BTM].AO + aob.faces[BACK_FACE].vertices[RIGHT_TOP].AO > aob.faces[BACK_FACE].vertices[LEFT_TOP].AO + aob.faces[BACK_FACE].vertices[RIGHT_BTM].AO)
         {
             vertices.insert(vertices.end(), {
@@ -146,10 +142,10 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Face
     }
     if(faces.front)
     {
-        v1 = (u8) (((float) aob.faces[FRONT_FACE].vertices[LEFT_TOP].AO / 3.0f) * fr_l);
-        v2 = (u8) (((float) aob.faces[FRONT_FACE].vertices[LEFT_BTM].AO / 3.0f) * fr_l);
-        v3 = (u8) (((float) aob.faces[FRONT_FACE].vertices[RIGHT_BTM].AO / 3.0f) * fr_l);
-        v4 = (u8) (((float) aob.faces[FRONT_FACE].vertices[RIGHT_TOP].AO / 3.0f) * fr_l);
+        v1 = (u8) (((float) aob.faces[FRONT_FACE].vertices[LEFT_TOP].AO / 3.0f) * light[FRONT_FACE][0]);
+        v2 = (u8) (((float) aob.faces[FRONT_FACE].vertices[LEFT_BTM].AO / 3.0f) * light[FRONT_FACE][1]);
+        v3 = (u8) (((float) aob.faces[FRONT_FACE].vertices[RIGHT_BTM].AO / 3.0f) * light[FRONT_FACE][2]);
+        v4 = (u8) (((float) aob.faces[FRONT_FACE].vertices[RIGHT_TOP].AO / 3.0f) * light[FRONT_FACE][3]);
 
         if(aob.faces[FRONT_FACE].vertices[LEFT_BTM].AO + aob.faces[FRONT_FACE].vertices[RIGHT_TOP].AO < aob.faces[FRONT_FACE].vertices[LEFT_TOP].AO + aob.faces[FRONT_FACE].vertices[RIGHT_BTM].AO)
         {
@@ -178,10 +174,10 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Face
         }
     }
     if(faces.left) {
-        v1 = (u8) (((float) aob.faces[LEFT_FACE].vertices[LEFT_TOP].AO / 3.0f) * le_l);
-        v2 = (u8) (((float) aob.faces[LEFT_FACE].vertices[LEFT_BTM].AO / 3.0f) * le_l);
-        v3 = (u8) (((float) aob.faces[LEFT_FACE].vertices[RIGHT_BTM].AO / 3.0f) * le_l);
-        v4 = (u8) (((float) aob.faces[LEFT_FACE].vertices[RIGHT_TOP].AO / 3.0f) * le_l);
+        v1 = (u8) (((float) aob.faces[LEFT_FACE].vertices[LEFT_TOP].AO / 3.0f) * light[LEFT_FACE][0]);
+        v2 = (u8) (((float) aob.faces[LEFT_FACE].vertices[LEFT_BTM].AO / 3.0f) * light[LEFT_FACE][1]);
+        v3 = (u8) (((float) aob.faces[LEFT_FACE].vertices[RIGHT_BTM].AO / 3.0f) * light[LEFT_FACE][2]);
+        v4 = (u8) (((float) aob.faces[LEFT_FACE].vertices[RIGHT_TOP].AO / 3.0f) * light[LEFT_FACE][3]);
         if(aob.faces[LEFT_FACE].vertices[LEFT_BTM].AO + aob.faces[LEFT_FACE].vertices[RIGHT_TOP].AO < aob.faces[LEFT_FACE].vertices[LEFT_TOP].AO + aob.faces[LEFT_FACE].vertices[RIGHT_BTM].AO)
         {
             vertices.insert(vertices.end(), {
@@ -208,10 +204,10 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Face
         }
     }
     if(faces.right) {
-        v1 = (u8) (((float) aob.faces[RIGHT_FACE].vertices[LEFT_TOP].AO / 3.0f) * ri_l);
-        v2 = (u8) (((float) aob.faces[RIGHT_FACE].vertices[LEFT_BTM].AO / 3.0f) * ri_l);
-        v3 = (u8) (((float) aob.faces[RIGHT_FACE].vertices[RIGHT_BTM].AO / 3.0f) * ri_l);
-        v4 = (u8) (((float) aob.faces[RIGHT_FACE].vertices[RIGHT_TOP].AO / 3.0f) * ri_l);
+        v1 = (u8) (((float) aob.faces[RIGHT_FACE].vertices[LEFT_TOP].AO / 3.0f) * light[RIGHT_FACE][0]);
+        v2 = (u8) (((float) aob.faces[RIGHT_FACE].vertices[LEFT_BTM].AO / 3.0f) * light[RIGHT_FACE][1]);
+        v3 = (u8) (((float) aob.faces[RIGHT_FACE].vertices[RIGHT_BTM].AO / 3.0f) * light[RIGHT_FACE][2]);
+        v4 = (u8) (((float) aob.faces[RIGHT_FACE].vertices[RIGHT_TOP].AO / 3.0f) * light[RIGHT_FACE][3]);
         if(aob.faces[RIGHT_FACE].vertices[LEFT_BTM].AO + aob.faces[RIGHT_FACE].vertices[RIGHT_TOP].AO > aob.faces[RIGHT_FACE].vertices[LEFT_TOP].AO + aob.faces[RIGHT_FACE].vertices[RIGHT_BTM].AO) {
             vertices.insert(vertices.end(), {
                     // Right face
@@ -237,10 +233,10 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Face
         }
     }
     if(faces.bottom) {
-        v1 = (u8) (((float) aob.faces[BOTTOM_FACE].vertices[LEFT_TOP].AO / 3.0f) * bo_l);
-        v2 = (u8) (((float) aob.faces[BOTTOM_FACE].vertices[LEFT_BTM].AO / 3.0f) * bo_l);
-        v3 = (u8) (((float) aob.faces[BOTTOM_FACE].vertices[RIGHT_BTM].AO / 3.0f) * bo_l);
-        v4 = (u8) (((float) aob.faces[BOTTOM_FACE].vertices[RIGHT_TOP].AO / 3.0f) * bo_l);
+        v1 = (u8) (((float) aob.faces[BOTTOM_FACE].vertices[LEFT_TOP].AO / 3.0f) * light[BOTTOM_FACE][0]);
+        v2 = (u8) (((float) aob.faces[BOTTOM_FACE].vertices[LEFT_BTM].AO / 3.0f) * light[BOTTOM_FACE][1]);
+        v3 = (u8) (((float) aob.faces[BOTTOM_FACE].vertices[RIGHT_BTM].AO / 3.0f) * light[BOTTOM_FACE][2]);
+        v4 = (u8) (((float) aob.faces[BOTTOM_FACE].vertices[RIGHT_TOP].AO / 3.0f) * light[BOTTOM_FACE][3]);
 
         if(aob.faces[BOTTOM_FACE].vertices[LEFT_BTM].AO + aob.faces[BOTTOM_FACE].vertices[RIGHT_TOP].AO > aob.faces[BOTTOM_FACE].vertices[LEFT_TOP].AO + aob.faces[BOTTOM_FACE].vertices[RIGHT_BTM].AO) {
             vertices.insert(vertices.end(), {
@@ -267,10 +263,10 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Face
         }
     }
     if(faces.top) {
-        v1 = (u8) (((float) aob.faces[TOP_FACE].vertices[LEFT_TOP].AO / 3.0f) * to_l);
-        v2 = (u8) (((float) aob.faces[TOP_FACE].vertices[LEFT_BTM].AO / 3.0f) * to_l);
-        v3 = (u8) (((float) aob.faces[TOP_FACE].vertices[RIGHT_BTM].AO / 3.0f) * to_l);
-        v4 = (u8) (((float) aob.faces[TOP_FACE].vertices[RIGHT_TOP].AO / 3.0f) * to_l);
+        v1 = (u8) (((float) aob.faces[TOP_FACE].vertices[LEFT_TOP].AO / 3.0f) * light[TOP_FACE][0]);
+        v2 = (u8) (((float) aob.faces[TOP_FACE].vertices[LEFT_BTM].AO / 3.0f) * light[TOP_FACE][1]);
+        v3 = (u8) (((float) aob.faces[TOP_FACE].vertices[RIGHT_BTM].AO / 3.0f) * light[TOP_FACE][2]);
+        v4 = (u8) (((float) aob.faces[TOP_FACE].vertices[RIGHT_TOP].AO / 3.0f) * light[TOP_FACE][3]);
 
         if(aob.faces[TOP_FACE].vertices[LEFT_BTM].AO + aob.faces[TOP_FACE].vertices[RIGHT_TOP].AO < aob.faces[TOP_FACE].vertices[LEFT_TOP].AO + aob.faces[TOP_FACE].vertices[RIGHT_BTM].AO) {
             vertices.insert(vertices.end(), {

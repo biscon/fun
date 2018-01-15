@@ -85,12 +85,12 @@ public:
 
     // Get the bits 0000XXXX
     inline int getTorchlight(int x, int y, int z) {
-        return lightMap[POS_TO_INDEX(y,z,x)] & 0xF;
+        return lightMap[POS_TO_INDEX(y,z,x)];
     }
 
     // Set the bits 0000XXXX
     inline void setTorchlight(int x, int y, int z, int val) {
-        lightMap[POS_TO_INDEX(y,z,x)] = (lightMap[POS_TO_INDEX(y,z,x)] & 0xF0) | val;
+        lightMap[POS_TO_INDEX(y,z,x)] = (u8) val;
     }
 
 private:
@@ -162,20 +162,21 @@ private:
         if(cbpos.chunk == nullptr)
             return 0;
         return cbpos.chunk->getTorchlight(cbpos.x, cbpos.y, cbpos.z);
-
     }
 
-    // flatten coords to index
-    /*
-    inline i32 POS_TO_INDEX(i32 y, i32 z, i32 x)
-    {
-        return (y*CHUNK_SIZE)+(z*CHUNK_SIZE*CHUNK_HEIGHT)+x;
+    inline u8 getTorchLightAndIncreaseCount(i32 x, i32 y, i32 z, i32 &count) {
+        if(!isBlockActiveAt(x, y, z))
+        {
+            count++;
+            return getTorchLightAt(x, y, z);
+        }
+        return 0;
     }
-     */
 
     void clearLightMap();
     void calculateAO(AOBlock &aob, MaterialBlock &mb);
 
+    void calculateBlockLight(BlockLight &block_light, MaterialBlock &mb);
 };
 
 

@@ -189,4 +189,13 @@ struct AOBlock
     }
 };
 
+struct FaceLight
+{
+    u8 v1,v2,v3,v4;
+};
+
+struct BlockLight
+{
+    FaceLight faces[6];
+};
 #endif //GAME_VERTEXBLOCKNEIGHBOURS_H

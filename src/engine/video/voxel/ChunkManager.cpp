@@ -391,7 +391,7 @@ void ChunkManager::propagateTorchLight(Chunk *chunk, i32 x, i32 y, i32 z, i32 li
         {
             cbpos.chunk->setTorchlight(cbpos.x, cbpos.y, cbpos.z, lightlevel-1);
             // Emplace new node to queue. (could use push as well)
-            //SDL_Log("Placing pos %d,%d,%d ", x,y,z);
+            //SDL_Log("Placing pos %d,%d,%d level %d", x,y,z, lightlevel);
             lightQueue.emplace(chunk, x, y, z);
         }
     }

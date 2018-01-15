@@ -54,11 +54,6 @@ struct BlockFaces {
     }
 };
 
-struct FaceLight
-{
-    u8 back, front, left, right, bottom, top;
-};
-
 struct Block {
     u8 type = 0;
     u8 flags = 0;
