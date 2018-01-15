@@ -76,9 +76,9 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double delta) 
     glFrontFace(GL_CCW);
 
     // view/projection transformations
-    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), screenWidth / screenHeight, 0.1f, 1000.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), screenWidth / screenHeight, 0.1f, 600.0f);
     glm::mat4 view = camera->GetViewMatrix();
-    viewFrustrum->setCamInternals(camera->Zoom, screenWidth / screenHeight, 0.1f, 1000.0f);
+    viewFrustrum->setCamInternals(camera->Zoom, screenWidth / screenHeight, 0.1f, 600.0f);
 
     // update directional light
     updateDirectionalLight((float) delta);

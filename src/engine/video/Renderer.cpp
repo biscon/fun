@@ -27,7 +27,8 @@ bool Renderer::init(u32 screenWidth, u32 screenHeight) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     // stencil size 8, so far we don't use it
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+    //SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+    //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     // request 4x MSAA
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
