@@ -11,6 +11,7 @@
 #include <glm.hpp>
 #include <memory>
 #include <string>
+#include <engine/video/voxel/AOBlock.h>
 #include <engine/video/voxel/Block.h>
 #include "MeshUpdateType.h"
 #include "engine/video/shader/Shader.h"
@@ -32,12 +33,13 @@
 
 // define new glm types
 typedef glm::tvec4<GLbyte> byte4;
+typedef glm::tvec4<GLubyte> ubyte4;
 typedef glm::tvec2<GLshort> short2;
 typedef glm::tvec4<GLshort> short4;
 
 struct BlockMeshVertex {
     BlockMeshVertex() {}
-    BlockMeshVertex(const byte4 &position, const byte4 &normal) : position(position), color(normal) {}
+    BlockMeshVertex(const byte4 &position, const ubyte4 &color) : position(position), color(color) {}
     byte4 position;
     byte4 color;
     //short2 texCoord;
@@ -53,7 +55,7 @@ public:
     void prepare();
     void upload();
     //void generateCubeAt(float x, float y, float z);
-    void generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces);
+    void generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, FaceLight& faceLight, AOBlock& aob);
     void clear();
 
     /*  Mesh Data  */

@@ -11,6 +11,7 @@
 #include "Block.h"
 #include "ChunkPos.h"
 #include "Terrain.h"
+#include "IChunkManager.h"
 
 #define CHUNK_SIZE 16
 #define CHUNK_HEIGHT 128
@@ -21,9 +22,9 @@
 
 struct MaterialBlock
 {
-    i8 x,y,z;
+    i8 x,y,z,l;
     BlockFaces faces;
-    MaterialBlock(i8 x, i8 y, i8 z) : x(x), y(y), z(z) {}
+    MaterialBlock(i8 x, i8 y, i8 z, i8 l) : x(x), y(y), z(z), l(l) {}
 };
 
 struct MaterialBatch
@@ -42,22 +43,28 @@ struct ChunkNeighbours {
     Chunk *w;
     Chunk *e;
 
-    ChunkNeighbours() : n(nullptr), s(nullptr), w(nullptr), e(nullptr) {}
-    ChunkNeighbours(Chunk *n, Chunk *s, Chunk *w, Chunk *e) : n(n), s(s), w(w), e(e) {}
+    Chunk *nw;
+    Chunk *ne;
+    Chunk *sw;
+    Chunk *se;
+
+    ChunkNeighbours() : n(nullptr), s(nullptr), w(nullptr), e(nullptr), nw(nullptr), ne(nullptr), sw(nullptr), se(nullptr) {}
+    ChunkNeighbours(Chunk *n, Chunk *s, Chunk *w, Chunk *e, Chunk *nw, Chunk *ne, Chunk *sw, Chunk *se) : n(n), s(s), w(w), e(e), nw(nw), ne(ne), sw(sw), se(se) {}
 };
+
 
 class Chunk {
 public:
-    Chunk(BlockTypeDictionary &blockTypeDict);
-
+    Chunk(BlockTypeDictionary &blockTypeDict, IChunkManager *chunkManager);
     virtual ~Chunk();
+    void setupDebugChunk();
     void setupFromTerrain(const ChunkPos &position, const std::shared_ptr<Terrain> &terrain);
-    void rebuild(const ChunkPos& position, ChunkNeighbours& neighbours);
+    void rebuild(const ChunkPos& position);
     void draw(const Shader& shader);
     glm::vec3 position;
     // cache friendly order y,z,x
     Block *blocks;
-    unsigned char lightMap[CHUNK_HEIGHT][CHUNK_SIZE][CHUNK_SIZE];
+    u8 *lightMap;
 
     inline size_t getMeshSizeBytes()
     {
@@ -66,12 +73,35 @@ public:
 
     ChunkPos chunkPosition;
 
+    // Get the bits XXXX0000
+    inline int getSunlight(int x, int y, int z) {
+        return (lightMap[POS_TO_INDEX(y,z,x)] >> 4) & 0xF;
+    }
+
+    // Set the bits XXXX0000
+    inline void setSunlight(int x, int y, int z, int val) {
+        lightMap[POS_TO_INDEX(y,z,x)] = (lightMap[POS_TO_INDEX(y,z,x)] & 0xF) | (val << 4);
+    }
+
+    // Get the bits 0000XXXX
+    inline int getTorchlight(int x, int y, int z) {
+        return lightMap[POS_TO_INDEX(y,z,x)] & 0xF;
+    }
+
+    // Set the bits 0000XXXX
+    inline void setTorchlight(int x, int y, int z, int val) {
+        lightMap[POS_TO_INDEX(y,z,x)] = (lightMap[POS_TO_INDEX(y,z,x)] & 0xF0) | val;
+    }
+
 private:
+    IChunkManager *chunkManager;
+    i32 lightMapSize = 0;
     BlockTypeDictionary& blockTypeDict;
     std::unique_ptr<BlockMesh> mesh;
     std::map<i32, std::unique_ptr<MaterialBatch>> materialBatchMap;
 
-    inline bool shouldBlockMeshAt(ChunkNeighbours& neighbours, i32 x, i32 y, i32 z)
+    // function cannot handle lookups in diagonal chunk neighbours
+    inline bool shouldBlockMeshAt(i32 x, i32 y, i32 z)
     {
         // early out since our chunk grid is 2d
         if(y < 0)
@@ -85,50 +115,14 @@ private:
             return blocks[POS_TO_INDEX(y,z,x)].isFlagSet(BLOCK_FLAG_SHOULD_MESH);
         }
 
-
-        // within neighbouring chunk
-        // check west
-        if(x < 0)
-        {
-            if(neighbours.w == nullptr)
-                return true;
-            auto nx = CHUNK_SIZE + x;
-            return neighbours.w->blocks[POS_TO_INDEX(y,z,nx)].isFlagSet(BLOCK_FLAG_SHOULD_MESH);
-        }
-
-        // check east
-        if(x >= CHUNK_SIZE)
-        {
-            if(neighbours.e == nullptr)
-                return true;
-
-            auto nx = x - CHUNK_SIZE;
-            return neighbours.e->blocks[POS_TO_INDEX(y,z,nx)].isFlagSet(BLOCK_FLAG_SHOULD_MESH);
-        }
-
-        // check south
-        if(z >= CHUNK_SIZE)
-        {
-            if(neighbours.s == nullptr)
-                return true;
-
-            auto nz = z - CHUNK_SIZE;
-            return neighbours.s->blocks[POS_TO_INDEX(y,nz,x)].isFlagSet(BLOCK_FLAG_SHOULD_MESH);
-        }
-
-        // check north
-        if(z < 0)
-        {
-            if(neighbours.n == nullptr)
-                return true;
-            auto nz = CHUNK_SIZE + z;
-            return neighbours.n->blocks[POS_TO_INDEX(y,nz,x)].isFlagSet(BLOCK_FLAG_SHOULD_MESH);
-        }
-
-        return true;
+        ChunkBlockPos cbpos;
+        chunkManager->relativePosToChunkBlockPos(this, x, y, z, cbpos);
+        if(cbpos.chunk == nullptr)
+            return true;
+        return cbpos.chunk->blocks[POS_TO_INDEX(cbpos.y, cbpos.z, cbpos.x)].isFlagSet(BLOCK_FLAG_SHOULD_MESH);
     }
 
-    inline bool isBlockActiveAt(ChunkNeighbours& neighbours, i32 x, i32 y, i32 z)
+    inline bool isBlockActiveAt(i32 x, i32 y, i32 z)
     {
         // early out since our chunk grid is 2d
         if(y < 0)
@@ -136,72 +130,39 @@ private:
         if(y >= CHUNK_HEIGHT)
             return false;
 
+        // within this chunk
+        if(x >= 0 && x < CHUNK_SIZE
+           && y >= 0 && y < CHUNK_HEIGHT
+           && z >= 0 && z < CHUNK_SIZE) {
+            return blocks[POS_TO_INDEX(y, z, x)].isFlagSet(BLOCK_FLAG_ACTIVE);
+        }
+
+        ChunkBlockPos cbpos;
+        chunkManager->relativePosToChunkBlockPos(this, x, y, z, cbpos);
+        if(cbpos.chunk == nullptr)
+            return false;
+        return cbpos.chunk->blocks[POS_TO_INDEX(cbpos.y, cbpos.z, cbpos.x)].isFlagSet(BLOCK_FLAG_ACTIVE);
+    }
+
+    inline u8 getTorchLightAt(i32 x, i32 y, i32 z) {
+        // early out since our chunk grid is 2d
+        if(y < 0)
+            return 0;
+        if(y >= CHUNK_HEIGHT)
+            return 0;
+
         // within the same chunk
         if(x >= 0 && x < CHUNK_SIZE && z >= 0 && z < CHUNK_SIZE)
         {
-            return blocks[POS_TO_INDEX(y,z,x)].isFlagSet(BLOCK_FLAG_ACTIVE);
+            return getTorchlight(x,y,z);
         }
 
-        // within neighbouring chunk
-        // check west
-        if(x < 0)
-        {
-            if(neighbours.w == nullptr)
-                return true;
-            auto nx = CHUNK_SIZE + x;
-            return neighbours.w->blocks[POS_TO_INDEX(y,z,nx)].isFlagSet(BLOCK_FLAG_ACTIVE);
-        }
+        ChunkBlockPos cbpos;
+        chunkManager->relativePosToChunkBlockPos(this, x, y, z, cbpos);
+        if(cbpos.chunk == nullptr)
+            return 0;
+        return cbpos.chunk->getTorchlight(cbpos.x, cbpos.y, cbpos.z);
 
-        // check east
-        if(x >= CHUNK_SIZE)
-        {
-            if(neighbours.e == nullptr)
-                return true;
-
-            auto nx = x - CHUNK_SIZE;
-            return neighbours.e->blocks[POS_TO_INDEX(y,z,nx)].isFlagSet(BLOCK_FLAG_ACTIVE);
-        }
-
-        // check south
-        if(z >= CHUNK_SIZE)
-        {
-            if(neighbours.s == nullptr)
-                return true;
-
-            auto nz = z - CHUNK_SIZE;
-            return neighbours.s->blocks[POS_TO_INDEX(y,nz,x)].isFlagSet(BLOCK_FLAG_ACTIVE);
-        }
-
-        // check north
-        if(z < 0)
-        {
-            if(neighbours.n == nullptr)
-                return true;
-            auto nz = CHUNK_SIZE + z;
-            return neighbours.n->blocks[POS_TO_INDEX(y,nz,x)].isFlagSet(BLOCK_FLAG_ACTIVE);
-        }
-
-        return false;
-    }
-
-    // Get the bits XXXX0000
-    inline int getSunlight(int x, int y, int z) {
-        return (lightMap[y][z][x] >> 4) & 0xF;
-    }
-
-    // Set the bits XXXX0000
-    inline void setSunlight(int x, int y, int z, int val) {
-        lightMap[y][z][x] = (lightMap[y][z][x] & 0xF) | (val << 4);
-    }
-
-    // Get the bits 0000XXXX
-    inline int getTorchlight(int x, int y, int z) {
-        return lightMap[y][z][x] & 0xF;
-    }
-
-    // Set the bits 0000XXXX
-    inline void setTorchlight(int x, int y, int z, int val) {
-        lightMap[y][z][x] = (lightMap[y][z][x] & 0xF0) | val;
     }
 
     // flatten coords to index
@@ -211,6 +172,9 @@ private:
         return (y*CHUNK_SIZE)+(z*CHUNK_SIZE*CHUNK_HEIGHT)+x;
     }
      */
+
+    void clearLightMap();
+    void calculateAO(AOBlock &aob, MaterialBlock &mb);
 
 };
 

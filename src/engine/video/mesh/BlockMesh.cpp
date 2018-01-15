@@ -38,7 +38,7 @@ void BlockMesh::prepare()
     // vertex colors
     if(hasColors) {
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 4, GL_BYTE, GL_FALSE, vsize, (void *) 4);
+        glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, vsize, (void *) 4);
     }
     // vertex texture coords
     if(hasTexcoords) {
@@ -80,239 +80,222 @@ void BlockMesh::drawRange(const Shader& shader, i32 start, i32 count, Material* 
     //glBindVertexArray(0);
 }
 
-/*
-void BlockMesh::generateCubeAt(float x, float y, float z) {
-    vertices.insert(vertices.end(),{
-            // Back face
-            x-0.5f, y-0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, // Bottom-left
-            x+0.5f, y+0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, // top-right
-            x+0.5f, y-0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, // bottom-right
-            x+0.5f, y+0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, // top-right
-            x-0.5f, y-0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, // bottom-left
-            x-0.5f, y+0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, // top-left
-            // Front face
-            x-0.5f, y-0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, // bottom-left
-            x+0.5f, y-0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, // bottom-right
-            x+0.5f, y+0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, // top-right
-            x+0.5f, y+0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, // top-right
-            x-0.5f, y+0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, // top-left
-            x-0.5f, y-0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, // bottom-left
-            // Left face
-            x-0.5f, y+0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, // top-right
-            x-0.5f, y+0.5f, z-0.5f, -1.0f,  0.0f,  0.0f,  // top-left
-            x-0.5f, y-0.5f, z-0.5f, -1.0f,  0.0f,  0.0f,  // bottom-left
-            x-0.5f, y-0.5f, z-0.5f, -1.0f,  0.0f,  0.0f, // bottom-left
-            x-0.5f, y-0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, // bottom-right
-            x-0.5f, y+0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, // top-right
-            // Right face
-            x+0.5f, y+0.5f, z+0.5f, 1.0f,  0.0f,  0.0f, // top-left
-            x+0.5f, y-0.5f, z-0.5f, 1.0f,  0.0f,  0.0f, // bottom-right
-            x+0.5f, y+0.5f, z-0.5f, 1.0f,  0.0f,  0.0f, // top-right
-            x+0.5f, y-0.5f, z-0.5f, 1.0f,  0.0f,  0.0f, // bottom-right
-            x+0.5f, y+0.5f, z+0.5f, 1.0f,  0.0f,  0.0f, // top-left
-            x+0.5f, y-0.5f, z+0.5f, 1.0f,  0.0f,  0.0f, // bottom-left
-            // Bottom face
-            x-0.5f, y-0.5f, z-0.5f, 0.0f, -1.0f,  0.0f, // top-right
-            x+0.5f, y-0.5f, z-0.5f, 0.0f, -1.0f,  0.0f, // top-left
-            x+0.5f, y-0.5f, z+0.5f, 0.0f, -1.0f,  0.0f, // bottom-left
-            x+0.5f, y-0.5f, z+0.5f, 0.0f, -1.0f,  0.0f, // bottom-left
-            x-0.5f, y-0.5f, z+0.5f, 0.0f, -1.0f,  0.0f, // bottom-right
-            x-0.5f, y-0.5f, z-0.5f, 0.0f, -1.0f,  0.0f, // top-right
-            // Top face
-            x-0.5f, y+0.5f, z-0.5f, 0.0f,  1.0f,  0.0f, // top-left
-            x+0.5f, y+0.5f, z+0.5f, 0.0f,  1.0f,  0.0f, // bottom-right
-            x+0.5f, y+0.5f, z-0.5f, 0.0f,  1.0f,  0.0f, // top-right
-            x+0.5f, y+0.5f, z+0.5f, 0.0f,  1.0f,  0.0f, // bottom-right
-            x-0.5f, y+0.5f, z-0.5f, 0.0f,  1.0f,  0.0f, // top-left
-            x-0.5f, y+0.5f, z+0.5f, 0.0f,  1.0f,  0.0f, // bottom-left
-    });
-}
-*/
-
 void BlockMesh::clear() {
     vertices.clear();
     indices.clear();
 }
 
 
-void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces) {
-   /*
-    vertices.insert(vertices.end(),{
-            // Back face
-            x-0.5f, y-0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, r.left, r.bottom, // Bottom-left
-            x+0.5f, y+0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, r.right, r.top, // top-right
-            x+0.5f, y-0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, r.right, r.bottom, // bottom-right
-            x+0.5f, y+0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, r.right, r.top, // top-right
-            x-0.5f, y-0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, r.left, r.bottom, // bottom-left
-            x-0.5f, y+0.5f, z-0.5f, 0.0f,  0.0f, -1.0f, r.left, r.top, // top-left
-            // Front face
-            x-0.5f, y-0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, r.left, r.bottom, // bottom-left
-            x+0.5f, y-0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, r.right, r.bottom, // bottom-right
-            x+0.5f, y+0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, r.right, r.top, // top-right
-            x+0.5f, y+0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, r.right, r.top, // top-right
-            x-0.5f, y+0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, r.left, r.top, // top-left
-            x-0.5f, y-0.5f, z+0.5f, 0.0f,  0.0f, 1.0f, r.left, r.bottom, // bottom-left
-            // Left face
-            x-0.5f, y+0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, r.right, r.bottom, // top-right
-            x-0.5f, y+0.5f, z-0.5f, -1.0f,  0.0f,  0.0f, r.right, r.top, // top-left
-            x-0.5f, y-0.5f, z-0.5f, -1.0f,  0.0f,  0.0f, r.left, r.top, // bottom-left
-            x-0.5f, y-0.5f, z-0.5f, -1.0f,  0.0f,  0.0f, r.left, r.top, // bottom-left
-            x-0.5f, y-0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, r.left, r.bottom, // bottom-right
-            x-0.5f, y+0.5f, z+0.5f, -1.0f,  0.0f,  0.0f, r.right, r.bottom, // top-right
-            // Right face
-            x+0.5f, y+0.5f, z+0.5f, 1.0f,  0.0f,  0.0f, r.right, r.bottom, // top-left
-            x+0.5f, y-0.5f, z-0.5f, 1.0f,  0.0f,  0.0f, r.left, r.top, // bottom-right
-            x+0.5f, y+0.5f, z-0.5f, 1.0f,  0.0f,  0.0f, r.right, r.top, // top-right
-            x+0.5f, y-0.5f, z-0.5f, 1.0f,  0.0f,  0.0f, r.left, r.top, // bottom-right
-            x+0.5f, y+0.5f, z+0.5f, 1.0f,  0.0f,  0.0f, r.right, r.bottom, // top-left
-            x+0.5f, y-0.5f, z+0.5f, 1.0f,  0.0f,  0.0f, r.left, r.bottom, // bottom-left
-            // Bottom face
-            x-0.5f, y-0.5f, z-0.5f, 0.0f, -1.0f,  0.0f, r.left, r.top, // top-right
-            x+0.5f, y-0.5f, z-0.5f, 0.0f, -1.0f,  0.0f, r.right, r.top, // top-left
-            x+0.5f, y-0.5f, z+0.5f, 0.0f, -1.0f,  0.0f, r.right, r.bottom, // bottom-left
-            x+0.5f, y-0.5f, z+0.5f, 0.0f, -1.0f,  0.0f, r.right, r.bottom, // bottom-left
-            x-0.5f, y-0.5f, z+0.5f, 0.0f, -1.0f,  0.0f, r.left, r.bottom, // bottom-right
-            x-0.5f, y-0.5f, z-0.5f, 0.0f, -1.0f,  0.0f, r.left, r.top, // top-right
-            // Top face
-            x-0.5f, y+0.5f, z-0.5f, 0.0f,  1.0f,  0.0f, r.left, r.top, // top-left
-            x+0.5f, y+0.5f, z+0.5f, 0.0f,  1.0f,  0.0f, r.right, r.bottom, // bottom-right
-            x+0.5f, y+0.5f, z-0.5f, 0.0f,  1.0f,  0.0f, r.right, r.top, // top-right
-            x+0.5f, y+0.5f, z+0.5f, 0.0f,  1.0f,  0.0f, r.right, r.bottom, // bottom-right
-            x-0.5f, y+0.5f, z-0.5f, 0.0f,  1.0f,  0.0f, r.left, r.top, // top-left
-            x-0.5f, y+0.5f, z+0.5f, 0.0f,  1.0f,  0.0f, r.left, r.bottom  // bottom-left
-    });
+void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, FaceLight &faceLight, AOBlock& aob) {
+    u8 min_level = 1;
+    if(faceLight.back == 0)
+        faceLight.back = min_level;
+    if(faceLight.front == 0)
+        faceLight.front = min_level;
+    if(faceLight.left == 0)
+        faceLight.left = min_level;
+    if(faceLight.right == 0)
+        faceLight.right = min_level;
+    if(faceLight.bottom == 0)
+        faceLight.bottom = min_level;
+    if(faceLight.top == 0)
+        faceLight.top = min_level;
+    
+    u8 ba_l = (u8)(((float)faceLight.back / 15.0f) * 255.0f);
+    u8 fr_l = (u8)(((float)faceLight.front / 15.0f) * 255.0f);
+    u8 le_l = (u8)(((float)faceLight.left / 15.0f) * 255.0f);
+    u8 ri_l = (u8)(((float)faceLight.right / 15.0f) * 255.0f);
+    u8 bo_l = (u8)(((float)faceLight.bottom / 15.0f) * 255.0f);
+    u8 to_l = (u8)(((float)faceLight.top / 15.0f) * 255.0f);
+
+    u8 v1,v2,v3,v4;
+    float minLight = 0.3f;
+    /*
+    if(level == 1)
+    {
+        SDL_Log("Converted lightlevel %d to rgb intensity %d", level, l);
+    }
     */
-
-    /*
-     * uvRect.left = 0.0f;
-    uvRect.right = 1.0f;
-    uvRect.top = 1.0f;
-    uvRect.bottom = 0.0f;
-     */
-
-    /*
-    if(faces.back)
-        vertices.insert(vertices.end(),{
-                // Back face (The North Face ;)
-                {byte4(x,y,z,0), byte4(0,0,-1,0), short2(0, 0)},
-                {byte4(x+1,y+1,z,0), byte4(0,0,-1,3), short2(1, 1)},
-                {byte4(x+1,y,z,0), byte4(0,0,-1,2), short2(1, 0)},
-                {byte4(x+1,y+1,z,0), byte4(0,0,-1,3), short2(1, 1)},
-                {byte4(x,y,z,0), byte4(0,0,-1,0), short2(0, 0)},
-                {byte4(x,y+1,z,0), byte4(0,0,-1,1), short2(0, 1)}
-        });
+    if(faces.back) {
+        v1 = (u8) (((float) aob.faces[BACK_FACE].vertices[LEFT_TOP].AO / 3.0f) * ba_l);
+        v2 = (u8) (((float) aob.faces[BACK_FACE].vertices[LEFT_BTM].AO / 3.0f) * ba_l);
+        v3 = (u8) (((float) aob.faces[BACK_FACE].vertices[RIGHT_BTM].AO / 3.0f) * ba_l);
+        v4 = (u8) (((float) aob.faces[BACK_FACE].vertices[RIGHT_TOP].AO / 3.0f) * ba_l);
+        if(aob.faces[BACK_FACE].vertices[LEFT_BTM].AO + aob.faces[BACK_FACE].vertices[RIGHT_TOP].AO > aob.faces[BACK_FACE].vertices[LEFT_TOP].AO + aob.faces[BACK_FACE].vertices[RIGHT_BTM].AO)
+        {
+            vertices.insert(vertices.end(), {
+                    {byte4(x, y, z, 0),         ubyte4(v3, v3, v3, 0)},
+                    {byte4(x + 1, y + 1, z, 0), ubyte4(v1, v1, v1, 3)},
+                    {byte4(x + 1, y, z, 0),     ubyte4(v2, v2, v2, 2)},
+                    {byte4(x + 1, y + 1, z, 0), ubyte4(v1, v1, v1, 3)},
+                    {byte4(x, y, z, 0),         ubyte4(v3, v3, v3, 0)},
+                    {byte4(x, y + 1, z, 0),     ubyte4(v4, v4, v4, 1)}
+            });
+        }
+        else
+        {
+            vertices.insert(vertices.end(), {
+                    {byte4(x + 1, y, z, 0),     ubyte4(v2, v2, v2, 2)},
+                    {byte4(x, y, z, 0),         ubyte4(v3, v3, v3, 0)},
+                    {byte4(x, y + 1, z, 0),     ubyte4(v4, v4, v4, 1)},
+                    {byte4(x, y + 1, z, 0),     ubyte4(v4, v4, v4, 1)},
+                    {byte4(x + 1, y + 1, z, 0), ubyte4(v1, v1, v1, 3)},
+                    {byte4(x + 1, y, z, 0),     ubyte4(v2, v2, v2, 2)}
+            });
+        }
+    }
     if(faces.front)
-        vertices.insert(vertices.end(),{
-                // Front face
-                {byte4(x,y,z+1,1), byte4(0,0,1,0), short2(0, 0)},
-                {byte4(x+1,y,z+1,1), byte4(0,0,1,2), short2(1, 0)},
-                {byte4(x+1,y+1,z+1,1), byte4(0,0,1,3), short2(1, 1)},
-                {byte4(x+1,y+1,z+1,1), byte4(0,0,1,3), short2(1, 1)},
-                {byte4(x,y+1,z+1,1), byte4(0,0,1,1), short2(0, 1)},
-                {byte4(x,y,z+1,1), byte4(0,0,1,0), short2(0, 0)}
-        });
-    if(faces.left)
-        vertices.insert(vertices.end(),{
-                // Left face
-                {byte4(x,y+1,z+1,2), byte4(-1,0,0,3), short2(1, 1)},
-                {byte4(x,y+1,z,2), byte4(-1,0,0,1), short2(0, 1)},
-                {byte4(x,y,z,2), byte4(-1,0,0,0), short2(0, 0)},
-                {byte4(x,y,z,2), byte4(-1,0,0,0), short2(0, 0)},
-                {byte4(x,y,z+1,2), byte4(-1,0,0,2), short2(1, 0)},
-                {byte4(x,y+1,z+1,2), byte4(-1,0,0,3), short2(1, 1)}
-        });
-    if(faces.right)
-        vertices.insert(vertices.end(),{
-                // Right face
-                {byte4(x+1,y+1,z+1,3), byte4(1,0,0,1), short2(0, 1)},
-                {byte4(x+1,y,z,3), byte4(1,0,0,2), short2(1, 0)},
-                {byte4(x+1,y+1,z,3), byte4(1,0,0,3), short2(1, 1)},
-                {byte4(x+1,y,z,3), byte4(1,0,0,2), short2(1, 0)},
-                {byte4(x+1,y+1,z+1,3), byte4(1,0,0,1), short2(0, 1)},
-                {byte4(x+1,y,z+1,3), byte4(1,0,0,0), short2(0, 0)}
-        });
-    if(faces.bottom)
-        vertices.insert(vertices.end(),{
-                // Bottom face
-                {byte4(x,y,z,4), byte4(0,-1,0,3), short2(1, 1)},
-                {byte4(x+1,y,z,4), byte4(0,-1,0,1), short2(0, 1)},
-                {byte4(x+1,y,z+1,4), byte4(0,-1,0,0), short2(0, 0)},
-                {byte4(x+1,y,z+1,4), byte4(0,-1,0,0), short2(0, 0)},
-                {byte4(x,y,z+1,4), byte4(0,-1,0,2), short2(1, 0)},
-                {byte4(x,y,z,4), byte4(0,-1,0,3), short2(1, 1)}
-        });
-    if(faces.top)
-        vertices.insert(vertices.end(),{
-                // Top face
-                {byte4(x,y+1,z,5), byte4(0,1,0,1), short2(0, 1)},
-                {byte4(x+1,y+1,z+1,5), byte4(0,1,0,2), short2(1, 0)},
-                {byte4(x+1,y+1,z,5), byte4(0,1,0,3), short2(1, 1)},
-                {byte4(x+1,y+1,z+1,5), byte4(0,1,0,2), short2(1, 0)},
-                {byte4(x,y+1,z,5), byte4(0,1,0,1), short2(0, 1)},
-                {byte4(x,y+1,z+1,5), byte4(0,1,0,0), short2(0, 0)}
-        });
-     */
+    {
+        v1 = (u8) (((float) aob.faces[FRONT_FACE].vertices[LEFT_TOP].AO / 3.0f) * fr_l);
+        v2 = (u8) (((float) aob.faces[FRONT_FACE].vertices[LEFT_BTM].AO / 3.0f) * fr_l);
+        v3 = (u8) (((float) aob.faces[FRONT_FACE].vertices[RIGHT_BTM].AO / 3.0f) * fr_l);
+        v4 = (u8) (((float) aob.faces[FRONT_FACE].vertices[RIGHT_TOP].AO / 3.0f) * fr_l);
 
-    if(faces.back)
-        vertices.insert(vertices.end(),{
-                // Back face (The North Face ;)
-                {byte4(x,y,z,0), byte4(0,0,-1,0)},
-                {byte4(x+1,y+1,z,0), byte4(0,0,-1,3)},
-                {byte4(x+1,y,z,0), byte4(0,0,-1,2)},
-                {byte4(x+1,y+1,z,0), byte4(0,0,-1,3)},
-                {byte4(x,y,z,0), byte4(0,0,-1,0)},
-                {byte4(x,y+1,z,0), byte4(0,0,-1,1)}
-        });
-    if(faces.front)
-        vertices.insert(vertices.end(),{
-                // Front face
-                {byte4(x,y,z+1,1), byte4(0,0,1,0)},
-                {byte4(x+1,y,z+1,1), byte4(0,0,1,2)},
-                {byte4(x+1,y+1,z+1,1), byte4(0,0,1,3)},
-                {byte4(x+1,y+1,z+1,1), byte4(0,0,1,3)},
-                {byte4(x,y+1,z+1,1), byte4(0,0,1,1)},
-                {byte4(x,y,z+1,1), byte4(0,0,1,0)}
-        });
-    if(faces.left)
-        vertices.insert(vertices.end(),{
-                // Left face
-                {byte4(x,y+1,z+1,2), byte4(-1,0,0,3)},
-                {byte4(x,y+1,z,2), byte4(-1,0,0,1)},
-                {byte4(x,y,z,2), byte4(-1,0,0,0)},
-                {byte4(x,y,z,2), byte4(-1,0,0,0)},
-                {byte4(x,y,z+1,2), byte4(-1,0,0,2)},
-                {byte4(x,y+1,z+1,2), byte4(-1,0,0,3)}
-        });
-    if(faces.right)
-        vertices.insert(vertices.end(),{
-                // Right face
-                {byte4(x+1,y+1,z+1,3), byte4(1,0,0,1)},
-                {byte4(x+1,y,z,3), byte4(1,0,0,2)},
-                {byte4(x+1,y+1,z,3), byte4(1,0,0,3)},
-                {byte4(x+1,y,z,3), byte4(1,0,0,2)},
-                {byte4(x+1,y+1,z+1,3), byte4(1,0,0,1)},
-                {byte4(x+1,y,z+1,3), byte4(1,0,0,0)}
-        });
-    if(faces.bottom)
-        vertices.insert(vertices.end(),{
-                // Bottom face
-                {byte4(x,y,z,4), byte4(0,-1,0,3)},
-                {byte4(x+1,y,z,4), byte4(0,-1,0,1)},
-                {byte4(x+1,y,z+1,4), byte4(0,-1,0,0)},
-                {byte4(x+1,y,z+1,4), byte4(0,-1,0,0)},
-                {byte4(x,y,z+1,4), byte4(0,-1,0,2)},
-                {byte4(x,y,z,4), byte4(0,-1,0,3)}
-        });
-    if(faces.top)
-        vertices.insert(vertices.end(),{
-                // Top face
-                {byte4(x,y+1,z,5), byte4(0,1,0,1)},
-                {byte4(x+1,y+1,z+1,5), byte4(0,1,0,2)},
-                {byte4(x+1,y+1,z,5), byte4(0,1,0,3)},
-                {byte4(x+1,y+1,z+1,5), byte4(0,1,0,2)},
-                {byte4(x,y+1,z,5), byte4(0,1,0,1)},
-                {byte4(x,y+1,z+1,5), byte4(0,1,0,0)}
-        });
+        if(aob.faces[FRONT_FACE].vertices[LEFT_BTM].AO + aob.faces[FRONT_FACE].vertices[RIGHT_TOP].AO < aob.faces[FRONT_FACE].vertices[LEFT_TOP].AO + aob.faces[FRONT_FACE].vertices[RIGHT_BTM].AO)
+        {
+            vertices.insert(vertices.end(), {
+                    // Front face
+                    {byte4(x, y, z + 1, 1),         ubyte4(v2, v2, v2, 0)},
+                    {byte4(x + 1, y, z + 1, 1),     ubyte4(v3, v3, v3, 2)},
+                    {byte4(x + 1, y + 1, z + 1, 1), ubyte4(v4, v4, v4, 3)},
+
+                    {byte4(x + 1, y + 1, z + 1, 1), ubyte4(v4, v4, v4, 3)},
+                    {byte4(x, y + 1, z + 1, 1),     ubyte4(v1, v1, v1, 1)},
+                    {byte4(x, y, z + 1, 1),         ubyte4(v2, v2, v2, 0)}
+            });
+        }
+        else
+        {
+            vertices.insert(vertices.end(), {
+                    // Front face
+                    {byte4(x + 1, y, z + 1, 1),     ubyte4(v3, v3, v3, 2)}, // V3
+                    {byte4(x, y + 1, z + 1, 1),     ubyte4(v1, v1, v1, 1)}, // V1
+                    {byte4(x, y, z + 1, 1),         ubyte4(v2, v2, v2, 0)}, // V2
+                    {byte4(x, y + 1, z + 1, 1),     ubyte4(v1, v1, v1, 1)}, // V1
+                    {byte4(x + 1, y, z + 1, 1),     ubyte4(v3, v3, v3, 2)}, // V3
+                    {byte4(x + 1, y + 1, z + 1, 1), ubyte4(v4, v4, v4, 3)}  // v4
+            });
+        }
+    }
+    if(faces.left) {
+        v1 = (u8) (((float) aob.faces[LEFT_FACE].vertices[LEFT_TOP].AO / 3.0f) * le_l);
+        v2 = (u8) (((float) aob.faces[LEFT_FACE].vertices[LEFT_BTM].AO / 3.0f) * le_l);
+        v3 = (u8) (((float) aob.faces[LEFT_FACE].vertices[RIGHT_BTM].AO / 3.0f) * le_l);
+        v4 = (u8) (((float) aob.faces[LEFT_FACE].vertices[RIGHT_TOP].AO / 3.0f) * le_l);
+        if(aob.faces[LEFT_FACE].vertices[LEFT_BTM].AO + aob.faces[LEFT_FACE].vertices[RIGHT_TOP].AO < aob.faces[LEFT_FACE].vertices[LEFT_TOP].AO + aob.faces[LEFT_FACE].vertices[RIGHT_BTM].AO)
+        {
+            vertices.insert(vertices.end(), {
+                    // Left face
+                    {byte4(x, y + 1, z + 1, 2), ubyte4(v4, v4, v4, 3)},
+                    {byte4(x, y + 1, z, 2),     ubyte4(v1, v1, v1, 1)},
+                    {byte4(x, y, z, 2),         ubyte4(v2, v2, v2, 0)},
+                    {byte4(x, y, z, 2),         ubyte4(v2, v2, v2, 0)},
+                    {byte4(x, y, z + 1, 2),     ubyte4(v3, v3, v3, 2)},
+                    {byte4(x, y + 1, z + 1, 2), ubyte4(v4, v4, v4, 3)}
+            });
+        }
+        else
+        {
+            vertices.insert(vertices.end(), {
+                    // Left face
+                    {byte4(x, y + 1, z, 2),     ubyte4(v1, v1, v1, 1)}, // V1
+                    {byte4(x, y, z + 1, 2),     ubyte4(v3, v3, v3, 2)}, // V3
+                    {byte4(x, y + 1, z + 1, 2), ubyte4(v4, v4, v4, 3)}, // V4
+                    {byte4(x, y, z + 1, 2),     ubyte4(v3, v3, v3, 2)}, // V3
+                    {byte4(x, y + 1, z, 2),     ubyte4(v1, v1, v1, 1)}, // V1
+                    {byte4(x, y, z, 2),         ubyte4(v2, v2, v2, 0)}  // V2
+            });
+        }
+    }
+    if(faces.right) {
+        v1 = (u8) (((float) aob.faces[RIGHT_FACE].vertices[LEFT_TOP].AO / 3.0f) * ri_l);
+        v2 = (u8) (((float) aob.faces[RIGHT_FACE].vertices[LEFT_BTM].AO / 3.0f) * ri_l);
+        v3 = (u8) (((float) aob.faces[RIGHT_FACE].vertices[RIGHT_BTM].AO / 3.0f) * ri_l);
+        v4 = (u8) (((float) aob.faces[RIGHT_FACE].vertices[RIGHT_TOP].AO / 3.0f) * ri_l);
+        if(aob.faces[RIGHT_FACE].vertices[LEFT_BTM].AO + aob.faces[RIGHT_FACE].vertices[RIGHT_TOP].AO > aob.faces[RIGHT_FACE].vertices[LEFT_TOP].AO + aob.faces[RIGHT_FACE].vertices[RIGHT_BTM].AO) {
+            vertices.insert(vertices.end(), {
+                    // Right face
+                    {byte4(x + 1, y + 1, z + 1, 3), ubyte4(v1, v1, v1, 1)},
+                    {byte4(x + 1, y, z, 3),         ubyte4(v3, v3, v3, 2)},
+                    {byte4(x + 1, y + 1, z, 3),     ubyte4(v4, v4, v4, 3)},
+                    {byte4(x + 1, y, z, 3),         ubyte4(v3, v3, v3, 2)},
+                    {byte4(x + 1, y + 1, z + 1, 3), ubyte4(v1, v1, v1, 1)},
+                    {byte4(x + 1, y, z + 1, 3),     ubyte4(v2, v2, v2, 0)}
+            });
+        }
+        else
+        {
+            vertices.insert(vertices.end(), {
+                    // Right face
+                    {byte4(x + 1, y + 1, z, 3),     ubyte4(v4, v4, v4, 3)},
+                    {byte4(x + 1, y + 1, z + 1, 3), ubyte4(v1, v1, v1, 1)},
+                    {byte4(x + 1, y, z + 1, 3),     ubyte4(v2, v2, v2, 0)},
+                    {byte4(x + 1, y, z + 1, 3),     ubyte4(v2, v2, v2, 0)},
+                    {byte4(x + 1, y, z, 3),         ubyte4(v3, v3, v3, 2)},
+                    {byte4(x + 1, y + 1, z, 3),     ubyte4(v4, v4, v4, 3)}
+            });
+        }
+    }
+    if(faces.bottom) {
+        v1 = (u8) (((float) aob.faces[BOTTOM_FACE].vertices[LEFT_TOP].AO / 3.0f) * bo_l);
+        v2 = (u8) (((float) aob.faces[BOTTOM_FACE].vertices[LEFT_BTM].AO / 3.0f) * bo_l);
+        v3 = (u8) (((float) aob.faces[BOTTOM_FACE].vertices[RIGHT_BTM].AO / 3.0f) * bo_l);
+        v4 = (u8) (((float) aob.faces[BOTTOM_FACE].vertices[RIGHT_TOP].AO / 3.0f) * bo_l);
+
+        if(aob.faces[BOTTOM_FACE].vertices[LEFT_BTM].AO + aob.faces[BOTTOM_FACE].vertices[RIGHT_TOP].AO > aob.faces[BOTTOM_FACE].vertices[LEFT_TOP].AO + aob.faces[BOTTOM_FACE].vertices[RIGHT_BTM].AO) {
+            vertices.insert(vertices.end(), {
+                    // Bottom face
+                    {byte4(x, y, z, 4),         ubyte4(v2, v2, v2, 3)},
+                    {byte4(x + 1, y, z, 4),     ubyte4(v3, v3, v3, 1)},
+                    {byte4(x + 1, y, z + 1, 4), ubyte4(v4, v4, v4, 0)},
+                    {byte4(x + 1, y, z + 1, 4), ubyte4(v4, v4, v4, 0)},
+                    {byte4(x, y, z + 1, 4),     ubyte4(v1, v1, v1, 2)},
+                    {byte4(x, y, z, 4),         ubyte4(v2, v2, v2, 3)}
+            });
+        }
+        else
+        {
+            vertices.insert(vertices.end(), {
+                    // Bottom face
+                    {byte4(x, y, z + 1, 4),     ubyte4(v1, v1, v1, 2)}, // V1
+                    {byte4(x + 1, y, z, 4),     ubyte4(v3, v3, v3, 1)}, // V3
+                    {byte4(x + 1, y, z + 1, 4), ubyte4(v4, v4, v4, 0)}, // V4
+                    {byte4(x + 1, y, z, 4),     ubyte4(v3, v3, v3, 1)}, // V3
+                    {byte4(x, y, z + 1, 4),     ubyte4(v1, v1, v1, 2)}, // V1
+                    {byte4(x, y, z, 4),         ubyte4(v2, v2, v2, 3)}  // V2
+            });
+        }
+    }
+    if(faces.top) {
+        v1 = (u8) (((float) aob.faces[TOP_FACE].vertices[LEFT_TOP].AO / 3.0f) * to_l);
+        v2 = (u8) (((float) aob.faces[TOP_FACE].vertices[LEFT_BTM].AO / 3.0f) * to_l);
+        v3 = (u8) (((float) aob.faces[TOP_FACE].vertices[RIGHT_BTM].AO / 3.0f) * to_l);
+        v4 = (u8) (((float) aob.faces[TOP_FACE].vertices[RIGHT_TOP].AO / 3.0f) * to_l);
+
+        if(aob.faces[TOP_FACE].vertices[LEFT_BTM].AO + aob.faces[TOP_FACE].vertices[RIGHT_TOP].AO < aob.faces[TOP_FACE].vertices[LEFT_TOP].AO + aob.faces[TOP_FACE].vertices[RIGHT_BTM].AO) {
+            vertices.insert(vertices.end(), {
+                    // Top face
+                    {byte4(x, y + 1, z, 5),         ubyte4(v1, v1, v1, 1)},
+                    {byte4(x + 1, y + 1, z + 1, 5), ubyte4(v3, v3, v3, 2)},
+                    {byte4(x + 1, y + 1, z, 5),     ubyte4(v4, v4, v4, 3)},
+                    {byte4(x + 1, y + 1, z + 1, 5), ubyte4(v3, v3, v3, 2)},
+                    {byte4(x, y + 1, z, 5),         ubyte4(v1, v1, v1, 1)},
+                    {byte4(x, y + 1, z + 1, 5),     ubyte4(v2, v2, v2, 0)}
+            });
+        }
+        else
+        {
+            vertices.insert(vertices.end(), {
+                    {byte4(x, y + 1, z + 1, 5),     ubyte4(v2, v2, v2, 0)}, // v2
+                    {byte4(x + 1, y + 1, z + 1, 5), ubyte4(v3, v3, v3, 2)}, // v3
+                    {byte4(x + 1, y + 1, z, 5),     ubyte4(v4, v4, v4, 3)}, // v4
+                    {byte4(x + 1, y + 1, z, 5),     ubyte4(v4, v4, v4, 3)}, // v4
+                    {byte4(x, y + 1, z, 5),         ubyte4(v1, v1, v1, 1)}, // v1
+                    {byte4(x, y + 1, z + 1, 5),     ubyte4(v2, v2, v2, 0)}  // v2
+
+            });
+        }
+    }
 }
 
 

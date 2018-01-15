@@ -3,9 +3,9 @@ project(game)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(CMAKE_CXX_FLAGS_DEBUG "-O3")
+set(CMAKE_CXX_FLAGS_DEBUG "-O3 -mwindows")
 # uncomment this to compile as gui app (doesnt open the console)
-#set(CMAKE_CXX_FLAGS_DEBUG "-mwindows")
+set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
 
 # includes cmake/FindSDL2.cmake
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
@@ -135,7 +135,7 @@ set(SOURCE_FILES
         src/engine/video/shader/Fog.h
         src/engine/video/sky/Skybox.cpp
         src/engine/video/sky/Skybox.h
-        src/engine/video/shader/DirectionalLight.h)
+        src/engine/video/shader/DirectionalLight.h src/engine/video/voxel/AOBlock.h src/engine/video/voxel/ChunkBlockPos.h src/engine/video/voxel/IChunkManager.h)
 add_executable(game ${SOURCE_FILES})
 
 target_link_libraries(game ${GLEW_LIBRARY} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY})

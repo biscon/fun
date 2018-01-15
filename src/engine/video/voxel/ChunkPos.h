@@ -7,6 +7,7 @@
 
 
 #include "defs.h"
+#include "Chunk.h"
 
 struct ChunkPos
 {
@@ -31,7 +32,5 @@ struct ChunkPos
         z = nz;
     }
 };
-
-
 
 #endif //GAME_CHUNKPOS_H

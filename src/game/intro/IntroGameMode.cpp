@@ -134,8 +134,17 @@ void IntroGameMode::render(double delta) {
     fontRenderer->renderText(font2, 50, 80, "Mousewheel adjusts FOV, F12 toggles fullscreen");
     fontRenderer->renderText(font2, 50, game->getRenderer()->getRealHeight() - 50, stringFormat("pos = %.2f,%.2f,%.2f chunkPosXZ = %d,%d activeChunks: %d visChunks: %d voxMeshSize: %d MB visRad: %d buildStage: %s",
                                                            camera->Position.x, camera->Position.y, camera->Position.z,
-                                                           chunkRenderer->chunkManager->camChunkPos.x, chunkRenderer->chunkManager->camChunkPos.z,
-                                                           chunkRenderer->getActiveChunks(), chunkRenderer->getRenderedChunks(), (chunkRenderer->chunkManager->totalMeshSizeBytes / 1024) / 1024, chunkRenderer->chunkManager->VISIBLE_RADIUS, chunkRenderer->chunkManager->getBuildStageAsString().c_str()));
+                                                           chunkRenderer->chunkManager->camChunkPos.x, chunkRenderer->chunkManager->camChunkPos.z,chunkRenderer->getActiveChunks(), chunkRenderer->getRenderedChunks(), (chunkRenderer->chunkManager->totalMeshSizeBytes / 1024) / 1024, chunkRenderer->chunkManager->VISIBLE_RADIUS, chunkRenderer->chunkManager->getBuildStageAsString().c_str()));
+    std::string chk_info = "INV";
+    if(chunkRenderer->chunkManager->camBlockLocalPos.chunk != nullptr)
+    {
+        chk_info = stringFormat("%d,%d", chunkRenderer->chunkManager->camBlockLocalPos.chunk->chunkPosition.x, chunkRenderer->chunkManager->camBlockLocalPos.chunk->chunkPosition.z);
+    }
+
+    fontRenderer->renderText(font2, 50, game->getRenderer()->getRealHeight() - 85, stringFormat("blockPosWorld = %d,%d,%d blockPosLocal = %d,%d,%d (%s)",
+                                                                                                chunkRenderer->chunkManager->camBlockWorldPos.x, chunkRenderer->chunkManager->camBlockWorldPos.y, chunkRenderer->chunkManager->camBlockWorldPos.z,
+                                                                                                chunkRenderer->chunkManager->camBlockLocalPos.x, chunkRenderer->chunkManager->camBlockLocalPos.y, chunkRenderer->chunkManager->camBlockLocalPos.z,
+                                                                                                chk_info.c_str()));
     fontRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight());
 }
 
@@ -177,10 +186,6 @@ void IntroGameMode::onKeyDown(const SDL_Event *event) {
         return;
     }
 
-    if(event->key.keysym.sym == SDLK_SPACE)
-    {
-        return;
-    }
 }
 
 void IntroGameMode::onKeyUp(const SDL_Event *event) {
@@ -212,6 +217,17 @@ void IntroGameMode::onKeyUp(const SDL_Event *event) {
     if(event->key.keysym.sym == SDLK_e)
     {
         zoomingOut = false;
+        return;
+    }
+    if(event->key.keysym.sym == SDLK_SPACE)
+    {
+        auto& localpos = chunkRenderer->chunkManager->camBlockLocalPos;
+        // TODO prevent this from being called twice lol
+        if(localpos.isValid() && (localpos.y >= 0 && localpos.y < CHUNK_HEIGHT))
+        {
+            chunkRenderer->chunkManager->placeTorchLight(localpos.chunk, localpos.x, localpos.y, localpos.z, 14);
+        }
+        //chunkRenderer->chunkManager->testStuff();
         return;
     }
 }

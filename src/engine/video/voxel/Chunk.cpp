@@ -3,6 +3,7 @@
 //
 
 #include "Chunk.h"
+#include "AOBlock.h"
 
 #define GLEW_STATIC
 
@@ -10,22 +11,122 @@
 #include <gtc/type_ptr.hpp>
 
 // cache friendly order y,z,x
-Chunk::Chunk(BlockTypeDictionary &blockTypeDict) : blockTypeDict(blockTypeDict) {
-
+Chunk::Chunk(BlockTypeDictionary &blockTypeDict, IChunkManager *chunkManager) : blockTypeDict(blockTypeDict), chunkManager(chunkManager) {
     blocks = (Block*) malloc(CHUNK_HEIGHT*CHUNK_SIZE*CHUNK_SIZE*sizeof(Block));
+    lightMapSize = CHUNK_HEIGHT*CHUNK_SIZE*CHUNK_SIZE*sizeof(u8);
+    lightMap = (u8*) malloc(lightMapSize);
     //memset(blocks, 0, sizeof(blocks));
-    // clear lightmap
-    memset(lightMap, 0, sizeof(lightMap));
 }
 
 Chunk::~Chunk() {
     // Delete the blocks
     free(blocks);
+    free(lightMap);
+}
+
+void Chunk::setupDebugChunk()
+{
+    clearLightMap();
+    u8 temple_block = BLOCK_STONE;
+
+    for(int y = 0; y < CHUNK_HEIGHT; y++)
+    {
+        for(int z = 0; z < CHUNK_SIZE; z++)
+        {
+            for(int x = 0; x < CHUNK_SIZE; x++)
+            {
+                // clear
+                blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, false);
+                blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_SHOULD_MESH, false);
+                blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, true);
+
+                if(y < 100)
+                {
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
+                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_GRASS;
+                }
+
+                if(y == 100)
+                {
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
+                    blocks[POS_TO_INDEX(y,z,x)].type = temple_block;
+                }
+
+                if(y == 106)
+                {
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
+                    blocks[POS_TO_INDEX(y,z,x)].type = temple_block;
+                }
+
+                // punch a few holes
+                if(y == 106 && x == 4 && z == 4)
+                {
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, false);
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, true);
+                }
+
+                // wall
+                if(x >= 6 && x <= 12 && z == 8 && y >= 100 && y <= 105)
+                {
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
+                    blocks[POS_TO_INDEX(y,z,x)].type = temple_block;
+                }
+
+                // hole
+                if(x == 8 && z == 8 && y == 103)
+                {
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, false);
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, true);
+                }
+                // wall 2
+                if(z >= 6 && z <= 12 && x == 5 && y >= 100 && y <= 105)
+                {
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
+                    blocks[POS_TO_INDEX(y,z,x)].type = temple_block;
+                }
+
+                // wall 2
+                if(z >= 6 && z <= 12 && x == 12 && y >= 100 && y <= 105)
+                {
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
+                    blocks[POS_TO_INDEX(y,z,x)].type = temple_block;
+                }
+
+                if(x == 14 && z == 1 && y >= 100 && y <= 110
+                   || x == 14 && z == 14 && y >= 100 && y <= 110
+                   || x == 1 && z == 14 && y >= 100 && y <= 110
+                   || x == 1 && z == 1 && y >= 100 && y <= 110)
+                {
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
+                    blocks[POS_TO_INDEX(y,z,x)].type = temple_block;
+                }
+                /*
+                if(x == 8 && z == 11 && y == 103)
+                {
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
+                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_GOLD;
+                }
+                 */
+            }
+        }
+    }
+    //placeTorchLight(7, 102, 7, 14);
+    //auto ll = getTorchlight(7, 105, 7);
+    //SDL_Log("light level read %d", ll);
 }
 
 // cache friendly order y,z,x
 void Chunk::setupFromTerrain(const ChunkPos& position, const std::shared_ptr<Terrain>& terrain)
 {
+    clearLightMap();
     int half_terrain_size = terrain->getHeightMap()->getWidth()/2;
     int half_chunk_size = CHUNK_SIZE/2;
     float fchunk_height = (float) CHUNK_HEIGHT;
@@ -47,19 +148,24 @@ void Chunk::setupFromTerrain(const ChunkPos& position, const std::shared_ptr<Ter
                 auto height = (int) ceil(terrain->getHeightMap()->getSampleWrap(map_x, map_z) * fchunk_height);
 
                 //SDL_Log("(%d,%d,%d) Index = %d", y, z, x, POS_TO_INDEX(y,z,x));
+                // set initial state of blocks (clearing)
                 blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, false);
+                blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, true);
                 blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_SHOULD_MESH, false);
                 blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_GRASS;
                 if(y <= height)
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
                     blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_GRASS;
                     if(y >= 0 && y <= 5)
                     {
+                        blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
                         blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_STONE;
                     }
                     if(y >= 6 && y <= 10) {
                         auto off = rand() % 4;
+                        blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
                         blocks[POS_TO_INDEX(y, z, x)].type = BLOCK_EMERALD + off;
                     }
 
@@ -67,23 +173,8 @@ void Chunk::setupFromTerrain(const ChunkPos& position, const std::shared_ptr<Ter
                 if(y > height && y <= 2)
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, true);
                     blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_WATER;
-                }
-                // if in chunk 0,0
-                if(position.x == 0 && position.z == 0)
-                {
-                    if(x == 0 && z == 0 && y >= 50 && y <= 60)
-                    {
-                        blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
-                        blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_GOLD;
-                    }
-                    if(x == 15 && z == 0 && y >= 50 && y <= 60
-                       || x == 15 && z == 15 && y >= 50 && y <= 60
-                          || x == 0 && z == 15 && y >= 50 && y <= 60)
-                    {
-                        blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
-                        blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_DEBUG;
-                    }
                 }
             }
         }
@@ -91,10 +182,7 @@ void Chunk::setupFromTerrain(const ChunkPos& position, const std::shared_ptr<Ter
 }
 
 // cache friendly order y,z,x
-void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
-    // clear lightmap
-    memset(lightMap, 0, sizeof(lightMap));
-
+void Chunk::rebuild(const ChunkPos& position) {
     bool first_build = false;
     if(mesh == nullptr) {
         first_build = true;
@@ -103,9 +191,16 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
     if(!first_build)
         mesh->clear();
 
-    //setupFromTerrain(position, terrain);
-    //randomizeHeights();
     materialBatchMap.clear();
+
+    // place torchlights
+    /*
+    if(position.x == 0 && position.z == 0)
+    {
+        chunkManager->placeTorchLight(this, 7, 107, 7, 14);
+        chunkManager->placeTorchLight(this, 8, 103, 11, 15);
+    }
+    */
 
     auto m = glm::mat4();
     auto origin = glm::vec4(0,0,0,1);
@@ -123,12 +218,12 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
                 if(block.isFlagSet(BLOCK_FLAG_ACTIVE)) {
                     auto pos = z_m * origin;
                     auto should_mesh = false;
-                    if (!isBlockActiveAt(neighbours, x, y, z - 1)) should_mesh = true; // back
-                    if (!isBlockActiveAt(neighbours, x, y, z + 1)) should_mesh = true; // front
-                    if (!isBlockActiveAt(neighbours, x - 1, y, z)) should_mesh = true; // left
-                    if (!isBlockActiveAt(neighbours, x + 1, y, z)) should_mesh = true; // right
-                    if (!isBlockActiveAt(neighbours, x, y - 1, z)) should_mesh = true; // bottom
-                    if (!isBlockActiveAt(neighbours, x, y + 1, z)) should_mesh = true; // top
+                    if (!isBlockActiveAt(x, y, z - 1)) should_mesh = true; // back
+                    if (!isBlockActiveAt(x, y, z + 1)) should_mesh = true; // front
+                    if (!isBlockActiveAt(x - 1, y, z)) should_mesh = true; // left
+                    if (!isBlockActiveAt(x + 1, y, z)) should_mesh = true; // right
+                    if (!isBlockActiveAt(x, y - 1, z)) should_mesh = true; // bottom
+                    if (!isBlockActiveAt(x, y + 1, z)) should_mesh = true; // top
 
                     if (should_mesh) {
                         block.setFlag(BLOCK_FLAG_SHOULD_MESH, true);
@@ -137,11 +232,11 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
                         {
                             materialBatchMap[block.type] = std::unique_ptr<MaterialBatch>(new MaterialBatch());
                             materialBatchMap[block.type]->blockType = block.type;
-                            materialBatchMap[block.type]->blocks.emplace_back(x,y,z);
+                            materialBatchMap[block.type]->blocks.emplace_back(x,y,z, getTorchlight(x,y,z));
                             //SDL_Log("Generated cube at %d,%d,%d", x, y, z);
                         }
                         else {
-                            batch->second->blocks.emplace_back(x, y, z);
+                            batch->second->blocks.emplace_back(x, y, z, getTorchlight(x,y,z));
                             //SDL_Log("Generated cube at %d,%d,%d", x, y, z);
                         }
                     }
@@ -153,6 +248,9 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
         m = glm::translate(m, glm::vec3(0.0f, 1.0f, 0.0f));
     }
 
+    FaceLight face_light;
+    AOBlock ao_block;
+
     for(auto const& kv : materialBatchMap)
     {
         kv.second->start = static_cast<u32>(mesh->vertices.size());
@@ -162,17 +260,46 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
             if(block.isFlagSet(BLOCK_FLAG_SHOULD_MESH) && block.isFlagSet(BLOCK_FLAG_ACTIVE))
             {
                 mb.faces.disableAll();
-                if (!shouldBlockMeshAt(neighbours, mb.x, mb.y, mb.z - 1)) mb.faces.back = true; // back
-                if (!shouldBlockMeshAt(neighbours, mb.x, mb.y, mb.z + 1)) mb.faces.front = true; // front
-                if (!shouldBlockMeshAt(neighbours, mb.x - 1, mb.y, mb.z)) mb.faces.left = true; // left
-                if (!shouldBlockMeshAt(neighbours, mb.x + 1, mb.y, mb.z)) mb.faces.right = true; // right
-                if (!shouldBlockMeshAt(neighbours, mb.x, mb.y - 1, mb.z)) mb.faces.bottom = true; // bottom
-                if (!shouldBlockMeshAt(neighbours, mb.x, mb.y + 1, mb.z)) mb.faces.top = true; // top
+                // back
+                if (!shouldBlockMeshAt(mb.x, mb.y, mb.z - 1)) {
+                    mb.faces.back = true; // back
+                    face_light.back = getTorchLightAt(mb.x, mb.y, mb.z - 1);
+                }
+                // front
+                if (!shouldBlockMeshAt(mb.x, mb.y, mb.z + 1)) {
+                    mb.faces.front = true;
+                    face_light.front = getTorchLightAt(mb.x, mb.y, mb.z + 1);
+                }
+                // left
+                if (!shouldBlockMeshAt(mb.x - 1, mb.y, mb.z)) {
+                    mb.faces.left = true;
+                    face_light.left = getTorchLightAt(mb.x - 1, mb.y, mb.z);
+                }
+                // right
+                if (!shouldBlockMeshAt(mb.x + 1, mb.y, mb.z)) {
+                    mb.faces.right = true;
+                    face_light.right = getTorchLightAt(mb.x + 1, mb.y, mb.z);
+                }
+                // bottom
+                if (!shouldBlockMeshAt(mb.x, mb.y - 1, mb.z)) {
+                    mb.faces.bottom = true;
+                    face_light.bottom = getTorchLightAt(mb.x, mb.y - 1, mb.z);
+                }
+                // top
+                if (!shouldBlockMeshAt(mb.x, mb.y + 1, mb.z)) {
+                    mb.faces.top = true;
+                    face_light.top = getTorchLightAt(mb.x, mb.y + 1, mb.z);
+
+                }
             }
 
+
             //SDL_Log("Meshing cube at %d,%d,%d", mb.x, mb.y, mb.z);
-            if(mb.faces.anyFacesEnabled())
-                mesh->generateTexturedCubeAt(mb.x, mb.y, mb.z, mb.faces);
+            if(mb.faces.anyFacesEnabled()) {
+                calculateAO(ao_block, mb);
+
+                mesh->generateTexturedCubeAt(mb.x, mb.y, mb.z, mb.faces, face_light, ao_block);
+            }
         }
         kv.second->count = static_cast<u32>(mesh->vertices.size() - kv.second->start);
     }
@@ -180,6 +307,29 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
         mesh->prepare();
     else
         mesh->upload();
+}
+
+static inline i32 vertexAO(i32 side1, i32 side2, i32 corner) {
+    if(side1 && side2) {
+        return 0;
+    }
+    return 3 - (side1 + side2 + corner);
+}
+
+
+void Chunk::calculateAO(AOBlock &aob, MaterialBlock& mb)
+{
+    aob.calcPositions(mb.x, mb.y, mb.z);
+    for(auto &face : aob.faces)
+    {
+        for(auto &vertex : face.vertices)
+        {
+            vertex.AO = vertexAO((isBlockActiveAt(vertex.positions[SIDE1].x, vertex.positions[SIDE1].y, vertex.positions[SIDE1].z) ? 1 : 0),
+                                 (isBlockActiveAt(vertex.positions[SIDE2].x, vertex.positions[SIDE2].y, vertex.positions[SIDE2].z) ? 1 : 0),
+                                 (isBlockActiveAt(vertex.positions[CORNER].x, vertex.positions[CORNER].y, vertex.positions[CORNER].z) ? 1 : 0));
+
+        }
+    }
 }
 
 void Chunk::draw(const Shader &shader) {
@@ -193,4 +343,10 @@ void Chunk::draw(const Shader &shader) {
     }
     //SDL_Log("Sum of batch counts = %d, size of mesh = %d", sum, mesh->vertices.size());
 }
+
+void Chunk::clearLightMap() {
+    // clear lightmap
+    memset(lightMap, 0, lightMapSize);
+}
+
 
