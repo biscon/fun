@@ -14,6 +14,7 @@ public:
     virtual void relativePosToChunkBlockPos(Chunk *chunk, i32 x, i32 y, i32 z, ChunkBlockPos& chunkBlockPos)=0;
     virtual Chunk *findActiveChunkAt(const ChunkPos &pos)=0;
     virtual Chunk *findBuildChunkAt(const ChunkPos &pos)=0;
+    virtual void placeTorchLight(Chunk *origin_chunk, int x, int y, int z, u8 level)=0;
 };
 
 

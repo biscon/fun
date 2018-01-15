@@ -107,12 +107,14 @@ void Chunk::setupDebugChunk()
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
                     blocks[POS_TO_INDEX(y,z,x)].type = temple_block;
                 }
+                /*
                 if(x == 8 && z == 11 && y == 103)
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
                     blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_GOLD;
                 }
+                 */
             }
         }
     }
@@ -180,7 +182,7 @@ void Chunk::setupFromTerrain(const ChunkPos& position, const std::shared_ptr<Ter
 }
 
 // cache friendly order y,z,x
-void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
+void Chunk::rebuild(const ChunkPos& position) {
     bool first_build = false;
     if(mesh == nullptr) {
         first_build = true;
@@ -192,13 +194,13 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
     materialBatchMap.clear();
 
     // place torchlights
-    if(position.x == 0 && position.z == 0
-      /* || position.x == 1 && position.z == 1
-       || position.x == 0 && position.z == 1
-       || position.x == 1 && position.z == 0 */) {
-        placeTorchLight(7, 107, 7, 14);
-        placeTorchLight(8, 103, 11, 15);
+    /*
+    if(position.x == 0 && position.z == 0)
+    {
+        chunkManager->placeTorchLight(this, 7, 107, 7, 14);
+        chunkManager->placeTorchLight(this, 8, 103, 11, 15);
     }
+    */
 
     auto m = glm::mat4();
     auto origin = glm::vec4(0,0,0,1);
@@ -216,12 +218,12 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
                 if(block.isFlagSet(BLOCK_FLAG_ACTIVE)) {
                     auto pos = z_m * origin;
                     auto should_mesh = false;
-                    if (!isBlockActiveAt(neighbours, x, y, z - 1)) should_mesh = true; // back
-                    if (!isBlockActiveAt(neighbours, x, y, z + 1)) should_mesh = true; // front
-                    if (!isBlockActiveAt(neighbours, x - 1, y, z)) should_mesh = true; // left
-                    if (!isBlockActiveAt(neighbours, x + 1, y, z)) should_mesh = true; // right
-                    if (!isBlockActiveAt(neighbours, x, y - 1, z)) should_mesh = true; // bottom
-                    if (!isBlockActiveAt(neighbours, x, y + 1, z)) should_mesh = true; // top
+                    if (!isBlockActiveAt(x, y, z - 1)) should_mesh = true; // back
+                    if (!isBlockActiveAt(x, y, z + 1)) should_mesh = true; // front
+                    if (!isBlockActiveAt(x - 1, y, z)) should_mesh = true; // left
+                    if (!isBlockActiveAt(x + 1, y, z)) should_mesh = true; // right
+                    if (!isBlockActiveAt(x, y - 1, z)) should_mesh = true; // bottom
+                    if (!isBlockActiveAt(x, y + 1, z)) should_mesh = true; // top
 
                     if (should_mesh) {
                         block.setFlag(BLOCK_FLAG_SHOULD_MESH, true);
@@ -259,34 +261,34 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
             {
                 mb.faces.disableAll();
                 // back
-                if (!shouldBlockMeshAt(neighbours, mb.x, mb.y, mb.z - 1)) {
+                if (!shouldBlockMeshAt(mb.x, mb.y, mb.z - 1)) {
                     mb.faces.back = true; // back
-                    face_light.back = getTorchLightAt(neighbours, mb.x, mb.y, mb.z - 1);
+                    face_light.back = getTorchLightAt(mb.x, mb.y, mb.z - 1);
                 }
                 // front
-                if (!shouldBlockMeshAt(neighbours, mb.x, mb.y, mb.z + 1)) {
+                if (!shouldBlockMeshAt(mb.x, mb.y, mb.z + 1)) {
                     mb.faces.front = true;
-                    face_light.front = getTorchLightAt(neighbours, mb.x, mb.y, mb.z + 1);
+                    face_light.front = getTorchLightAt(mb.x, mb.y, mb.z + 1);
                 }
                 // left
-                if (!shouldBlockMeshAt(neighbours, mb.x - 1, mb.y, mb.z)) {
+                if (!shouldBlockMeshAt(mb.x - 1, mb.y, mb.z)) {
                     mb.faces.left = true;
-                    face_light.left = getTorchLightAt(neighbours, mb.x - 1, mb.y, mb.z);
+                    face_light.left = getTorchLightAt(mb.x - 1, mb.y, mb.z);
                 }
                 // right
-                if (!shouldBlockMeshAt(neighbours, mb.x + 1, mb.y, mb.z)) {
+                if (!shouldBlockMeshAt(mb.x + 1, mb.y, mb.z)) {
                     mb.faces.right = true;
-                    face_light.right = getTorchLightAt(neighbours, mb.x + 1, mb.y, mb.z);
+                    face_light.right = getTorchLightAt(mb.x + 1, mb.y, mb.z);
                 }
                 // bottom
-                if (!shouldBlockMeshAt(neighbours, mb.x, mb.y - 1, mb.z)) {
+                if (!shouldBlockMeshAt(mb.x, mb.y - 1, mb.z)) {
                     mb.faces.bottom = true;
-                    face_light.bottom = getTorchLightAt(neighbours, mb.x, mb.y - 1, mb.z);
+                    face_light.bottom = getTorchLightAt(mb.x, mb.y - 1, mb.z);
                 }
                 // top
-                if (!shouldBlockMeshAt(neighbours, mb.x, mb.y + 1, mb.z)) {
+                if (!shouldBlockMeshAt(mb.x, mb.y + 1, mb.z)) {
                     mb.faces.top = true;
-                    face_light.top = getTorchLightAt(neighbours, mb.x, mb.y + 1, mb.z);
+                    face_light.top = getTorchLightAt(mb.x, mb.y + 1, mb.z);
 
                 }
             }
@@ -294,7 +296,7 @@ void Chunk::rebuild(const ChunkPos& position, ChunkNeighbours& neighbours) {
 
             //SDL_Log("Meshing cube at %d,%d,%d", mb.x, mb.y, mb.z);
             if(mb.faces.anyFacesEnabled()) {
-                calculateAO(neighbours, ao_block, mb);
+                calculateAO(ao_block, mb);
 
                 mesh->generateTexturedCubeAt(mb.x, mb.y, mb.z, mb.faces, face_light, ao_block);
             }
@@ -315,16 +317,16 @@ static inline i32 vertexAO(i32 side1, i32 side2, i32 corner) {
 }
 
 
-void Chunk::calculateAO(ChunkNeighbours& neighbours, AOBlock &aob, MaterialBlock& mb)
+void Chunk::calculateAO(AOBlock &aob, MaterialBlock& mb)
 {
     aob.calcPositions(mb.x, mb.y, mb.z);
     for(auto &face : aob.faces)
     {
         for(auto &vertex : face.vertices)
         {
-            vertex.AO = vertexAO((isBlockActiveAt(neighbours, vertex.positions[SIDE1].x, vertex.positions[SIDE1].y, vertex.positions[SIDE1].z) ? 1 : 0),
-                                 (isBlockActiveAt(neighbours, vertex.positions[SIDE2].x, vertex.positions[SIDE2].y, vertex.positions[SIDE2].z) ? 1 : 0),
-                                 (isBlockActiveAt(neighbours, vertex.positions[CORNER].x, vertex.positions[CORNER].y, vertex.positions[CORNER].z) ? 1 : 0));
+            vertex.AO = vertexAO((isBlockActiveAt(vertex.positions[SIDE1].x, vertex.positions[SIDE1].y, vertex.positions[SIDE1].z) ? 1 : 0),
+                                 (isBlockActiveAt(vertex.positions[SIDE2].x, vertex.positions[SIDE2].y, vertex.positions[SIDE2].z) ? 1 : 0),
+                                 (isBlockActiveAt(vertex.positions[CORNER].x, vertex.positions[CORNER].y, vertex.positions[CORNER].z) ? 1 : 0));
 
         }
     }
@@ -340,69 +342,6 @@ void Chunk::draw(const Shader &shader) {
         mesh->drawRange(shader, kv.second->start, kv.second->count, &blockTypeDict.getBlockTypeAt(kv.first).material);
     }
     //SDL_Log("Sum of batch counts = %d, size of mesh = %d", sum, mesh->vertices.size());
-}
-
-void Chunk::propagateTorchLight(Chunk *chunk, i32 x, i32 y, i32 z, i32 lightlevel)
-{
-    ChunkBlockPos cbpos;
-    chunkManager->relativePosToChunkBlockPos(chunk, x, y, z, cbpos);
-    if(cbpos.isValid())
-    {
-        if(cbpos.chunk->getTorchlight(cbpos.x, cbpos.y, cbpos.z) + 2 <= lightlevel && cbpos.chunk->blocks[POS_TO_INDEX(cbpos.y, cbpos.z, cbpos.x)].isFlagSet(BLOCK_FLAG_TRANSPARENT))
-        {
-            cbpos.chunk->setTorchlight(cbpos.x, cbpos.y, cbpos.z, lightlevel-1);
-
-            // Emplace new node to queue. (could use push as well)
-            //SDL_Log("Placing pos %d,%d,%d ", x,y,z);
-            lightQueue.emplace(chunk, x, y, z);
-        }
-    }
-    else
-    {
-        SDL_Log("Can't propagate light into invalid position %d,%d,%d", x, y, z);
-    }
-}
-
-// does a BFS search (brett first search ;)
-void Chunk::placeTorchLight(i32 x, i32 y, i32 z, u8 level) {
-    SDL_Log("Placing torchlight at %d,%d,%d light level %d", x, y ,z, level);
-    setTorchlight(x,y,z,level);
-    ChunkBlockPos cbpos;
-    lightQueue.emplace(this, x, y, z);
-    while(!lightQueue.empty())
-    {
-        // Get a reference to the front node.
-        auto &node = lightQueue.front();
-        Chunk* chunk = node.chunk;
-        lightQueue.pop();
-
-        //SDL_Log("Reading lightnode pos %d,%d,%d", node.x, node.y, node.z);
-
-        // Grab the light level of the current node
-        chunkManager->relativePosToChunkBlockPos(chunk, node.x, node.y, node.z, cbpos);
-        if(!cbpos.isValid())
-        {
-            SDL_Log("Current lightnode %d,%d,%d position invalid", node.x, node.y, node.z);
-            continue;
-        }
-        i32 lightlevel = cbpos.chunk->getTorchlight(cbpos.x, cbpos.y, cbpos.z);
-        //SDL_Log("Current lightnode %d,%d,%d light level %d (index = %d)", nx, ny, nz, lightlevel, index);
-
-        // propagate light to all 6 surrounding blocks
-        // sides
-
-        propagateTorchLight(chunk, node.x - 1, node.y, node.z, lightlevel);
-        propagateTorchLight(chunk, node.x + 1, node.y, node.z, lightlevel);
-
-        // top bottom
-        propagateTorchLight(chunk, node.x, node.y - 1, node.z, lightlevel);
-        propagateTorchLight(chunk, node.x, node.y + 1, node.z, lightlevel);
-
-        // front and back
-        propagateTorchLight(chunk, node.x, node.y, node.z - 1, lightlevel);
-        propagateTorchLight(chunk, node.x, node.y, node.z + 1, lightlevel);
-
-    }
 }
 
 void Chunk::clearLightMap() {
