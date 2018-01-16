@@ -14,6 +14,7 @@
 #include <memory>
 #include <vector>
 #include <queue>
+#include <unordered_map>
 #include "Chunk.h"
 #include "ChunkBlockPos.h"
 #include "IChunkManager.h"
@@ -33,11 +34,12 @@ public:
 
     ChunkManager(const std::shared_ptr<Terrain> &terrain);
 
-    std::map<ChunkPos, std::unique_ptr<Chunk>> activeChunks;
-    std::map<ChunkPos, std::unique_ptr<Chunk>> buildChunks;
+    std::unordered_map<ChunkPos, std::unique_ptr<Chunk>> activeChunks;
+    std::unordered_map<ChunkPos, std::unique_ptr<Chunk>> buildChunks;
     std::vector<std::unique_ptr<Chunk>> recycleList;
     std::vector<Chunk*> optimizeList;
     std::vector<Chunk*> updateList;
+    std::vector<ChunkPos> circlePosOffsets;
 
     ChunkPos camChunkPos;
     ChunkBlockPos camBlockWorldPos;
@@ -213,18 +215,18 @@ private:
     float fChunkSize = (float) CHUNK_SIZE;
     std::shared_ptr<Terrain> terrain = nullptr;
     i32 buildStage = CHUNK_STAGE_IDLE;
-    std::map<ChunkPos, std::unique_ptr<Chunk>>::iterator setupIterator;
+    std::unordered_map<ChunkPos, std::unique_ptr<Chunk>>::const_iterator setupIterator;
 
-    inline Chunk *findChunkAt(const std::map<ChunkPos, std::unique_ptr<Chunk>>&chunk_map, const ChunkPos &pos) {
-        auto it = chunk_map.find(pos);
-        if(it != chunk_map.end())
+    inline Chunk *findChunkAt(const std::unordered_map<ChunkPos, std::unique_ptr<Chunk>>&chunk_map, const ChunkPos &pos) {
+        std::unordered_map<ChunkPos, std::unique_ptr<Chunk>>::const_iterator it = chunk_map.find(pos);
+        if(it != chunk_map.cend())
             return (*it).second.get();
 
         return nullptr;
     }
 
     void findNeighbours(ChunkNeighbours &neighbours, const ChunkPos& chunk_pos);
-    void findNeighbours(const std::map<ChunkPos, std::unique_ptr<Chunk>>&chunk_map, ChunkNeighbours &neighbours, const ChunkPos& chunk_pos);
+    void findNeighbours(const std::unordered_map<ChunkPos, std::unique_ptr<Chunk>>&chunk_map, ChunkNeighbours &neighbours, const ChunkPos& chunk_pos);
     void recycleChunks();
     ChunkPos getChunkFromWorld(glm::vec3 &worldpos);
     void createChunks(BlockTypeDictionary& blockTypeDict);
@@ -232,6 +234,8 @@ private:
     void propagateTorchLight(Chunk *chunk, i32 x, i32 y, i32 z, i32 lightlevel);
 
     void worldToBlock(glm::vec3 &worldpos, ChunkBlockPos &cbpos);
+
+    void calculateCircleOffsets();
 };
 
 

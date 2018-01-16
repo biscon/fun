@@ -6,6 +6,37 @@
 #include "ChunkManager.h"
 
 ChunkManager::ChunkManager(const std::shared_ptr<Terrain> &terrain) : terrain(terrain) {
+    calculateCircleOffsets();
+}
+
+void ChunkManager::calculateCircleOffsets()
+{
+    int radius = VISIBLE_RADIUS;
+    // calculate all chunk positions within a circle given the visible radius
+    for(int z=-radius; z<=radius; z++) {
+        for (int x = -radius; x <= radius; x++) {
+            if (sqrt(x * x + z * z) <= radius) {
+                circlePosOffsets.emplace_back(x,z);
+            }
+        }
+    }
+    SDL_Log("Calculated %d circular offsets", circlePosOffsets.size());
+    // sort them according to distance
+    std::sort(circlePosOffsets.begin(), circlePosOffsets.end(),
+         [](const ChunkPos& a, const ChunkPos& b)
+         {
+             auto dist_a = sqrt(a.x*a.x + a.z*a.z);
+             auto dist_b = sqrt(b.x*b.x + b.z*b.z);
+             return dist_a < dist_b;
+         });
+    auto i = 0;
+    for(auto &pos : circlePosOffsets)
+    {
+        //SDL_Log("Offset[%d]: %d,%d", i, pos.x, pos.z);
+        i++;
+    }
+    activeChunks.reserve(circlePosOffsets.size());
+    buildChunks.reserve(circlePosOffsets.size());
 }
 
 void ChunkManager::runIncrementalChunkBuild()
@@ -14,7 +45,7 @@ void ChunkManager::runIncrementalChunkBuild()
     {
         for(int i = 0; i < CHUNKS_SETUP_PER_FRAME; i++)
         {
-            if(setupIterator == buildChunks.end())
+            if(setupIterator == buildChunks.cend())
             {
                 SDL_Log("CHUNK_STAGE_BUILD");
                 buildStage = CHUNK_STAGE_BUILD;
@@ -51,6 +82,7 @@ void ChunkManager::runIncrementalChunkBuild()
         if(buildChunks.empty())
         {
             SDL_Log("BUILD stage completed");
+            //SDL_Log("activeChunks load factor: %.2f", activeChunks.load_factor());
             if(!optimizeList.empty())
             {
                 SDL_Log("CHUNK_STAGE_OPTIMIZE");
@@ -101,12 +133,55 @@ void ChunkManager::runIncrementalChunkBuild()
     }
 }
 
-// TODO create chunks in spiraling pattern from inwars by saving offsets as lookup table
+// TODO create chunks in spiraling pattern from inwards by saving offsets as lookup table
 void ChunkManager::createChunks(BlockTypeDictionary& blockTypeDict)
 {
     auto m = glm::mat4();
     int chunks_allocated = 0;
     int chunks_recycled = 0;
+
+    //bool created_any = false;
+
+    ChunkPos *positions = circlePosOffsets.data();
+    for(i32 i = 0; i < circlePosOffsets.size(); i++)
+    {
+        ChunkPos testpos;
+        glm::vec3 worldpos = {0, 0.0f, 0};
+        testpos.x = camChunkPos.x + positions[i].x;
+        testpos.z = camChunkPos.z + positions[i].z;
+        chunkToWorld(testpos, worldpos);
+        auto chunk = findActiveChunkAt(testpos);
+        auto build_chunk = findBuildChunkAt(testpos);
+        if(chunk == nullptr && build_chunk == nullptr)
+        {
+            //created_any = true;
+            //SDL_Log("No chunk found at pos %d,%d, adding one.", testpos.x, testpos.z);
+            if(!recycleList.empty())
+            {
+                chunks_recycled++;
+                std::unique_ptr<Chunk> nc = std::move(recycleList.back());
+                recycleList.pop_back();
+                nc->position = worldpos;
+                nc->chunkPosition = testpos;
+                buildChunks[testpos] = std::move(nc);
+            }
+            else {
+                chunks_allocated++;
+                buildChunks[testpos] = std::unique_ptr<Chunk>(new Chunk(blockTypeDict, this));
+                buildChunks[testpos]->position = worldpos;
+                buildChunks[testpos]->chunkPosition = testpos;
+            }
+        }
+    }
+
+    /*
+    if(created_any)
+    {
+        SDL_Log("buildChunks load factor: %.2f", buildChunks.load_factor());
+    }
+     */
+
+    /*
     int radius = VISIBLE_RADIUS;
     // brute force a rough circle (no sqrt)
     for(int z=-radius; z<=radius; z++) {
@@ -123,12 +198,6 @@ void ChunkManager::createChunks(BlockTypeDictionary& blockTypeDict)
                 if(chunk == nullptr && build_chunk == nullptr)
                 {
                     //SDL_Log("No chunk found at pos %d,%d, adding one.", testpos.x, testpos.z);
-                    /*
-                    if(buildStage != CHUNK_STAGE_IDLE) {
-                        SDL_Log("Adding chunks to build list while not in state idle");
-                        exit(-2);
-                    }
-                     */
                     if(!recycleList.empty())
                     {
                         chunks_recycled++;
@@ -148,6 +217,7 @@ void ChunkManager::createChunks(BlockTypeDictionary& blockTypeDict)
             }
         }
     }
+    */
 }
 
 void ChunkManager::recycleChunks()
@@ -343,7 +413,7 @@ void ChunkManager::findNeighbours(ChunkNeighbours& neighbours, const ChunkPos& c
         neighbours.se = findActiveChunkAt(pos);
 }
 
-void ChunkManager::findNeighbours(const std::map<ChunkPos, std::unique_ptr<Chunk>> &chunk_map, ChunkNeighbours &neighbours,
+void ChunkManager::findNeighbours(const std::unordered_map<ChunkPos, std::unique_ptr<Chunk>> &chunk_map, ChunkNeighbours &neighbours,
                              const ChunkPos &chunk_pos) {
     ChunkPos pos;
     // find north
