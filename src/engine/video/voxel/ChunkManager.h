@@ -27,9 +27,9 @@ struct LightNode {
 
 class ChunkManager : public IChunkManager {
 public:
-    const int CHUNKS_SETUP_PER_FRAME = 4;
-    const int CHUNKS_BUILD_PER_FRAME = 4;
-    const int CHUNKS_UPDATED_PER_FRAME = 4;
+    const int CHUNKS_SETUP_PER_FRAME = 12;
+    const int CHUNKS_BUILD_PER_FRAME = 12;
+    const int CHUNKS_UPDATED_PER_FRAME = 12;
     const int VISIBLE_RADIUS = 32;
 
     ChunkManager(const std::shared_ptr<Terrain> &terrain);
@@ -225,8 +225,6 @@ private:
         return nullptr;
     }
 
-    void findNeighbours(ChunkNeighbours &neighbours, const ChunkPos& chunk_pos);
-    void findNeighbours(const std::unordered_map<ChunkPos, std::unique_ptr<Chunk>>&chunk_map, ChunkNeighbours &neighbours, const ChunkPos& chunk_pos);
     void recycleChunks();
     ChunkPos getChunkFromWorld(glm::vec3 &worldpos);
     void createChunks(BlockTypeDictionary& blockTypeDict);

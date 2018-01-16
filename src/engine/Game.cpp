@@ -60,6 +60,7 @@ void Game::run() {
         double newTime = getTime();
         frameTime = newTime - currentTime;
         currentTime = newTime;
+        /*
         accumulator += frameTime;
         while ( accumulator >= dt )
         {
@@ -68,6 +69,8 @@ void Game::run() {
             accumulator -= dt;
             t += dt;
         }
+         */
+        update(frameTime);
         render(frameTime);
     }
 

@@ -141,12 +141,12 @@ void ChunkManager::createChunks(BlockTypeDictionary& blockTypeDict)
     int chunks_recycled = 0;
 
     //bool created_any = false;
+    ChunkPos testpos;
+    glm::vec3 worldpos = {0, 0.0f, 0};
 
     ChunkPos *positions = circlePosOffsets.data();
     for(i32 i = 0; i < circlePosOffsets.size(); i++)
     {
-        ChunkPos testpos;
-        glm::vec3 worldpos = {0, 0.0f, 0};
         testpos.x = camChunkPos.x + positions[i].x;
         testpos.z = camChunkPos.z + positions[i].z;
         chunkToWorld(testpos, worldpos);
@@ -173,51 +173,6 @@ void ChunkManager::createChunks(BlockTypeDictionary& blockTypeDict)
             }
         }
     }
-
-    /*
-    if(created_any)
-    {
-        SDL_Log("buildChunks load factor: %.2f", buildChunks.load_factor());
-    }
-     */
-
-    /*
-    int radius = VISIBLE_RADIUS;
-    // brute force a rough circle (no sqrt)
-    for(int z=-radius; z<=radius; z++) {
-        for (int x = -radius; x <= radius; x++) {
-            if (x * x + z * z <= radius * radius)
-            {
-                ChunkPos testpos;
-                glm::vec3 worldpos = {0, 0.0f, 0};
-                testpos.x = camChunkPos.x + x;
-                testpos.z = camChunkPos.z + z;
-                chunkToWorld(testpos, worldpos);
-                auto chunk = findActiveChunkAt(testpos);
-                auto build_chunk = findBuildChunkAt(testpos);
-                if(chunk == nullptr && build_chunk == nullptr)
-                {
-                    //SDL_Log("No chunk found at pos %d,%d, adding one.", testpos.x, testpos.z);
-                    if(!recycleList.empty())
-                    {
-                        chunks_recycled++;
-                        std::unique_ptr<Chunk> nc = std::move(recycleList.back());
-                        recycleList.pop_back();
-                        nc->position = worldpos;
-                        nc->chunkPosition = testpos;
-                        buildChunks[testpos] = std::move(nc);
-                    }
-                    else {
-                        chunks_allocated++;
-                        buildChunks[testpos] = std::unique_ptr<Chunk>(new Chunk(blockTypeDict, this));
-                        buildChunks[testpos]->position = worldpos;
-                        buildChunks[testpos]->chunkPosition = testpos;
-                    }
-                }
-            }
-        }
-    }
-    */
 }
 
 void ChunkManager::recycleChunks()
@@ -249,19 +204,35 @@ void ChunkManager::recycleChunks()
 
 void ChunkManager::determineChunksToRebuild()
 {
-    ChunkNeighbours neighbours;
+    ChunkPos pos;
+    Chunk *active_chunk;
     for(const auto& chunk : buildChunks)
     {
-        findNeighbours(activeChunks, neighbours, chunk.first);
-        //SDL_Log("Build chunk xy = %d,%d has neighbours n=%d s=%d w=%d e=%d", chunk.first.x, chunk.first.z, neighbours.n, neighbours.s, neighbours.w, neighbours.e);
-        if(neighbours.n != nullptr)
-            optimizeList.push_back(neighbours.n);
-        if(neighbours.s != nullptr)
-            optimizeList.push_back(neighbours.s);
-        if(neighbours.w != nullptr)
-            optimizeList.push_back(neighbours.w);
-        if(neighbours.e != nullptr)
-            optimizeList.push_back(neighbours.e);
+        //findNeighbours(activeChunks, neighbours, chunk.first);
+        // north
+        pos.set(chunk.first.x, chunk.first.z-1);
+        active_chunk = findActiveChunkAt(pos);
+        if(active_chunk != nullptr)
+            optimizeList.push_back(active_chunk);
+
+        // south
+        pos.set(chunk.first.x, chunk.first.z+1);
+        active_chunk = findActiveChunkAt(pos);
+        if(active_chunk != nullptr)
+            optimizeList.push_back(active_chunk);
+
+        // west
+        pos.set(chunk.first.x-1, chunk.first.z);
+        active_chunk = findActiveChunkAt(pos);
+        if(active_chunk != nullptr)
+            optimizeList.push_back(active_chunk);
+
+        // east
+        pos.set(chunk.first.x+1, chunk.first.z);
+        active_chunk = findActiveChunkAt(pos);
+        if(active_chunk != nullptr)
+            optimizeList.push_back(active_chunk);
+
     }
     // delete duplicates
     std::sort(optimizeList.begin(), optimizeList.end());
@@ -360,95 +331,6 @@ ChunkPos ChunkManager::getChunkFromWorld(glm::vec3 &worldpos)
     worldToChunk(worldpos, pos);
     return pos;
 }
-
-void ChunkManager::findNeighbours(ChunkNeighbours& neighbours, const ChunkPos& chunk_pos)
-{
-    ChunkPos pos;
-    // find north
-    pos.set(chunk_pos.x, chunk_pos.z - 1);
-    neighbours.n = findBuildChunkAt(pos);
-    if(neighbours.n == nullptr)
-        neighbours.n = findActiveChunkAt(pos);
-
-    // find south
-    pos.set(chunk_pos.x, chunk_pos.z + 1);
-    neighbours.s = findBuildChunkAt(pos);
-    if(neighbours.s == nullptr)
-        neighbours.s = findActiveChunkAt(pos);
-
-    // find west
-    pos.set(chunk_pos.x - 1, chunk_pos.z);
-    neighbours.w = findBuildChunkAt(pos);
-    if(neighbours.w == nullptr)
-        neighbours.w = findActiveChunkAt(pos);
-
-    // find east
-    pos.set(chunk_pos.x + 1, chunk_pos.z);
-    neighbours.e = findBuildChunkAt(pos);
-    if(neighbours.e == nullptr)
-        neighbours.e = findActiveChunkAt(pos);
-
-    // find north west
-    pos.set(chunk_pos.x - 1, chunk_pos.z - 1);
-    neighbours.nw = findBuildChunkAt(pos);
-    if(neighbours.nw == nullptr)
-        neighbours.nw = findActiveChunkAt(pos);
-
-    // find north east
-    pos.set(chunk_pos.x + 1, chunk_pos.z - 1);
-    neighbours.ne = findBuildChunkAt(pos);
-    if(neighbours.ne == nullptr)
-        neighbours.ne = findActiveChunkAt(pos);
-
-    // find south west
-    pos.set(chunk_pos.x - 1, chunk_pos.z + 1);
-    neighbours.sw = findBuildChunkAt(pos);
-    if(neighbours.sw == nullptr)
-        neighbours.sw = findActiveChunkAt(pos);
-
-    // find south east
-    pos.set(chunk_pos.x + 1, chunk_pos.z + 1);
-    neighbours.se = findBuildChunkAt(pos);
-    if(neighbours.se == nullptr)
-        neighbours.se = findActiveChunkAt(pos);
-}
-
-void ChunkManager::findNeighbours(const std::unordered_map<ChunkPos, std::unique_ptr<Chunk>> &chunk_map, ChunkNeighbours &neighbours,
-                             const ChunkPos &chunk_pos) {
-    ChunkPos pos;
-    // find north
-    pos.set(chunk_pos.x, chunk_pos.z - 1);
-    neighbours.n = findChunkAt(chunk_map, pos);
-
-    // find south
-    pos.set(chunk_pos.x, chunk_pos.z + 1);
-    neighbours.s = findChunkAt(chunk_map, pos);
-
-    // find west
-    pos.set(chunk_pos.x - 1, chunk_pos.z);
-    neighbours.w = findChunkAt(chunk_map, pos);
-
-    // find east
-    pos.set(chunk_pos.x + 1, chunk_pos.z);
-    neighbours.e = findChunkAt(chunk_map, pos);
-
-    // find north west
-    pos.set(chunk_pos.x - 1, chunk_pos.z - 1);
-    neighbours.nw = findChunkAt(chunk_map, pos);
-
-    // find north east
-    pos.set(chunk_pos.x + 1, chunk_pos.z - 1);
-    neighbours.ne = findChunkAt(chunk_map, pos);
-
-    // find south west
-    pos.set(chunk_pos.x - 1, chunk_pos.z + 1);
-    neighbours.sw = findChunkAt(chunk_map, pos);
-
-    // find south east
-    pos.set(chunk_pos.x + 1, chunk_pos.z + 1);
-    neighbours.se = findChunkAt(chunk_map, pos);
-}
-
 
 void ChunkManager::propagateTorchLight(Chunk *chunk, i32 x, i32 y, i32 z, i32 lightlevel)
 {

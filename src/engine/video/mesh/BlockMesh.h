@@ -66,7 +66,7 @@ public:
     size_t vertexSize = 8;
     bool hasColors = true;
     bool hasTexcoords = false;
-    MeshUpdateType type = MeshUpdateType::DYNAMIC;
+    MeshUpdateType type = MeshUpdateType::STATIC;
 
     inline size_t getMeshSizeBytes()
     {

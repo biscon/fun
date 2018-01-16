@@ -37,22 +37,6 @@ struct MaterialBatch
 
 class Chunk; // forward
 
-struct ChunkNeighbours {
-    Chunk *n;
-    Chunk *s;
-    Chunk *w;
-    Chunk *e;
-
-    Chunk *nw;
-    Chunk *ne;
-    Chunk *sw;
-    Chunk *se;
-
-    ChunkNeighbours() : n(nullptr), s(nullptr), w(nullptr), e(nullptr), nw(nullptr), ne(nullptr), sw(nullptr), se(nullptr) {}
-    ChunkNeighbours(Chunk *n, Chunk *s, Chunk *w, Chunk *e, Chunk *nw, Chunk *ne, Chunk *sw, Chunk *se) : n(n), s(s), w(w), e(e), nw(nw), ne(ne), sw(sw), se(se) {}
-};
-
-
 class Chunk {
 public:
     Chunk(BlockTypeDictionary &blockTypeDict, IChunkManager *chunkManager);
