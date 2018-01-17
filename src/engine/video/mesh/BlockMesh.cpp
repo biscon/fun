@@ -2,6 +2,7 @@
 // Created by bison on 16-12-2017.
 //
 
+#include <engine/util/interpolation.h>
 #include "BlockMesh.h"
 
 BlockMesh::BlockMesh() {
@@ -85,8 +86,17 @@ void BlockMesh::clear() {
     indices.clear();
 }
 
+static float decelerate(float input)
+{
+    //return input;
+    std::array<float, 4> p;
+
+    p = {{0.015f, 0.10f, 1.0f, 1.5f}};
+    return CubicInterpolate(p.data(), input);
+}
 
 void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, BlockLight &blockLight, AOBlock& aob) {
+    /*
     u8 min_level = 1;
     for(i32 i = 0; i < 6; i++)
     {
@@ -95,13 +105,13 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Bloc
         if(blockLight.faces[i].v3 < min_level) blockLight.faces[i].v3 = min_level;
         if(blockLight.faces[i].v4 < min_level) blockLight.faces[i].v4 = min_level;
     }
-
+    */
     u8 light[6][4];
     for(i32 i = 0; i < 6; i++) {
-        light[i][0] = (u8)(((float)blockLight.faces[i].v1 / 31.0f) * 255.0f);
-        light[i][1] = (u8)(((float)blockLight.faces[i].v2 / 31.0f) * 255.0f);
-        light[i][2] = (u8)(((float)blockLight.faces[i].v3 / 31.0f) * 255.0f);
-        light[i][3] = (u8)(((float)blockLight.faces[i].v4 / 31.0f) * 255.0f);
+        light[i][0] = (u8)( decelerate((float)blockLight.faces[i].v1 / 15.0f) * 255.0f);
+        light[i][1] = (u8)( decelerate((float)blockLight.faces[i].v2 / 15.0f) * 255.0f);
+        light[i][2] = (u8)( decelerate((float)blockLight.faces[i].v3 / 15.0f) * 255.0f);
+        light[i][3] = (u8)( decelerate((float)blockLight.faces[i].v4 / 15.0f) * 255.0f);
     }
 
     u8 v1,v2,v3,v4;

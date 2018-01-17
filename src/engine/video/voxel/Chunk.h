@@ -67,6 +67,7 @@ public:
         lightMap[POS_TO_INDEX(y,z,x)] = (lightMap[POS_TO_INDEX(y,z,x)] & 0xF) | (val << 4);
     }
 
+    /*
     // Get the bits 0000XXXX
     inline int getTorchlight(int x, int y, int z) {
         return lightMap[POS_TO_INDEX(y,z,x)];
@@ -75,6 +76,17 @@ public:
     // Set the bits 0000XXXX
     inline void setTorchlight(int x, int y, int z, int val) {
         lightMap[POS_TO_INDEX(y,z,x)] = (u8) val;
+    }
+    */
+
+    // Get the bits 0000XXXX
+    inline int getTorchlight(int x, int y, int z) {
+        return lightMap[POS_TO_INDEX(y,z,x)] & 0xF;
+    }
+
+    // Set the bits 0000XXXX
+    inline void setTorchlight(int x, int y, int z, int val) {
+        lightMap[POS_TO_INDEX(y,z,x)] = (lightMap[POS_TO_INDEX(y,z,x)] & 0xF0) | val;
     }
 
 private:

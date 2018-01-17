@@ -148,12 +148,6 @@ void IntroGameMode::render(double delta) {
     fontRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight());
 }
 
-static double decelerate(double input)
-{
-    return 1.0 - (1.0 - input) * (1.0 - input);
-    //return input;
-}
-
 void IntroGameMode::onKeyDown(const SDL_Event *event) {
     if(event->key.keysym.sym == SDLK_d)
     {
@@ -222,10 +216,9 @@ void IntroGameMode::onKeyUp(const SDL_Event *event) {
     if(event->key.keysym.sym == SDLK_SPACE)
     {
         auto& localpos = chunkRenderer->chunkManager->camBlockLocalPos;
-        // TODO prevent this from being called twice lol
         if(localpos.isValid() && (localpos.y >= 0 && localpos.y < CHUNK_HEIGHT))
         {
-            chunkRenderer->chunkManager->placeTorchLight(localpos.chunk, localpos.x, localpos.y, localpos.z, 31);
+            chunkRenderer->chunkManager->placeTorchLight(localpos.chunk, localpos.x, localpos.y, localpos.z, 15);
         }
         //chunkRenderer->chunkManager->testStuff();
         return;

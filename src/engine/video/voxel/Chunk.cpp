@@ -79,8 +79,9 @@ void Chunk::setupDebugChunk()
                 // hole
                 if(x == 8 && z == 8 && y == 103)
                 {
-                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, false);
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, true);
+                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_WATER;
                 }
                 // wall 2
                 if(z >= 6 && z <= 12 && x == 5 && y >= 100 && y <= 105)
