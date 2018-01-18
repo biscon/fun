@@ -4,8 +4,10 @@
 
 #include <SDL.h>
 #include "SDLInput.h"
+#include <stdio.h>
 
 bool SDLInput::init() {
+    SDL_StartTextInput();
     return true;
 }
 
@@ -125,6 +127,14 @@ void SDLInput::handleKeyboardEvent(const SDL_Event *event)
             deliverKeyUp(event);
             break;
         }
+        case SDL_TEXTEDITING: {
+            printf("New key: %s (%d:%d)\n", event->edit.text, event->edit.start, event->edit.length);
+            break;
+        }
+        case SDL_TEXTINPUT: {
+            printf("New character: %s\n", event->text.text);
+            break;
+        }
     }
 }
 
@@ -141,6 +151,18 @@ void SDLInput::deliverKeyUp(const SDL_Event *event)
     for(auto i = keyListeners.begin(); i != keyListeners.end(); ++i)
     {
         (*i)->onKeyUp(event);
+    }
+}
+
+void SDLInput::deliverTextInput(const SDL_Event *event) {
+    for (auto i = keyListeners.begin(); i != keyListeners.end(); i += 1) {
+        (*i)->onTextInput(event);
+    }
+}
+
+void SDLInput::deliverTextEditing(const SDL_Event *event) {
+    for (auto i = keyListeners.begin(); i != keyListeners.end(); i += 1) {
+        (*i)->onTextEditing(event);
     }
 }
 

@@ -3,10 +3,6 @@ project(game)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(CMAKE_CXX_FLAGS_DEBUG "-O3 -mwindows")
-# uncomment this to compile as gui app (doesnt open the console)
-set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
-
 # includes cmake/FindSDL2.cmake
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
@@ -16,6 +12,8 @@ set(GLM_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/src/glm)
 if(WIN32)
     set(GLEW_INCLUDE_DIR "E:/glew-2.1.0-win32/glew-2.1.0/include")
     set(GLEW_LIBRARY "E:/glew-2.1.0-win32/glew-2.1.0/lib/Release/x64/glew32s.lib")
+    set(CMAKE_CXX_FLAGS_DEBUG "-O3 -mwindows")
+    set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
 endif()
 
 
@@ -24,7 +22,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../")
 find_package(GLEW REQUIRED)
 find_package(OPENGL REQUIRED)
 find_package(SDL2 REQUIRED)
-include_directories(${SDL2_INCLUDE_DIR} ${GLEW_INCLUDE_DIR} ${GLM_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/src/)
+find_package(Freetype REQUIRED)
+include_directories(${SDL2_INCLUDE_DIR} ${GLEW_INCLUDE_DIR} ${GLM_INCLUDE_DIR} ${FREETYPE_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/src/)
 
 set(SOURCE_FILES
         src/engine/asset/lodepng.h
@@ -138,4 +137,4 @@ set(SOURCE_FILES
         src/engine/video/shader/DirectionalLight.h src/engine/video/voxel/AOBlock.h src/engine/video/voxel/ChunkBlockPos.h src/engine/video/voxel/IChunkManager.h)
 add_executable(game ${SOURCE_FILES})
 
-target_link_libraries(game ${GLEW_LIBRARY} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY})
+target_link_libraries(game ${GLEW_LIBRARY} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY} ${FREETYPE_LIBRARIES})

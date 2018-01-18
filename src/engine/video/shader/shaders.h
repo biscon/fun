@@ -90,4 +90,33 @@ static const char* fragmentSource3D = R"glsl(
     }
 )glsl";
 
+static const char *fontVertex = R"glsl(
+    #version 330 core
+    layout (location = 0) in vec4 vertex;
+
+    out vec2 Texcoord;
+
+    uniform mat4 proj;
+
+    void main() {
+        gl_Position = proj * vec4(vertex.xy, 0.0, 1.0);
+        Texcoord = vertex.zw;
+    }
+)glsl";
+
+static const char *fontFragment = R"glsl(
+    #version 330 core
+    in vec2 Texcoord;
+
+    out vec4 color;
+
+    uniform sampler2D text;
+    uniform vec3 textColor;
+
+    void main() {
+        vec4 sample = vec4(1.0, 1.0, 1.0, texture(text, Texcoord).r);
+        color = vec4(textColor, 1.0) * sample;
+    }
+)glsl";
+
 #endif //GAME_SHADERS_H

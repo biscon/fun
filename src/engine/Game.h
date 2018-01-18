@@ -32,6 +32,8 @@ public:
     // keyboard events
     void onKeyDown(const SDL_Event *event) override;
     void onKeyUp(const SDL_Event *event) override {}
+    void onTextInput(const SDL_Event *event) override;
+    void onTextEditing(const SDL_Event *event) override;
     void onKeyPressed(const SDL_Event *event) override {}
 
     // window events

@@ -8,6 +8,11 @@
 #include <ctime>
 #include <engine/util/string_util.h>
 #include "IntroGameMode.h"
+#include "engine/video/shader/shaders.h"
+
+GLuint vao, vbo;
+Shader *fontShader;
+Font font;
 
 IntroGameMode::IntroGameMode(std::shared_ptr<IGame> game) : IGameMode(std::move(game)) {
 
@@ -32,9 +37,38 @@ bool IntroGameMode::init() {
     });
      */
 
+    fontShader = new Shader(fontVertex, fontFragment, NULL);
+    GLfloat w, h;
+    w = static_cast<GLfloat>(game->getRenderer()->getWidth());
+    h = static_cast<GLfloat>(game->getRenderer()->getHeight());
+    fontShader->use();
+    fontShader->setMat4("proj", glm::ortho(0.0f, w, 0.0f, h));
+
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
     fontRenderer = std::unique_ptr<FontRenderer>(new FontRenderer());
     font1 = fontRenderer->addFont("font9x14.png", 9, 14);
     font2 = fontRenderer->addFont("bedstead12x20.png", 12, 20);
+
+    // TTF
+    b32 error = InitFontLoader();
+    if (error) {
+        SDL_Log("Failed to init TTF loader");
+    }
+
+    error = MakeFont(&font, "Roboto-Regular.ttf", 72);
+    if (error) {
+        SDL_Log("Failed to load font 'UnDotum.ttf'");
+    }
+
     game->getAssetLoader()->addLoadTask(fontRenderer.get());
 
     /*
@@ -124,6 +158,52 @@ void IntroGameMode::update(double delta) {
     chunkRenderer->update();
 }
 
+void drawText(Font *font, GLfloat x, GLfloat y, const char *text) {
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    fontShader->use();
+    fontShader->setVec3("textColor", 1, 0, 1);
+    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(vao);
+
+    size_t len = strlen(text);
+    for (int i=0; i < len; i += 1) {
+        // TODO(Brett): utf-8 multi-byte sequences
+        // TODO(Brett): if the character is null, attempt to fetch it from the font
+        Character c = font->characterMap[(u32)text[i]];
+
+        GLfloat xp, yp, h, w;
+        xp = x + c.bearing.x;
+        yp = y - (c.size.y - c.bearing.y);
+        w = c.size.x;
+        h = c.size.y;
+
+        GLfloat verts[6][4] = {
+            {xp,     yp + h, 0, 0},
+            {xp,     yp,     0, 1},
+            {xp + w, yp,     1, 1},
+
+            {xp,     yp + h, 0, 0},
+            {xp + w, yp,     1, 1},
+            {xp + w, yp + h, 1, 0}
+        };
+
+        glBindTexture(GL_TEXTURE_2D, c.textureId);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(verts), verts);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        x += c.advance;
+    }
+
+    glDisable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void IntroGameMode::render(double delta) {
     game->getRenderer()->setRealViewport();
     chunkRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight(), delta);
@@ -146,6 +226,9 @@ void IntroGameMode::render(double delta) {
                                                                                                 chunkRenderer->chunkManager->camBlockLocalPos.x, chunkRenderer->chunkManager->camBlockLocalPos.y, chunkRenderer->chunkManager->camBlockLocalPos.z,
                                                                                                 chk_info.c_str()));
     fontRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight());
+
+
+    drawText(&font, 250, 250, "Hello, world! gopro has lots of low bros");
 }
 
 static double decelerate(double input)
@@ -230,6 +313,14 @@ void IntroGameMode::onKeyUp(const SDL_Event *event) {
         //chunkRenderer->chunkManager->testStuff();
         return;
     }
+}
+
+void IntroGameMode::onTextInput(const SDL_Event *event) {
+
+}
+
+void IntroGameMode::onTextEditing(const SDL_Event *event) {
+
 }
 
 void IntroGameMode::onKeyPressed(const SDL_Event *event) {

@@ -1,11 +1,76 @@
-//
-// Created by bison on 07-10-2017.
-//
+    //
+    // Created by bison on 07-10-2017.
+    //
 
 #include <SDL_log.h>
 #include <cstring>
 #include "FontAsset.h"
 #include "../IGame.h"
+
+FT_Library library;
+
+b32 InitFontLoader() {
+    i32 error;
+    error = FT_Init_FreeType(&library);
+    return error ? 1 : 0; // 1 if error
+}
+
+b32 MakeFont(Font *font, const char *path, u8 size) {
+    FT_Face face;
+    if (FT_New_Face(library, path, 0, &face))
+        return 1;
+
+    // TODO(Brett): I have a feeling that I'm going to have to look at this in the future
+    if (FT_Set_Pixel_Sizes(face, 0, size))
+        return 1;
+
+    font->face = face;
+    font->size = size;
+
+    LoadGlyphs(font, EN_START, EN_END);
+
+    return 0;
+}
+
+void LoadGlyphs(Font *font, u32 cpStart, u32 cpEnd) {
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    for (u32 cp = cpStart; cp <= cpEnd; cp += 1) {
+        if (FT_Load_Char(font->face, cp, FT_LOAD_RENDER)) {
+            printf("Failed to load glyph for codepoint: 0x%x\n", cp);
+            continue;
+        }
+
+        GLuint texture;
+        glGenTextures(1, &texture);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RED,
+            font->face->glyph->bitmap.width,
+            font->face->glyph->bitmap.rows,
+            0,
+            GL_RED,
+            GL_UNSIGNED_BYTE,
+            font->face->glyph->bitmap.buffer
+        );
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        Character ch = {
+            texture,
+            static_cast<GLuint>(font->face->glyph->advance.x >> 6),
+            glm::ivec2(font->face->glyph->bitmap.width, font->face->glyph->bitmap.rows),
+            glm::ivec2(font->face->glyph->bitmap_left,  font->face->glyph->bitmap_top)
+        };
+
+        font->characterMap.insert(std::pair<u32, struct Character>(cp, ch));
+    }
+}
 
 FontAsset::FontAsset(const std::string &filename, u16 glyphWidth, u16 glyphHeight) : filename(filename),
                                                                                                glyphWidth(glyphWidth),

@@ -15,6 +15,8 @@ public:
     virtual void onKeyDown(const SDL_Event *event)=0;
     virtual void onKeyUp(const SDL_Event *event)=0;
     virtual void onKeyPressed(const SDL_Event *event)=0;
+    virtual void onTextInput(const SDL_Event *event)=0;
+    virtual void onTextEditing(const SDL_Event *evem)=0;
 };
 
 #endif //CRPG_IKEYBOARDEVENTLISTENER_H

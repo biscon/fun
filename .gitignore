@@ -18,6 +18,7 @@
 # Gradle:
 .idea/**/gradle.xml
 .idea/**/libraries
+.idea/*
 
 # CMake
 cmake-build-debug/
@@ -47,3 +48,10 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+
+a.out
+cmake_install.cmake
+CMakeCache.txt
+CMakeFiles/
+Makefile
+game.cbp

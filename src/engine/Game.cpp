@@ -236,6 +236,14 @@ void Game::onKeyDown(const SDL_Event *event) {
     }
 }
 
+void Game::onTextInput(const SDL_Event *event) {
+
+}
+
+void Game::onTextEditing(const SDL_Event *event) {
+
+}
+
 std::shared_ptr<IRenderer> Game::getRenderer() {
     return renderer;
 }

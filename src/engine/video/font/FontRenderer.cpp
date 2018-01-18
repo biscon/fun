@@ -4,6 +4,9 @@
 
 #include "FontRenderer.h"
 
+
+
+
 FontRenderer::FontRenderer() {
     textureAtlas = std::make_shared<TextureAtlas>(1024, 1024, false);
     quadRenderer = std::unique_ptr<QuadRenderer>(new QuadRenderer(textureAtlas));

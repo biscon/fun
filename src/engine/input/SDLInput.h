@@ -35,6 +35,8 @@ private:
     void deliverMouseMotion(const SDL_Event *event);
     void deliverKeyDown(const SDL_Event *event);
     void deliverKeyUp(const SDL_Event *event);
+    void deliverTextInput(const SDL_Event *event);
+    void deliverTextEditing(const SDL_Event *event);
 };
 
 
