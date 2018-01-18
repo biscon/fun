@@ -68,6 +68,12 @@ ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera,
     directionalLight = std::unique_ptr<DirectionalLight>(new DirectionalLight());
 }
 
+// TODO
+/*
+    Draw all opaque objects first.
+    Sort all the transparent objects.
+    Draw all the transparent objects in sorted order.
+ */
 void ChunkRenderer::render(float screenWidth, float screenHeight, double delta) {
     glEnable(GL_DEPTH_TEST);
 
@@ -114,19 +120,24 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double delta) 
     renderList.clear();
     AABox chunkbox;
     Vec3 corner;
-    for(auto& chunk : chunkManager->activeChunks) {
-        corner.x = chunk.second->position.x;
-        corner.y = chunk.second->position.y;
-        corner.z = chunk.second->position.z;
-        //corner.x -= halfChunkSize;
-        //corner.z -= halfChunkSize;
-        chunkbox.setBox(corner, CHUNK_SIZE, CHUNK_HEIGHT, CHUNK_SIZE);
-        //SDL_Log("Chunk pos %.2f,%.2f,%.2f", chunk.second->position.x, chunk.second->position.y, chunk.second->position.z);
-        //SDL_Log("Box Corner pos %.2f,%.2f,%.2f, xyz = %.2f,%.2f,%.2f", chunkbox.corner.x, chunkbox.corner.y, chunkbox.corner.z, chunkbox.x, chunkbox.y, chunkbox.z);
-        if(viewFrustrum->boxInFrustum(chunkbox) != ViewFrustum::OUTSIDE )
-            renderList.push_back(chunk.second.get());
-    }
 
+    // (farthest to nearest cuz transparent blocks)
+    ChunkPos testpos;
+    ChunkPos *positions = chunkManager->circlePosOffsets.data();
+    for(i32 i = chunkManager->circlePosOffsets.size()-1; i-- > 0; ) {
+        testpos.x = chunkManager->camChunkPos.x + positions[i].x;
+        testpos.z = chunkManager->camChunkPos.z + positions[i].z;
+        Chunk *chunk = chunkManager->findActiveChunkAt(testpos);
+        if(chunk != nullptr) {
+            corner.x = chunk->position.x;
+            corner.y = chunk->position.y;
+            corner.z = chunk->position.z;
+            chunkbox.setBox(corner, CHUNK_SIZE, CHUNK_HEIGHT, CHUNK_SIZE);
+            if (viewFrustrum->boxInFrustum(chunkbox) != ViewFrustum::OUTSIDE)
+                renderList.push_back(chunk);
+        }
+    }
+    
     renderedChunks = renderList.size();
     for(auto chunk : renderList)
     {

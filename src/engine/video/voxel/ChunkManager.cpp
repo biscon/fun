@@ -32,7 +32,7 @@ void ChunkManager::calculateCircleOffsets()
     auto i = 0;
     for(auto &pos : circlePosOffsets)
     {
-        //SDL_Log("Offset[%d]: %d,%d", i, pos.x, pos.z);
+        SDL_Log("Offset[%d]: %d,%d", i, pos.x, pos.z);
         i++;
     }
     activeChunks.reserve(circlePosOffsets.size());
@@ -133,7 +133,6 @@ void ChunkManager::runIncrementalChunkBuild()
     }
 }
 
-// TODO create chunks in spiraling pattern from inwards by saving offsets as lookup table
 void ChunkManager::createChunks(BlockTypeDictionary& blockTypeDict)
 {
     auto m = glm::mat4();
