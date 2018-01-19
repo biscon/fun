@@ -218,7 +218,11 @@ void IntroGameMode::onKeyUp(const SDL_Event *event) {
         auto& localpos = chunkRenderer->chunkManager->camBlockLocalPos;
         if(localpos.isValid() && (localpos.y >= 0 && localpos.y < CHUNK_HEIGHT))
         {
-            chunkRenderer->chunkManager->placeTorchLight(localpos.chunk, localpos.x, localpos.y, localpos.z, 15);
+            Block &block = localpos.chunk->blocks[POS_TO_INDEX(localpos.y, localpos.z, localpos.x)];
+            if(block.isFlagSet(BLOCK_FLAG_ACTIVE) && block.type == BLOCK_GOLD)
+                chunkRenderer->chunkManager->removeTorchLight(localpos.chunk, localpos.x, localpos.y, localpos.z);
+            else
+                chunkRenderer->chunkManager->placeTorchLight(localpos.chunk, localpos.x, localpos.y, localpos.z, 15);
         }
         //chunkRenderer->chunkManager->testStuff();
         return;

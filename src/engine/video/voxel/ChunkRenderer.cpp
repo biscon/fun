@@ -124,7 +124,7 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double delta) 
     // (farthest to nearest cuz transparent blocks)
     ChunkPos testpos;
     ChunkPos *positions = chunkManager->circlePosOffsets.data();
-    for(i32 i = chunkManager->circlePosOffsets.size()-1; i-- > 0; ) {
+    for(i32 i = (i32) chunkManager->circlePosOffsets.size()-1; i-- > 0; ) {
         testpos.x = chunkManager->camChunkPos.x + positions[i].x;
         testpos.z = chunkManager->camChunkPos.z + positions[i].z;
         Chunk *chunk = chunkManager->findActiveChunkAt(testpos);
@@ -137,7 +137,7 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double delta) 
                 renderList.push_back(chunk);
         }
     }
-    
+
     renderedChunks = renderList.size();
     for(auto chunk : renderList)
     {

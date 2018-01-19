@@ -25,6 +25,14 @@ struct LightNode {
     i32 x,y,z;
 };
 
+struct LightRemovalNode {
+
+    LightRemovalNode(Chunk* chunk, i32 x, i32 y, i32 z, short v) : val(v), chunk(chunk), x(x), y(y), z(z) {}
+    short val;
+    i32 x,y,z;
+    Chunk* chunk; //pointer to the chunk that owns it!
+};
+
 class ChunkManager : public IChunkManager {
 public:
     const int CHUNKS_SETUP_PER_FRAME = 12;
@@ -207,10 +215,13 @@ public:
     }
 
     void placeTorchLight(Chunk *origin_chunk, int x, int y, int z, u8 level);
+    void removeTorchLight(Chunk *origin_chunk, i32 x, i32 y, i32 z);
     void testStuff();
 
 private:
-    std::queue <LightNode> lightQueue;
+    std::queue<LightNode> lightQueue;
+    std::queue<LightRemovalNode> lightRemovalQueue;
+
     float halfChunkSize = (float) CHUNK_SIZE/2;
     float fChunkSize = (float) CHUNK_SIZE;
     std::shared_ptr<Terrain> terrain = nullptr;
@@ -234,6 +245,12 @@ private:
     void worldToBlock(glm::vec3 &worldpos, ChunkBlockPos &cbpos);
 
     void calculateCircleOffsets();
+
+    void propagateTorchLightRemoval(Chunk *chunk, int32_t x, int32_t y, int32_t z, int32_t lightlevel);
+
+    void processLightQueue();
+
+    void processLightRemovalQueue();
 };
 
 
