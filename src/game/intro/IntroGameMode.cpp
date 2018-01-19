@@ -64,7 +64,7 @@ bool IntroGameMode::init() {
         SDL_Log("Failed to init TTF loader");
     }
 
-    error = MakeFont(&font, "Roboto-Regular.ttf", 72);
+    error = MakeFont(&font, "UnDotum.ttf", 255);
     if (error) {
         SDL_Log("Failed to load font 'UnDotum.ttf'");
     }
@@ -158,6 +158,77 @@ void IntroGameMode::update(double delta) {
     chunkRenderer->update();
 }
 
+u32 FIRST_LEN[] = {
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 
+    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 
+    4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1
+};
+
+u8 MASK[] = {
+    0xFF, 0xFF, 0x1F, 0xF, 0x7
+};
+
+#define InvalidCodePoint 0xFFFD
+
+// WARNING: this function cannot handle a buffer where `len = 0`
+u32 DecodeCodePoint(int *cpLen, u8 *buffer) {
+    u8 b0 = buffer[0];
+    int l = FIRST_LEN[b0];
+    int val = (int)(b0 & MASK[l]);
+
+    for (int i=1; i < l; i += 1) {
+        val = (val << 6) | (int)(buffer[i] & 0x3f);
+    }
+
+    if (cpLen)
+        *cpLen = l;
+    return val;
+}
+
+// WARNING: this function assumes that buffer is >= 4 bytes
+u32 EncodeCodePoint(u8 * const buffer, const u32 cp) {
+    if (cp <= 0x7F) {
+        buffer[0] = cp;
+        return 1;
+    }
+
+    if (cp <= 0x7FF) {
+        buffer[0] = 0xC0 | (cp >> 6);
+        buffer[1] = 0x80 | (cp & 0x3F);
+        return 2;
+    }
+
+    if (cp <= 0xFFFF) {
+        buffer[0] = 0xE0 | (cp >> 12);
+        buffer[1] = 0x80 | ((cp >> 6) & 0x3F);
+        buffer[2] = 0x80 | (cp & 0x3F);
+        return 3;
+    }
+
+    if (cp <= 0x10FFFF) {
+        buffer[0] = 0xF0 | (cp >> 18);
+        buffer[1] = 0x80 | ((cp >> 12) & 0x3F);
+        buffer[2] = 0x80 | ((cp >> 6) & 0x3F);
+        buffer[3] = 0x80 | (cp & 0x3F);
+        return 4;
+    }
+
+    return 0;
+}
+
 void drawText(Font *font, GLfloat x, GLfloat y, const char *text) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -168,10 +239,12 @@ void drawText(Font *font, GLfloat x, GLfloat y, const char *text) {
     glBindVertexArray(vao);
 
     size_t len = strlen(text);
-    for (int i=0; i < len; i += 1) {
-        // TODO(Brett): utf-8 multi-byte sequences
+    for (int i=0; i < len;) {
         // TODO(Brett): if the character is null, attempt to fetch it from the font
-        Character c = font->characterMap[(u32)text[i]];
+        int cpLen;
+        u32 cp = DecodeCodePoint(&cpLen, (u8 *)&text[i]);
+        Character c = font->characterMap[cp];
+        i += cpLen;
 
         GLfloat xp, yp, h, w;
         xp = x + c.bearing.x;
@@ -228,7 +301,7 @@ void IntroGameMode::render(double delta) {
     fontRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight());
 
 
-    drawText(&font, 250, 250, "Hello, world! gopro has lots of low bros");
+    drawText(&font, 450, 450, "한글");
 }
 
 static double decelerate(double input)

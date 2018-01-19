@@ -20,7 +20,6 @@ b32 MakeFont(Font *font, const char *path, u8 size) {
     if (FT_New_Face(library, path, 0, &face))
         return 1;
 
-    // TODO(Brett): I have a feeling that I'm going to have to look at this in the future
     if (FT_Set_Pixel_Sizes(face, 0, size))
         return 1;
 
@@ -28,6 +27,7 @@ b32 MakeFont(Font *font, const char *path, u8 size) {
     font->size = size;
 
     LoadGlyphs(font, EN_START, EN_END);
+    LoadGlyphs(font, KR_START, KR_END);
 
     return 0;
 }
