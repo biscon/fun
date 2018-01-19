@@ -18,27 +18,14 @@
 #include "Chunk.h"
 #include "ChunkBlockPos.h"
 #include "IChunkManager.h"
-
-struct LightNode {
-    LightNode(Chunk* chunk, i32 x, i32 y, i32 z) : chunk(chunk), x(x), y(y), z(z) {}
-    Chunk* chunk;
-    i32 x,y,z;
-};
-
-struct LightRemovalNode {
-
-    LightRemovalNode(Chunk* chunk, i32 x, i32 y, i32 z, short v) : val(v), chunk(chunk), x(x), y(y), z(z) {}
-    short val;
-    i32 x,y,z;
-    Chunk* chunk; //pointer to the chunk that owns it!
-};
+#include "LightMapper.h"
 
 class ChunkManager : public IChunkManager {
 public:
     const int CHUNKS_SETUP_PER_FRAME = 12;
     const int CHUNKS_BUILD_PER_FRAME = 12;
     const int CHUNKS_UPDATED_PER_FRAME = 12;
-    const int VISIBLE_RADIUS = 32;
+    const int VISIBLE_RADIUS = 16;
 
     ChunkManager(const std::shared_ptr<Terrain> &terrain);
 
@@ -219,8 +206,8 @@ public:
     void testStuff();
 
 private:
-    std::queue<LightNode> lightQueue;
-    std::queue<LightRemovalNode> lightRemovalQueue;
+    std::unique_ptr<LightMapper> lightMapper;
+
 
     float halfChunkSize = (float) CHUNK_SIZE/2;
     float fChunkSize = (float) CHUNK_SIZE;
@@ -240,17 +227,8 @@ private:
     ChunkPos getChunkFromWorld(glm::vec3 &worldpos);
     void createChunks(BlockTypeDictionary& blockTypeDict);
     void determineChunksToRebuild();
-    void propagateTorchLight(Chunk *chunk, i32 x, i32 y, i32 z, i32 lightlevel);
-
     void worldToBlock(glm::vec3 &worldpos, ChunkBlockPos &cbpos);
-
     void calculateCircleOffsets();
-
-    void propagateTorchLightRemoval(Chunk *chunk, int32_t x, int32_t y, int32_t z, int32_t lightlevel);
-
-    void processLightQueue();
-
-    void processLightRemovalQueue();
 };
 
 
