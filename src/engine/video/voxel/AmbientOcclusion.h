@@ -51,7 +51,7 @@ struct AOFace
     AOVertex vertices[4];
 };
 
-struct AOBlock
+struct AmbientOcclusion
 {
     AOFace faces[6];
     /*

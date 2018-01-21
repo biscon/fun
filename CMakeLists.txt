@@ -136,7 +136,7 @@ set(SOURCE_FILES
         src/engine/video/sky/Skybox.cpp
         src/engine/video/sky/Skybox.h
         src/engine/video/shader/DirectionalLight.h
-        src/engine/video/voxel/AOBlock.h
+        src/engine/video/voxel/AmbientOcclusion.h
         src/engine/video/voxel/ChunkBlockPos.h
         src/engine/video/voxel/IChunkManager.h
         src/engine/util/interpolation.h

@@ -187,19 +187,19 @@ void ChunkRenderer::updateDirectionalLight(float delta) {
     float fast = 5.0f;
     float slow = 2.0f;
     if (lightAngle > 90) {
-        //lightAngle += fast * delta;
+        lightAngle += fast * delta;
         directionalLight->intensity = 0;
         if (lightAngle >= 360) {
             lightAngle = -90;
         }
     } else if (lightAngle <= -80 || lightAngle >= 80) {
-        //lightAngle += slow * delta;
+        lightAngle += slow * delta;
         float factor = 1 - (abs(lightAngle) - 80)/ 10.0f;
         directionalLight->intensity = factor;
         directionalLight->color.y = std::max(factor, 0.9f);
         directionalLight->color.z = std::max(factor, 0.5f);
     } else {
-        //lightAngle += fast * delta;
+        lightAngle += fast * delta;
         directionalLight->intensity = 1.0f;
         directionalLight->color.x = 1.0f;
         directionalLight->color.y = 1.0f;

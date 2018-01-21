@@ -33,7 +33,7 @@ void ChunkManager::calculateCircleOffsets()
     auto i = 0;
     for(auto &pos : circlePosOffsets)
     {
-        SDL_Log("Offset[%d]: %d,%d", i, pos.x, pos.z);
+        //SDL_Log("Offset[%d]: %d,%d", i, pos.x, pos.z);
         i++;
     }
     activeChunks.reserve(circlePosOffsets.size());
@@ -48,8 +48,10 @@ void ChunkManager::runIncrementalChunkBuild()
         {
             if(setupIterator == buildChunks.cend())
             {
-                SDL_Log("CHUNK_STAGE_BUILD");
-                buildStage = CHUNK_STAGE_BUILD;
+                SDL_Log("CHUNK_STAGE_LIGHTING");
+
+                buildStage = CHUNK_STAGE_LIGHTING;
+                currentLightPosIndex = circlePosOffsets.size()-1;
                 return;
             }
             else
@@ -65,6 +67,34 @@ void ChunkManager::runIncrementalChunkBuild()
             setupIterator++;
         }
     }
+    if(buildStage == CHUNK_STAGE_LIGHTING)
+    {
+        ChunkPos *positions = circlePosOffsets.data();
+        ChunkPos testpos;
+        for(int i = 0; i < CHUNKS_LIT_PER_FRAME; i++)
+        {
+            if(currentLightPosIndex < 0)
+            {
+                SDL_Log("CHUNK_STAGE_BUILD");
+                buildStage = CHUNK_STAGE_BUILD;
+                return;
+            }
+            else
+            {
+                testpos.x = camChunkPos.x + positions[currentLightPosIndex].x;
+                testpos.z = camChunkPos.z + positions[currentLightPosIndex].z;
+                Chunk *chunk = findBuildChunkAt(testpos);
+                if(chunk != nullptr) {
+                    SDL_Log("Lighting chunk %d,%d", testpos.x, testpos.z);
+                    chunk->clearLightMap();
+                    lightMapper->calculateSunlight(chunk);
+                    //lightMapper->clipping = false;
+                }
+            }
+            currentLightPosIndex--;
+        }
+    }
+
     if(buildStage == CHUNK_STAGE_BUILD)
     {
         i32 count = 0;
@@ -75,7 +105,11 @@ void ChunkManager::runIncrementalChunkBuild()
 
             //SDL_Log("chk.xy = %d,%d n=%d s=%d w=%d e=%d", chunk_pos.x, chunk_pos.z, all_neighbours.n, all_neighbours.s, all_neighbours.w, all_neighbours.e);
 
+            //chunk_it->second->clearLightMap();
+            //lightMapper->calculateSunlight(chunk_it->second.get());
+
             chunk_it->second->rebuild(chunk_it->first);
+
             activeChunks[chunk_it->first] = std::move(chunk_it->second);
             buildChunks.erase(chunk_it);
             count++;
@@ -104,6 +138,8 @@ void ChunkManager::runIncrementalChunkBuild()
             Chunk* chunk = optimizeList.back();
             optimizeList.pop_back();
             //SDL_Log("optimizeList chunk pos %d,%d", chunk->chunkPosition.x, chunk->chunkPosition.z);
+            chunk->clearLightMap();
+            lightMapper->calculateSunlight(chunk);
             chunk->rebuild(chunk->chunkPosition);
             count++;
         }
@@ -343,6 +379,7 @@ void ChunkManager::placeTorchLight(Chunk *origin_chunk, i32 x, i32 y, i32 z, u8 
 void ChunkManager::removeTorchLight(Chunk *origin_chunk, i32 x, i32 y, i32 z) {
     lightMapper->removeTorchLight(origin_chunk, x, y, z);
 }
+
 
 void ChunkManager::testStuff()
 {

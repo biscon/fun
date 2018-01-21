@@ -10,6 +10,7 @@
 #define CHUNK_STAGE_IDLE 2
 #define CHUNK_STAGE_OPTIMIZE 3
 #define CHUNK_STAGE_UPDATE 4
+#define CHUNK_STAGE_LIGHTING 5
 
 #include <memory>
 #include <vector>
@@ -22,10 +23,11 @@
 
 class ChunkManager : public IChunkManager {
 public:
-    const int CHUNKS_SETUP_PER_FRAME = 12;
-    const int CHUNKS_BUILD_PER_FRAME = 12;
-    const int CHUNKS_UPDATED_PER_FRAME = 12;
-    const int VISIBLE_RADIUS = 16;
+    const int CHUNKS_SETUP_PER_FRAME = 4;
+    const int CHUNKS_BUILD_PER_FRAME = 4;
+    const int CHUNKS_LIT_PER_FRAME = 4;
+    const int CHUNKS_UPDATED_PER_FRAME = 4;
+    const int VISIBLE_RADIUS = 8;
 
     ChunkManager(const std::shared_ptr<Terrain> &terrain);
 
@@ -78,11 +80,13 @@ public:
             case CHUNK_STAGE_SETUP:
                 return "SETUP";
             case CHUNK_STAGE_BUILD:
-                return "BUILD";
+                return "MESHING";
             case CHUNK_STAGE_OPTIMIZE:
                 return "OPTIMIZE";
             case CHUNK_STAGE_UPDATE:
                 return "UPDATE";
+            case CHUNK_STAGE_LIGHTING:
+                return "LIGHTING";
             default:
                 return "UNKNOWN";
         }
@@ -206,8 +210,8 @@ public:
     void testStuff();
 
 private:
+    i32 currentLightPosIndex;
     std::unique_ptr<LightMapper> lightMapper;
-
 
     float halfChunkSize = (float) CHUNK_SIZE/2;
     float fChunkSize = (float) CHUNK_SIZE;

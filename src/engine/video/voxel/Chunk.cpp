@@ -3,7 +3,7 @@
 //
 
 #include "Chunk.h"
-#include "AOBlock.h"
+#include "AmbientOcclusion.h"
 
 #define GLEW_STATIC
 
@@ -62,6 +62,7 @@ void Chunk::setupDebugChunk()
                 }
 
                 // punch a few holes
+
                 if(y == 106 && x == 4 && z == 4)
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, false);
@@ -194,15 +195,6 @@ void Chunk::rebuild(const ChunkPos& position) {
 
     materialBatchMap.clear();
 
-    // place torchlights
-    /*
-    if(position.x == 0 && position.z == 0)
-    {
-        chunkManager->placeTorchLight(this, 7, 107, 7, 14);
-        chunkManager->placeTorchLight(this, 8, 103, 11, 15);
-    }
-    */
-
     auto m = glm::mat4();
     auto origin = glm::vec4(0,0,0,1);
     m = glm::translate(m, glm::vec3(-0.5*CHUNK_SIZE, 0.0f, -0.5*CHUNK_SIZE));
@@ -233,11 +225,11 @@ void Chunk::rebuild(const ChunkPos& position) {
                         {
                             materialBatchMap[block.type] = std::unique_ptr<MaterialBatch>(new MaterialBatch());
                             materialBatchMap[block.type]->blockType = block.type;
-                            materialBatchMap[block.type]->blocks.emplace_back(x,y,z, getTorchlight(x,y,z));
+                            materialBatchMap[block.type]->blocks.emplace_back(x,y,z);
                             //SDL_Log("Generated cube at %d,%d,%d", x, y, z);
                         }
                         else {
-                            batch->second->blocks.emplace_back(x, y, z, getTorchlight(x,y,z));
+                            batch->second->blocks.emplace_back(x, y, z);
                             //SDL_Log("Generated cube at %d,%d,%d", x, y, z);
                         }
                     }
@@ -250,7 +242,7 @@ void Chunk::rebuild(const ChunkPos& position) {
     }
 
     BlockLight block_light;
-    AOBlock ao_block;
+    AmbientOcclusion ao_block;
 
     for(auto const& kv : materialBatchMap)
     {
@@ -297,7 +289,7 @@ void Chunk::rebuild(const ChunkPos& position) {
             //SDL_Log("Meshing cube at %d,%d,%d", mb.x, mb.y, mb.z);
             if(mb.faces.anyFacesEnabled()) {
                 calculateAO(ao_block, mb);
-                calculateBlockLight(block_light, mb);
+                calculateBlockyLight(block_light, mb);
 
                 mesh->generateTexturedCubeAt(mb.x, mb.y, mb.z, mb.faces, block_light, ao_block);
             }
@@ -483,6 +475,27 @@ void Chunk::calculateBlockLight(BlockLight& block_light, MaterialBlock& mb)
     }
 }
 
+void Chunk::calculateBlockyLight(BlockLight& block_light, MaterialBlock& mb) {
+    if (mb.faces.back) {
+        block_light.faces[BACK_FACE].v1 = block_light.faces[BACK_FACE].v2 = block_light.faces[BACK_FACE].v3 = block_light.faces[BACK_FACE].v4 = getSunLightAt(mb.x, mb.y, mb.z - 1);
+    }
+    if (mb.faces.front) {
+        block_light.faces[FRONT_FACE].v1 = block_light.faces[FRONT_FACE].v2 = block_light.faces[FRONT_FACE].v3 = block_light.faces[FRONT_FACE].v4 = getSunLightAt(mb.x, mb.y, mb.z + 1);
+    }
+    if (mb.faces.left) {
+        block_light.faces[LEFT_FACE].v1 = block_light.faces[LEFT_FACE].v2 = block_light.faces[LEFT_FACE].v3 = block_light.faces[LEFT_FACE].v4 = getSunLightAt(mb.x - 1, mb.y, mb.z);
+    }
+    if (mb.faces.right) {
+        block_light.faces[RIGHT_FACE].v1 = block_light.faces[RIGHT_FACE].v2 = block_light.faces[RIGHT_FACE].v3 = block_light.faces[RIGHT_FACE].v4 = getSunLightAt(mb.x + 1, mb.y, mb.z);
+    }
+    if (mb.faces.bottom) {
+        block_light.faces[BOTTOM_FACE].v1 = block_light.faces[BOTTOM_FACE].v2 = block_light.faces[BOTTOM_FACE].v3 = block_light.faces[BOTTOM_FACE].v4 = getSunLightAt(mb.x, mb.y - 1, mb.z);
+    }
+    if (mb.faces.top) {
+        block_light.faces[TOP_FACE].v1 = block_light.faces[TOP_FACE].v2 = block_light.faces[TOP_FACE].v3 = block_light.faces[TOP_FACE].v4 = getSunLightAt(mb.x, mb.y + 1, mb.z);
+    }
+}
+
 /*
  * Produces ao shading factor for a vertex based on 2 sides and a corner value, thus producing 4 unique values
  * from the combinations of 3 sides
@@ -496,7 +509,7 @@ static inline i32 vertexAO(i32 side1, i32 side2, i32 corner) {
 }
 
 
-void Chunk::calculateAO(AOBlock &aob, MaterialBlock& mb)
+void Chunk::calculateAO(AmbientOcclusion &aob, MaterialBlock& mb)
 {
     aob.calcPositions(mb.x, mb.y, mb.z);
     for(auto &face : aob.faces)

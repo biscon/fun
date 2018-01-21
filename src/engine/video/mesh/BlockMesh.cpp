@@ -95,7 +95,7 @@ static float decelerate(float input)
     return CubicInterpolate(p.data(), input);
 }
 
-void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, BlockLight &blockLight, AOBlock& aob) {
+void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, BlockLight &blockLight, AmbientOcclusion& aob) {
     /*
     u8 min_level = 1;
     for(i32 i = 0; i < 6; i++)
