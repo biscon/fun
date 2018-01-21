@@ -141,10 +141,10 @@ void IntroGameMode::render(double delta) {
         chk_info = stringFormat("%d,%d", chunkRenderer->chunkManager->camBlockLocalPos.chunk->chunkPosition.x, chunkRenderer->chunkManager->camBlockLocalPos.chunk->chunkPosition.z);
     }
 
-    fontRenderer->renderText(font2, 50, game->getRenderer()->getRealHeight() - 85, stringFormat("blockPosWorld = %d,%d,%d blockPosLocal = %d,%d,%d (%s)",
+    fontRenderer->renderText(font2, 50, game->getRenderer()->getRealHeight() - 85, stringFormat("blockPosWorld = %d,%d,%d blockPosLocal = %d,%d,%d (%s) sunlightIntensity = %.2f",
                                                                                                 chunkRenderer->chunkManager->camBlockWorldPos.x, chunkRenderer->chunkManager->camBlockWorldPos.y, chunkRenderer->chunkManager->camBlockWorldPos.z,
                                                                                                 chunkRenderer->chunkManager->camBlockLocalPos.x, chunkRenderer->chunkManager->camBlockLocalPos.y, chunkRenderer->chunkManager->camBlockLocalPos.z,
-                                                                                                chk_info.c_str()));
+                                                                                                chk_info.c_str(), chunkRenderer->chunkManager->sunlightIntensity));
     fontRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight());
 }
 

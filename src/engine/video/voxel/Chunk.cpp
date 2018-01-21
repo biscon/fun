@@ -63,12 +63,13 @@ void Chunk::setupDebugChunk()
 
                 // punch a few holes
 
+                /*
                 if(y == 106 && x == 4 && z == 4)
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, false);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, true);
                 }
-
+                */
 
                 // wall
                 if(x >= 6 && x <= 12 && z == 8 && y >= 100 && y <= 105)
@@ -78,13 +79,7 @@ void Chunk::setupDebugChunk()
                     blocks[POS_TO_INDEX(y,z,x)].type = temple_block;
                 }
 
-                // hole
-                if(x == 8 && z == 8 && y == 103)
-                {
-                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
-                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, true);
-                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_WATER;
-                }
+
                 // wall 2
                 if(z >= 6 && z <= 12 && x == 5 && y >= 100 && y <= 105)
                 {
@@ -109,6 +104,14 @@ void Chunk::setupDebugChunk()
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
                     blocks[POS_TO_INDEX(y,z,x)].type = temple_block;
+                }
+
+                // hole
+                if(x == 8 && z == 8 && y == 103)
+                {
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, true);
+                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_WATER;
                 }
                 /*
                 if(x == 8 && z == 11 && y == 103)

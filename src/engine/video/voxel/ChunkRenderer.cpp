@@ -212,6 +212,8 @@ void ChunkRenderer::updateDirectionalLight(float delta) {
     //SDL_Log("Light angle %.2f intensity %.2f", lightAngle, directionalLight->intensity);
     if(lightAngle > 100)
         lightAngle = -90;
+    chunkManager->sunlightIntensity = directionalLight->intensity;
+    //chunkManager->sunlightIntensity = std::max((-1.0f * directionalLight->direction.y) * 0.96f + 0.6f, 0.02f);
 }
 
 // TODO use uniform buffer objects instead

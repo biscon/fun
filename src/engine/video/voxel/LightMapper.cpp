@@ -369,7 +369,23 @@ void LightMapper::calculateSunlight(Chunk *chunk) {
                         if(x == 0 || x == CHUNK_SIZE-1 || z == 0 || z == CHUNK_SIZE-1)
                         {
                             //SDL_Log("Setting edge block %d,%d,%d to 14", x, y, z);
-                            chunk->setSunlight(x, y, z, 14);
+                            i32 x_level = 0;
+                            i32 z_level = 0;
+                            if(x == 0)
+                                x_level = chunk->getSunLightAt(x - 1, y, z);
+                            if(x == CHUNK_SIZE-1)
+                                x_level = chunk->getSunLightAt(x + 1, y, z);
+
+                            if(z == 0)
+                                z_level = chunk->getSunLightAt(x, y, z - 1);
+                            if(z == CHUNK_SIZE-1)
+                                z_level = chunk->getSunLightAt(x, y, z + 1);
+
+                            if(x_level > z_level)
+                                chunk->setSunlight(x, y, z, x_level);
+                            else
+                                chunk->setSunlight(x, y, z, z_level);
+
                             sunLightQueue.emplace(chunk, x, y, z);
                         }
                     }

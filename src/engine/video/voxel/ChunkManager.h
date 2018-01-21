@@ -27,7 +27,7 @@ public:
     const int CHUNKS_BUILD_PER_FRAME = 12;
     const int CHUNKS_LIT_PER_FRAME = 12;
     const int CHUNKS_UPDATED_PER_FRAME = 12;
-    const int VISIBLE_RADIUS = 16;
+    const int VISIBLE_RADIUS = 8;
 
     ChunkManager(const std::shared_ptr<Terrain> &terrain);
 
@@ -208,6 +208,7 @@ public:
     void placeTorchLight(Chunk *origin_chunk, int x, int y, int z, u8 level);
     void removeTorchLight(Chunk *origin_chunk, i32 x, i32 y, i32 z);
     void testStuff();
+    float sunlightIntensity;
 
 private:
     i32 currentLightPosIndex;
