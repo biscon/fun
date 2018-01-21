@@ -124,7 +124,7 @@ public:
             return getSunlight(x,y,z);
         }
 
-        return 0;
+        //return 0;
 
         ChunkBlockPos cbpos;
         chunkManager->relativePosToChunkBlockPos(this, x, y, z, cbpos);

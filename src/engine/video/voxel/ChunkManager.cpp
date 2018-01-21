@@ -85,7 +85,7 @@ void ChunkManager::runIncrementalChunkBuild()
                 testpos.z = camChunkPos.z + positions[currentLightPosIndex].z;
                 Chunk *chunk = findBuildChunkAt(testpos);
                 if(chunk != nullptr) {
-                    SDL_Log("Lighting chunk %d,%d", testpos.x, testpos.z);
+                    //SDL_Log("Lighting chunk %d,%d", testpos.x, testpos.z);
                     chunk->clearLightMap();
                     lightMapper->calculateSunlight(chunk);
                     //lightMapper->clipping = false;
@@ -138,8 +138,8 @@ void ChunkManager::runIncrementalChunkBuild()
             Chunk* chunk = optimizeList.back();
             optimizeList.pop_back();
             //SDL_Log("optimizeList chunk pos %d,%d", chunk->chunkPosition.x, chunk->chunkPosition.z);
-            chunk->clearLightMap();
-            lightMapper->calculateSunlight(chunk);
+            //chunk->clearLightMap();
+            //lightMapper->calculateSunlight(chunk);
             chunk->rebuild(chunk->chunkPosition);
             count++;
         }

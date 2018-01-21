@@ -23,11 +23,11 @@
 
 class ChunkManager : public IChunkManager {
 public:
-    const int CHUNKS_SETUP_PER_FRAME = 4;
-    const int CHUNKS_BUILD_PER_FRAME = 4;
-    const int CHUNKS_LIT_PER_FRAME = 4;
-    const int CHUNKS_UPDATED_PER_FRAME = 4;
-    const int VISIBLE_RADIUS = 8;
+    const int CHUNKS_SETUP_PER_FRAME = 12;
+    const int CHUNKS_BUILD_PER_FRAME = 12;
+    const int CHUNKS_LIT_PER_FRAME = 8;
+    const int CHUNKS_UPDATED_PER_FRAME = 12;
+    const int VISIBLE_RADIUS = 32;
 
     ChunkManager(const std::shared_ptr<Terrain> &terrain);
 

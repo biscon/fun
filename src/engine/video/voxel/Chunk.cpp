@@ -69,6 +69,7 @@ void Chunk::setupDebugChunk()
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, true);
                 }
 
+
                 // wall
                 if(x >= 6 && x <= 12 && z == 8 && y >= 100 && y <= 105)
                 {
@@ -289,7 +290,7 @@ void Chunk::rebuild(const ChunkPos& position) {
             //SDL_Log("Meshing cube at %d,%d,%d", mb.x, mb.y, mb.z);
             if(mb.faces.anyFacesEnabled()) {
                 calculateAO(ao_block, mb);
-                calculateBlockyLight(block_light, mb);
+                calculateBlockLight(block_light, mb);
 
                 mesh->generateTexturedCubeAt(mb.x, mb.y, mb.z, mb.faces, block_light, ao_block);
             }

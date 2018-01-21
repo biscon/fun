@@ -228,6 +228,8 @@ static inline u8 getSunLightAndIncreaseCount(Chunk *chunk, i32 x, i32 y, i32 z, 
  * Minecraft uses the maximum value found, but decreases it by 1 if the propagation is not straight down.
  * This is the lateral attenuation, so unblocked vertical columns of voxels will get the full sunlight propagation and light bends around corners.
  */
+
+/*
 void LightMapper::calculateSunlight(Chunk *chunk) {
     bool is_origin = false;
     if(chunk->chunkPosition.x == 0 && chunk->chunkPosition.z == 0)
@@ -334,5 +336,88 @@ void LightMapper::calculateSunlight(Chunk *chunk) {
             }
         }
     }
+}
+*/
+
+void LightMapper::calculateSunlight(Chunk *chunk) {
+    bool is_origin = false;
+    if(chunk->chunkPosition.x == 0 && chunk->chunkPosition.z == 0)
+        is_origin = true;
+
+    u8 mask[CHUNK_SIZE][CHUNK_SIZE];
+
+    for(i32 z = 0; z < CHUNK_SIZE; z++)
+    {
+        for(i32 x = 0; x < CHUNK_SIZE; x++)
+        {
+            mask[x][z] = 15;
+        }
+    }
+
+    for(i32 y = CHUNK_HEIGHT-1; y-- > 0;) {
+        for (i32 z = 0; z < CHUNK_SIZE; z++) {
+            for (i32 x = 0; x < CHUNK_SIZE; x++) {
+                //SDL_Log("Iterating %d,%d,%d", x, y, z);
+                Block &block = chunk->blocks[POS_TO_INDEX(y, z, x)];
+                //if(y == 105 && is_origin)
+                //    SDL_Log("y = 107 mask %d,%d = %d", x, z, mask[x][z]);
+                if(block.isFlagSet(BLOCK_FLAG_TRANSPARENT))
+                {
+                    chunk->setSunlight(x, y, z, mask[x][z]);
+                    if(mask[x][z] == 0)
+                    {
+                        if(x == 0 || x == CHUNK_SIZE-1 || z == 0 || z == CHUNK_SIZE-1)
+                        {
+                            //SDL_Log("Setting edge block %d,%d,%d to 14", x, y, z);
+                            chunk->setSunlight(x, y, z, 14);
+                            sunLightQueue.emplace(chunk, x, y, z);
+                        }
+                    }
+                }
+                else
+                    mask[x][z] = 0;
+            }
+        }
+    }
+
+
+    bool is_sunlight = true;
+    ChunkBlockPos cbpos;
+    while(!sunLightQueue.empty())
+    {
+        // Get a reference to the front node.
+        auto &node = sunLightQueue.front();
+        sunLightQueue.pop();
+
+        //SDL_Log("Reading lightnode pos %d,%d,%d", node.x, node.y, node.z);
+
+        // Grab the light level of the current node
+        chunkManager->relativePosToChunkBlockPos(node.chunk, node.x, node.y, node.z, cbpos);
+        if(!cbpos.isValid())
+        {
+            SDL_Log("Current lightnode %d,%d,%d position invalid", node.x, node.y, node.z);
+            continue;
+        }
+        i32 lightlevel = 0;
+
+        lightlevel = cbpos.chunk->getSunlight(cbpos.x, cbpos.y, cbpos.z);
+        // propagate light to all 6 surrounding blocks
+        // sides
+        propagateLight(sunLightQueue, chunk, node.x - 1, node.y, node.z, lightlevel, is_sunlight, false);
+        propagateLight(sunLightQueue, chunk, node.x + 1, node.y, node.z, lightlevel, is_sunlight, false);
+
+        // top bottom
+        propagateLight(sunLightQueue, chunk, node.x, node.y - 1, node.z, lightlevel, is_sunlight, false);
+        propagateLight(sunLightQueue, chunk, node.x, node.y + 1, node.z, lightlevel, is_sunlight, false);
+
+        // front and back
+        propagateLight(sunLightQueue, chunk, node.x, node.y, node.z - 1, lightlevel, is_sunlight, false);
+        propagateLight(sunLightQueue, chunk, node.x, node.y, node.z + 1, lightlevel, is_sunlight, false);
+    }
+
+    /*
+    if(is_origin)
+        exit(-1);
+        */
 }
 
