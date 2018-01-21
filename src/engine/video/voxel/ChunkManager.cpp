@@ -138,8 +138,8 @@ void ChunkManager::runIncrementalChunkBuild()
             Chunk* chunk = optimizeList.back();
             optimizeList.pop_back();
             //SDL_Log("optimizeList chunk pos %d,%d", chunk->chunkPosition.x, chunk->chunkPosition.z);
-            //chunk->clearLightMap();
-            //lightMapper->calculateSunlight(chunk);
+            chunk->clearLightMap();
+            lightMapper->calculateSunlight(chunk);
             chunk->rebuild(chunk->chunkPosition);
             count++;
         }
@@ -265,6 +265,30 @@ void ChunkManager::determineChunksToRebuild()
 
         // east
         pos.set(chunk.first.x+1, chunk.first.z);
+        active_chunk = findActiveChunkAt(pos);
+        if(active_chunk != nullptr)
+            optimizeList.push_back(active_chunk);
+
+        // northwest
+        pos.set(chunk.first.x-1, chunk.first.z-1);
+        active_chunk = findActiveChunkAt(pos);
+        if(active_chunk != nullptr)
+            optimizeList.push_back(active_chunk);
+
+        // southwest
+        pos.set(chunk.first.x-1, chunk.first.z+1);
+        active_chunk = findActiveChunkAt(pos);
+        if(active_chunk != nullptr)
+            optimizeList.push_back(active_chunk);
+
+        // northeast
+        pos.set(chunk.first.x+1, chunk.first.z-1);
+        active_chunk = findActiveChunkAt(pos);
+        if(active_chunk != nullptr)
+            optimizeList.push_back(active_chunk);
+
+        // southeast
+        pos.set(chunk.first.x+1, chunk.first.z+1);
         active_chunk = findActiveChunkAt(pos);
         if(active_chunk != nullptr)
             optimizeList.push_back(active_chunk);
