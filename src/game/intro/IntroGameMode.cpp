@@ -227,6 +227,11 @@ void IntroGameMode::onKeyUp(const SDL_Event *event) {
         //chunkRenderer->chunkManager->testStuff();
         return;
     }
+    if(event->key.keysym.sym == SDLK_HOME)
+    {
+        chunkRenderer->chunkManager->logChunkMetrics();
+        return;
+    }
 }
 
 void IntroGameMode::onKeyPressed(const SDL_Event *event) {

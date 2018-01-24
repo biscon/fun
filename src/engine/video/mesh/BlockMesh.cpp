@@ -95,6 +95,10 @@ static float decelerate(float input)
     return CubicInterpolate(p.data(), input);
 }
 
+/*
+ * 4 color bytes used as: sunlight, torchlight, ao, texcoord index
+ * actual shading must take place in the shader (yeah I know)
+ */
 void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, BlockLight &blockLight, AmbientOcclusion& aob) {
     /*
     u8 min_level = 1;
@@ -108,10 +112,10 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Bloc
     */
     u8 light[6][4];
     for(i32 i = 0; i < 6; i++) {
-        light[i][0] = (u8)( decelerate((float)blockLight.faces[i].v1 / 15.0f) * 255.0f);
-        light[i][1] = (u8)( decelerate((float)blockLight.faces[i].v2 / 15.0f) * 255.0f);
-        light[i][2] = (u8)( decelerate((float)blockLight.faces[i].v3 / 15.0f) * 255.0f);
-        light[i][3] = (u8)( decelerate((float)blockLight.faces[i].v4 / 15.0f) * 255.0f);
+        light[i][0] = (u8)( decelerate((float)blockLight.sunLight[i].v1 / 15.0f) * 255.0f);
+        light[i][1] = (u8)( decelerate((float)blockLight.sunLight[i].v2 / 15.0f) * 255.0f);
+        light[i][2] = (u8)( decelerate((float)blockLight.sunLight[i].v3 / 15.0f) * 255.0f);
+        light[i][3] = (u8)( decelerate((float)blockLight.sunLight[i].v4 / 15.0f) * 255.0f);
     }
 
     u8 v1,v2,v3,v4;
@@ -130,23 +134,23 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Bloc
         if(aob.faces[BACK_FACE].vertices[LEFT_BTM].AO + aob.faces[BACK_FACE].vertices[RIGHT_TOP].AO < aob.faces[BACK_FACE].vertices[LEFT_TOP].AO + aob.faces[BACK_FACE].vertices[RIGHT_BTM].AO)
         {
             vertices.insert(vertices.end(), {
-                    {byte4(x, y, z, 0),         ubyte4(v3, v3, v3, 0)},
-                    {byte4(x + 1, y + 1, z, 0), ubyte4(v1, v1, v1, 3)},
-                    {byte4(x + 1, y, z, 0),     ubyte4(v2, v2, v2, 2)},
-                    {byte4(x + 1, y + 1, z, 0), ubyte4(v1, v1, v1, 3)},
-                    {byte4(x, y, z, 0),         ubyte4(v3, v3, v3, 0)},
-                    {byte4(x, y + 1, z, 0),     ubyte4(v4, v4, v4, 1)}
+                    {byte4(x, y, z, 0),         ubyte4(v3, v3, v3, 0)}, // v2
+                    {byte4(x + 1, y + 1, z, 0), ubyte4(v1, v1, v1, 3)}, // v1
+                    {byte4(x + 1, y, z, 0),     ubyte4(v2, v2, v2, 2)}, // v2
+                    {byte4(x + 1, y + 1, z, 0), ubyte4(v1, v1, v1, 3)}, // v1
+                    {byte4(x, y, z, 0),         ubyte4(v3, v3, v3, 0)}, // v3
+                    {byte4(x, y + 1, z, 0),     ubyte4(v4, v4, v4, 1)}  // v4
             });
         }
         else
         {
             vertices.insert(vertices.end(), {
-                    {byte4(x + 1, y, z, 0),     ubyte4(v2, v2, v2, 2)},
-                    {byte4(x, y, z, 0),         ubyte4(v3, v3, v3, 0)},
-                    {byte4(x, y + 1, z, 0),     ubyte4(v4, v4, v4, 1)},
-                    {byte4(x, y + 1, z, 0),     ubyte4(v4, v4, v4, 1)},
-                    {byte4(x + 1, y + 1, z, 0), ubyte4(v1, v1, v1, 3)},
-                    {byte4(x + 1, y, z, 0),     ubyte4(v2, v2, v2, 2)}
+                    {byte4(x + 1, y, z, 0),     ubyte4(v2, v2, v2, 2)}, // v2
+                    {byte4(x, y, z, 0),         ubyte4(v3, v3, v3, 0)}, // v3
+                    {byte4(x, y + 1, z, 0),     ubyte4(v4, v4, v4, 1)}, // v4
+                    {byte4(x, y + 1, z, 0),     ubyte4(v4, v4, v4, 1)}, // v4
+                    {byte4(x + 1, y + 1, z, 0), ubyte4(v1, v1, v1, 3)}, // v1
+                    {byte4(x + 1, y, z, 0),     ubyte4(v2, v2, v2, 2)}  // v2
             });
         }
     }

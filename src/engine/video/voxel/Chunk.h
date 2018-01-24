@@ -186,6 +186,7 @@ private:
         return cbpos.chunk->blocks[POS_TO_INDEX(cbpos.y, cbpos.z, cbpos.x)].isFlagSet(BLOCK_FLAG_SHOULD_MESH);
     }
 
+    // hottest goddamn function in the engine atm
     inline bool isBlockActiveAt(i32 x, i32 y, i32 z)
     {
         // early out since our chunk grid is 2d
@@ -202,15 +203,24 @@ private:
         }
 
         ChunkBlockPos cbpos;
+        // TODO optimize the fuck out of this way to expensive lookup. since we know we always only need the corners of the 8 nearest neighbours
+        // we should be able to look them up at once instead of each goddamn time they're accessed
         chunkManager->relativePosToChunkBlockPos(this, x, y, z, cbpos);
         if(cbpos.chunk == nullptr)
             return true;
         return cbpos.chunk->blocks[POS_TO_INDEX(cbpos.y, cbpos.z, cbpos.x)].isFlagSet(BLOCK_FLAG_ACTIVE);
     }
 
-
-
     inline u8 getTorchLightAndIncreaseCount(i32 x, i32 y, i32 z, i32 &count) {
+        if(!isBlockActiveAt(x, y, z))
+        {
+            count++;
+            return getTorchLightAt(x, y, z);
+        }
+        return 0;
+    }
+
+    inline u8 getSunLightAndIncreaseCount(i32 x, i32 y, i32 z, i32 &count) {
         if(!isBlockActiveAt(x, y, z))
         {
             count++;
@@ -221,9 +231,10 @@ private:
 
     void calculateAO(AmbientOcclusion &aob, MaterialBlock &mb);
 
-    void calculateBlockLight(BlockLight &block_light, MaterialBlock &mb);
-
-    void calculateBlockyLight(BlockLight &block_light, MaterialBlock &mb);
+    void calculateBlockTorchLight(BlockLight &block_light, MaterialBlock &mb);
+    void calculateBlockyTorchLight(BlockLight &block_light, MaterialBlock &mb);
+    void calculateBlockSunLight(BlockLight &block_light, MaterialBlock &mb);
+    void calculateBlockySunLight(BlockLight &block_light, MaterialBlock &mb);
 };
 
 

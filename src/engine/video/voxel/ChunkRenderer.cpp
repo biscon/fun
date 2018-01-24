@@ -15,7 +15,7 @@
 
 ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain) : game(game), camera(camera) {
     viewFrustrum = std::unique_ptr<ViewFrustum>(new ViewFrustum());
-    chunkManager = std::unique_ptr<ChunkManager>(new ChunkManager(terrain));
+    chunkManager = std::unique_ptr<ChunkManager>(new ChunkManager(terrain, game));
 
     auto& system = *game.getSystem();
     auto lighting_vs = system.readTextFile("shaders/voxel_shader3_vs.glsl");

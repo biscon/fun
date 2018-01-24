@@ -20,16 +20,18 @@
 #include "ChunkBlockPos.h"
 #include "IChunkManager.h"
 #include "LightMapper.h"
+#include "ChunkMetrics.h"
 
+// TODO rethink the chunk manager more as a pipeline with abstractions as segments along the pipeline
 class ChunkManager : public IChunkManager {
 public:
-    const int CHUNKS_SETUP_PER_FRAME = 12;
-    const int CHUNKS_BUILD_PER_FRAME = 12;
-    const int CHUNKS_LIT_PER_FRAME = 12;
-    const int CHUNKS_UPDATED_PER_FRAME = 12;
+    const int CHUNKS_SETUP_PER_FRAME = 4;
+    const int CHUNKS_BUILD_PER_FRAME = 4;
+    const int CHUNKS_LIT_PER_FRAME = 4;
+    const int CHUNKS_UPDATED_PER_FRAME = 4;
     const int VISIBLE_RADIUS = 8;
 
-    ChunkManager(const std::shared_ptr<Terrain> &terrain);
+    ChunkManager(const std::shared_ptr<Terrain> &terrain, IGame &game);
 
     std::unordered_map<ChunkPos, std::unique_ptr<Chunk>> activeChunks;
     std::unordered_map<ChunkPos, std::unique_ptr<Chunk>> buildChunks;
@@ -209,8 +211,11 @@ public:
     void removeTorchLight(Chunk *origin_chunk, i32 x, i32 y, i32 z);
     void testStuff();
     float sunlightIntensity;
+    ChunkMetrics chunkMetrics;
+    void logChunkMetrics();
 
 private:
+    IGame& game;
     i32 currentLightPosIndex;
     std::unique_ptr<LightMapper> lightMapper;
 
@@ -234,6 +239,19 @@ private:
     void determineChunksToRebuild();
     void worldToBlock(glm::vec3 &worldpos, ChunkBlockPos &cbpos);
     void calculateCircleOffsets();
+
+    double startWatchTime;
+    double lastWatchResult;
+
+    inline void startWatch()
+    {
+        startWatchTime = game.getTime();
+    }
+
+    inline void stopWatch()
+    {
+        lastWatchResult = game.getTime() - startWatchTime;
+    }
 };
 
 
