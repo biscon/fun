@@ -10,8 +10,8 @@
 #include <thread>
 #include <atomic>
 #include <mutex>
-// needed because GCC on windows sucks
 
+// needed because GCC on windows sucks
 #ifdef __WIN32__
     #include "../mingw.thread.h"
     #include "../mingw.condition_variable.h"

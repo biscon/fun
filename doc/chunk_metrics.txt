@@ -24,7 +24,7 @@ INFO: UpdateTime   : 0 sec (0 ms)
 INFO: -----------------------------------------------
 
 
-optimized build -O3 -mwindows -funroll-loops -fomit-frame-pointer -ftree-loop-distribution -ftree-vectorize
+optimized build: -O3 -mwindows -funroll-loops -fomit-frame-pointer -ftree-loop-distribution -ftree-vectorize
 
 Full run:
 
@@ -43,5 +43,27 @@ INFO: SetupTime    : 0.00568 sec (5.68 ms)
 INFO: LightingTime : 0.01782 sec (17.82 ms)
 INFO: BuildTime    : 0.01673 sec (16.73 ms)
 INFO: OptimizeTime : 0.03037 sec (30.37 ms)
+INFO: UpdateTime   : 0 sec (0 ms)
+INFO: -----------------------------------------------
+
+20180125 - optimized build
+
+Full run:
+
+INFO: -=* ChunkMetrics *=----------------------------
+INFO: SetupTime    : 0.07527 sec (75.27 ms)
+INFO: LightingTime : 0.02651 sec (26.51 ms)
+INFO: BuildTime    : 0.20693 sec (206.93 ms)
+INFO: OptimizeTime : 0.18695 sec (186.95 ms)
+INFO: UpdateTime   : 0 sec (0 ms)
+INFO: -----------------------------------------------
+
+Partial run:
+
+INFO: -=* ChunkMetrics *=----------------------------
+INFO: SetupTime    : 0.00542 sec (5.42 ms)
+INFO: LightingTime : 0.01859 sec (18.59 ms)
+INFO: BuildTime    : 0.01633 sec (16.33 ms)
+INFO: OptimizeTime : 0.02783 sec (27.83 ms)
 INFO: UpdateTime   : 0 sec (0 ms)
 INFO: -----------------------------------------------

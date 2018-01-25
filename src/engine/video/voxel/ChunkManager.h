@@ -21,6 +21,7 @@
 #include "IChunkManager.h"
 #include "LightMapper.h"
 #include "ChunkMetrics.h"
+#include <engine/util/BlockingQueue.h>
 
 // TODO rethink the chunk manager more as a pipeline with abstractions as segments along the pipeline
 class ChunkManager : public IChunkManager {
