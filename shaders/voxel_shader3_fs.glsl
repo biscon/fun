@@ -51,8 +51,10 @@ void main()
     float sun = sunlightIntensity * (VertexColor.x / 15.0);
     float torch = VertexColor.y / 15.0;
 
+    vec3 torch_color = vec3(1.0, 0.95, 0.90);
+
     vec3 sunlight = vec3(sun, sun, sun);
-    vec3 torchlight = vec3(torch, 0.95 * torch, 0.90 * torch);
+    vec3 torchlight = torch * torch_color;
 
     float ao = VertexColor.z / 3.0;
     float ao_factor = 0.75 + ao * (1.0 - 0.75) / 1.0;
