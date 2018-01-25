@@ -15,7 +15,7 @@
 
 ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain) : game(game), camera(camera) {
     viewFrustrum = std::unique_ptr<ViewFrustum>(new ViewFrustum());
-    chunkManager = std::unique_ptr<ChunkManager>(new ChunkManager(terrain));
+    chunkManager = std::unique_ptr<ChunkManager>(new ChunkManager(terrain, game));
 
     auto& system = *game.getSystem();
     auto lighting_vs = system.readTextFile("shaders/voxel_shader3_vs.glsl");
@@ -104,8 +104,10 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double delta) 
     shader->setVec3("ambientLight", 0.15f, 0.15f, 0.15f);
 
     // directional light
+    //directionalLight->applyShader(*shader);
 
-    directionalLight->applyShader(*shader);
+    // pass sunlight intensity to shader
+    shader->setFloat("sunlightIntensity", chunkManager->sunlightIntensity);
 
 
     Vec3 cam_pos(camera->Position.x, camera->Position.y, camera->Position.z);
@@ -185,9 +187,9 @@ i32 ChunkRenderer::getRenderedChunks() {
 void ChunkRenderer::updateDirectionalLight(float delta) {
 // Update directional light direction, intensity and colour
     float fast = 5.0f;
-    float slow = 2.0f;
+    float slow = 1.0f;
     if (lightAngle > 90) {
-        lightAngle += fast * delta;
+        lightAngle += 2 * fast * delta;
         directionalLight->intensity = 0;
         if (lightAngle >= 360) {
             lightAngle = -90;
@@ -210,8 +212,11 @@ void ChunkRenderer::updateDirectionalLight(float delta) {
     directionalLight->direction.y = -1.0f * (float) cos(angRad);
     //directionalLight->intensity = 1.0f;
     //SDL_Log("Light angle %.2f intensity %.2f", lightAngle, directionalLight->intensity);
+
+    /*
     if(lightAngle > 100)
         lightAngle = -90;
+        */
     chunkManager->sunlightIntensity = directionalLight->intensity;
     //chunkManager->sunlightIntensity = std::max((-1.0f * directionalLight->direction.y) * 0.96f + 0.6f, 0.02f);
 }

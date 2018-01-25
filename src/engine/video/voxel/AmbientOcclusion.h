@@ -196,6 +196,7 @@ struct FaceLight
 
 struct BlockLight
 {
-    FaceLight faces[6];
+    FaceLight torchLight[6];
+    FaceLight sunLight[6];
 };
 #endif //GAME_VERTEXBLOCKNEIGHBOURS_H

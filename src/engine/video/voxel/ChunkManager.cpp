@@ -5,7 +5,7 @@
 #include <algorithm>
 #include "ChunkManager.h"
 
-ChunkManager::ChunkManager(const std::shared_ptr<Terrain> &terrain) : terrain(terrain) {
+ChunkManager::ChunkManager(const std::shared_ptr<Terrain> &terrain, IGame &game) : terrain(terrain), game(game) {
     lightMapper = std::unique_ptr<LightMapper>(new LightMapper(this, updateList));
     calculateCircleOffsets();
 }
@@ -49,7 +49,9 @@ void ChunkManager::runIncrementalChunkBuild()
             if(setupIterator == buildChunks.cend())
             {
                 SDL_Log("CHUNK_STAGE_LIGHTING");
-
+                stopWatch();
+                chunkMetrics.chunkSetupTime = lastWatchResult;
+                startWatch();
                 buildStage = CHUNK_STAGE_LIGHTING;
                 currentLightPosIndex = circlePosOffsets.size()-1;
                 return;
@@ -76,6 +78,9 @@ void ChunkManager::runIncrementalChunkBuild()
             if(currentLightPosIndex < 0)
             {
                 SDL_Log("CHUNK_STAGE_BUILD");
+                stopWatch();
+                chunkMetrics.chunkLightingTime = lastWatchResult;
+                startWatch();
                 buildStage = CHUNK_STAGE_BUILD;
                 return;
             }
@@ -117,10 +122,13 @@ void ChunkManager::runIncrementalChunkBuild()
         if(buildChunks.empty())
         {
             SDL_Log("BUILD stage completed");
+            stopWatch();
+            chunkMetrics.chunkBuildTime = lastWatchResult;
             //SDL_Log("activeChunks load factor: %.2f", activeChunks.load_factor());
             if(!optimizeList.empty())
             {
                 SDL_Log("CHUNK_STAGE_OPTIMIZE");
+                startWatch();
                 buildStage = CHUNK_STAGE_OPTIMIZE;
             }
             else {
@@ -146,6 +154,8 @@ void ChunkManager::runIncrementalChunkBuild()
         //SDL_Log("Remeshed %d chunks this frame", count);
         if(optimizeList.empty())
         {
+            stopWatch();
+            chunkMetrics.chunkOptimizeTime = lastWatchResult;
             SDL_Log("CHUNK_STAGE_IDLE");
             buildStage = CHUNK_STAGE_IDLE;
         }
@@ -165,6 +175,8 @@ void ChunkManager::runIncrementalChunkBuild()
         if(updateList.empty())
         {
             SDL_Log("CHUNK_STAGE_IDLE");
+            stopWatch();
+            chunkMetrics.chunkUpdateTime = lastWatchResult;
             buildStage = CHUNK_STAGE_IDLE;
         }
     }
@@ -329,6 +341,7 @@ void ChunkManager::update(glm::vec3& campos, BlockTypeDictionary& blockTypeDict)
                 SDL_Log("Added new chunks to rebuild list %d", optimizeList.size());
             }
             SDL_Log("CHUNK_STAGE_SETUP");
+            startWatch();
             buildStage = CHUNK_STAGE_SETUP;
             setupIterator = buildChunks.begin();
             return;
@@ -336,6 +349,7 @@ void ChunkManager::update(glm::vec3& campos, BlockTypeDictionary& blockTypeDict)
         if(!updateList.empty())
         {
             SDL_Log("CHUNK_STAGE_UPDATE");
+            startWatch();
             buildStage = CHUNK_STAGE_UPDATE;
             return;
         }
@@ -422,4 +436,14 @@ void ChunkManager::testStuff()
     //}
     //else
     //    SDL_Log("Could not find origin chunk");
+}
+
+void ChunkManager::logChunkMetrics() {
+    SDL_Log("-=* ChunkMetrics *=----------------------------");
+    SDL_Log("SetupTime    : %0.5f sec (%.2f ms)", chunkMetrics.chunkSetupTime, chunkMetrics.chunkSetupTime * 1000);
+    SDL_Log("LightingTime : %0.5f sec (%.2f ms)", chunkMetrics.chunkLightingTime, chunkMetrics.chunkLightingTime * 1000);
+    SDL_Log("BuildTime    : %0.5f sec (%.2f ms)", chunkMetrics.chunkBuildTime, chunkMetrics.chunkBuildTime * 1000);
+    SDL_Log("OptimizeTime : %0.5f sec (%.2f ms)", chunkMetrics.chunkOptimizeTime, chunkMetrics.chunkOptimizeTime * 1000);
+    SDL_Log("UpdateTime   : %0.5f sec (%.2f ms)", chunkMetrics.chunkUpdateTime, chunkMetrics.chunkUpdateTime * 1000);
+    SDL_Log("-----------------------------------------------");
 }

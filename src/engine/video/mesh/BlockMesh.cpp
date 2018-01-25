@@ -95,6 +95,10 @@ static float decelerate(float input)
     return CubicInterpolate(p.data(), input);
 }
 
+/*
+ * 4 color bytes used as: sunlight, torchlight, ao, texcoord index
+ * actual shading must take place in the shader (yeah I know)
+ */
 void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, BlockLight &blockLight, AmbientOcclusion& aob) {
     /*
     u8 min_level = 1;
@@ -105,17 +109,16 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Bloc
         if(blockLight.faces[i].v3 < min_level) blockLight.faces[i].v3 = min_level;
         if(blockLight.faces[i].v4 < min_level) blockLight.faces[i].v4 = min_level;
     }
-    */
+
     u8 light[6][4];
     for(i32 i = 0; i < 6; i++) {
-        light[i][0] = (u8)( decelerate((float)blockLight.faces[i].v1 / 15.0f) * 255.0f);
-        light[i][1] = (u8)( decelerate((float)blockLight.faces[i].v2 / 15.0f) * 255.0f);
-        light[i][2] = (u8)( decelerate((float)blockLight.faces[i].v3 / 15.0f) * 255.0f);
-        light[i][3] = (u8)( decelerate((float)blockLight.faces[i].v4 / 15.0f) * 255.0f);
+        light[i][0] = (u8)( decelerate((float)blockLight.sunLight[i].v1 / 15.0f) * 255.0f);
+        light[i][1] = (u8)( decelerate((float)blockLight.sunLight[i].v2 / 15.0f) * 255.0f);
+        light[i][2] = (u8)( decelerate((float)blockLight.sunLight[i].v3 / 15.0f) * 255.0f);
+        light[i][3] = (u8)( decelerate((float)blockLight.sunLight[i].v4 / 15.0f) * 255.0f);
     }
-
+    */
     u8 v1,v2,v3,v4;
-    float minLight = 0.3f;
     /*
     if(level == 1)
     {
@@ -123,182 +126,180 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Bloc
     }
     */
     if(faces.back) {
-        v1 = (u8) (((float) aob.faces[BACK_FACE].vertices[LEFT_TOP].AO / 3.0f) * light[BACK_FACE][0]);
-        v2 = (u8) (((float) aob.faces[BACK_FACE].vertices[LEFT_BTM].AO / 3.0f) * light[BACK_FACE][1]);
-        v3 = (u8) (((float) aob.faces[BACK_FACE].vertices[RIGHT_BTM].AO / 3.0f) * light[BACK_FACE][2]);
-        v4 = (u8) (((float) aob.faces[BACK_FACE].vertices[RIGHT_TOP].AO / 3.0f) * light[BACK_FACE][3]);
+        v1 = (u8) aob.faces[BACK_FACE].vertices[LEFT_TOP].AO;
+        v2 = (u8) aob.faces[BACK_FACE].vertices[LEFT_BTM].AO;
+        v3 = (u8) aob.faces[BACK_FACE].vertices[RIGHT_BTM].AO;
+        v4 = (u8) aob.faces[BACK_FACE].vertices[RIGHT_TOP].AO;
         if(aob.faces[BACK_FACE].vertices[LEFT_BTM].AO + aob.faces[BACK_FACE].vertices[RIGHT_TOP].AO < aob.faces[BACK_FACE].vertices[LEFT_TOP].AO + aob.faces[BACK_FACE].vertices[RIGHT_BTM].AO)
         {
             vertices.insert(vertices.end(), {
-                    {byte4(x, y, z, 0),         ubyte4(v3, v3, v3, 0)},
-                    {byte4(x + 1, y + 1, z, 0), ubyte4(v1, v1, v1, 3)},
-                    {byte4(x + 1, y, z, 0),     ubyte4(v2, v2, v2, 2)},
-                    {byte4(x + 1, y + 1, z, 0), ubyte4(v1, v1, v1, 3)},
-                    {byte4(x, y, z, 0),         ubyte4(v3, v3, v3, 0)},
-                    {byte4(x, y + 1, z, 0),     ubyte4(v4, v4, v4, 1)}
+                    {byte4(x, y, z, 0),         ubyte4(blockLight.sunLight[BACK_FACE].v3, blockLight.torchLight[BACK_FACE].v3, v3, 0)}, // v2
+                    {byte4(x + 1, y + 1, z, 0), ubyte4(blockLight.sunLight[BACK_FACE].v1, blockLight.torchLight[BACK_FACE].v1, v1, 3)}, // v1
+                    {byte4(x + 1, y, z, 0),     ubyte4(blockLight.sunLight[BACK_FACE].v2, blockLight.torchLight[BACK_FACE].v2, v2, 2)}, // v2
+                    {byte4(x + 1, y + 1, z, 0), ubyte4(blockLight.sunLight[BACK_FACE].v1, blockLight.torchLight[BACK_FACE].v1, v1, 3)}, // v1
+                    {byte4(x, y, z, 0),         ubyte4(blockLight.sunLight[BACK_FACE].v3, blockLight.torchLight[BACK_FACE].v3, v3, 0)}, // v3
+                    {byte4(x, y + 1, z, 0),     ubyte4(blockLight.sunLight[BACK_FACE].v4, blockLight.torchLight[BACK_FACE].v4, v4, 1)}  // v4
             });
         }
         else
         {
             vertices.insert(vertices.end(), {
-                    {byte4(x + 1, y, z, 0),     ubyte4(v2, v2, v2, 2)},
-                    {byte4(x, y, z, 0),         ubyte4(v3, v3, v3, 0)},
-                    {byte4(x, y + 1, z, 0),     ubyte4(v4, v4, v4, 1)},
-                    {byte4(x, y + 1, z, 0),     ubyte4(v4, v4, v4, 1)},
-                    {byte4(x + 1, y + 1, z, 0), ubyte4(v1, v1, v1, 3)},
-                    {byte4(x + 1, y, z, 0),     ubyte4(v2, v2, v2, 2)}
+                    {byte4(x + 1, y, z, 0),     ubyte4(blockLight.sunLight[BACK_FACE].v2, blockLight.torchLight[BACK_FACE].v2, v2, 2)}, // v2
+                    {byte4(x, y, z, 0),         ubyte4(blockLight.sunLight[BACK_FACE].v3, blockLight.torchLight[BACK_FACE].v3, v3, 0)}, // v3
+                    {byte4(x, y + 1, z, 0),     ubyte4(blockLight.sunLight[BACK_FACE].v4, blockLight.torchLight[BACK_FACE].v4, v4, 1)}, // v4
+                    {byte4(x, y + 1, z, 0),     ubyte4(blockLight.sunLight[BACK_FACE].v4, blockLight.torchLight[BACK_FACE].v4, v4, 1)}, // v4
+                    {byte4(x + 1, y + 1, z, 0), ubyte4(blockLight.sunLight[BACK_FACE].v1, blockLight.torchLight[BACK_FACE].v1, v1, 3)}, // v1
+                    {byte4(x + 1, y, z, 0),     ubyte4(blockLight.sunLight[BACK_FACE].v2, blockLight.torchLight[BACK_FACE].v2, v2, 2)}  // v2
             });
         }
     }
     if(faces.front)
     {
-        v1 = (u8) (((float) aob.faces[FRONT_FACE].vertices[LEFT_TOP].AO / 3.0f) * light[FRONT_FACE][0]);
-        v2 = (u8) (((float) aob.faces[FRONT_FACE].vertices[LEFT_BTM].AO / 3.0f) * light[FRONT_FACE][1]);
-        v3 = (u8) (((float) aob.faces[FRONT_FACE].vertices[RIGHT_BTM].AO / 3.0f) * light[FRONT_FACE][2]);
-        v4 = (u8) (((float) aob.faces[FRONT_FACE].vertices[RIGHT_TOP].AO / 3.0f) * light[FRONT_FACE][3]);
+        v1 = (u8) aob.faces[FRONT_FACE].vertices[LEFT_TOP].AO;
+        v2 = (u8) aob.faces[FRONT_FACE].vertices[LEFT_BTM].AO;
+        v3 = (u8) aob.faces[FRONT_FACE].vertices[RIGHT_BTM].AO;
+        v4 = (u8) aob.faces[FRONT_FACE].vertices[RIGHT_TOP].AO;
 
         if(aob.faces[FRONT_FACE].vertices[LEFT_BTM].AO + aob.faces[FRONT_FACE].vertices[RIGHT_TOP].AO > aob.faces[FRONT_FACE].vertices[LEFT_TOP].AO + aob.faces[FRONT_FACE].vertices[RIGHT_BTM].AO)
         {
             vertices.insert(vertices.end(), {
                     // Front face
-                    {byte4(x, y, z + 1, 1),         ubyte4(v2, v2, v2, 0)},
-                    {byte4(x + 1, y, z + 1, 1),     ubyte4(v3, v3, v3, 2)},
-                    {byte4(x + 1, y + 1, z + 1, 1), ubyte4(v4, v4, v4, 3)},
-
-                    {byte4(x + 1, y + 1, z + 1, 1), ubyte4(v4, v4, v4, 3)},
-                    {byte4(x, y + 1, z + 1, 1),     ubyte4(v1, v1, v1, 1)},
-                    {byte4(x, y, z + 1, 1),         ubyte4(v2, v2, v2, 0)}
+                    {byte4(x, y, z + 1, 1),         ubyte4(blockLight.sunLight[FRONT_FACE].v2, blockLight.torchLight[FRONT_FACE].v2, v2, 0)},
+                    {byte4(x + 1, y, z + 1, 1),     ubyte4(blockLight.sunLight[FRONT_FACE].v3, blockLight.torchLight[FRONT_FACE].v3, v3, 2)},
+                    {byte4(x + 1, y + 1, z + 1, 1), ubyte4(blockLight.sunLight[FRONT_FACE].v4, blockLight.torchLight[FRONT_FACE].v4, v4, 3)},
+                    {byte4(x + 1, y + 1, z + 1, 1), ubyte4(blockLight.sunLight[FRONT_FACE].v4, blockLight.torchLight[FRONT_FACE].v4, v4, 3)},
+                    {byte4(x, y + 1, z + 1, 1),     ubyte4(blockLight.sunLight[FRONT_FACE].v1, blockLight.torchLight[FRONT_FACE].v1, v1, 1)},
+                    {byte4(x, y, z + 1, 1),         ubyte4(blockLight.sunLight[FRONT_FACE].v2, blockLight.torchLight[FRONT_FACE].v2, v2, 0)}
             });
         }
         else
         {
             vertices.insert(vertices.end(), {
                     // Front face
-                    {byte4(x + 1, y, z + 1, 1),     ubyte4(v3, v3, v3, 2)}, // V3
-                    {byte4(x, y + 1, z + 1, 1),     ubyte4(v1, v1, v1, 1)}, // V1
-                    {byte4(x, y, z + 1, 1),         ubyte4(v2, v2, v2, 0)}, // V2
-                    {byte4(x, y + 1, z + 1, 1),     ubyte4(v1, v1, v1, 1)}, // V1
-                    {byte4(x + 1, y, z + 1, 1),     ubyte4(v3, v3, v3, 2)}, // V3
-                    {byte4(x + 1, y + 1, z + 1, 1), ubyte4(v4, v4, v4, 3)}  // v4
+                    {byte4(x + 1, y, z + 1, 1),     ubyte4(blockLight.sunLight[FRONT_FACE].v3, blockLight.torchLight[FRONT_FACE].v3, v3, 2)}, // V3
+                    {byte4(x, y + 1, z + 1, 1),     ubyte4(blockLight.sunLight[FRONT_FACE].v1, blockLight.torchLight[FRONT_FACE].v1, v1, 1)}, // V1
+                    {byte4(x, y, z + 1, 1),         ubyte4(blockLight.sunLight[FRONT_FACE].v2, blockLight.torchLight[FRONT_FACE].v2, v2, 0)}, // V2
+                    {byte4(x, y + 1, z + 1, 1),     ubyte4(blockLight.sunLight[FRONT_FACE].v1, blockLight.torchLight[FRONT_FACE].v1, v1, 1)}, // V1
+                    {byte4(x + 1, y, z + 1, 1),     ubyte4(blockLight.sunLight[FRONT_FACE].v3, blockLight.torchLight[FRONT_FACE].v3, v3, 2)}, // V3
+                    {byte4(x + 1, y + 1, z + 1, 1), ubyte4(blockLight.sunLight[FRONT_FACE].v4, blockLight.torchLight[FRONT_FACE].v4, v4, 3)}  // v4
             });
         }
     }
     if(faces.left) {
-        v1 = (u8) (((float) aob.faces[LEFT_FACE].vertices[LEFT_TOP].AO / 3.0f) * light[LEFT_FACE][0]);
-        v2 = (u8) (((float) aob.faces[LEFT_FACE].vertices[LEFT_BTM].AO / 3.0f) * light[LEFT_FACE][1]);
-        v3 = (u8) (((float) aob.faces[LEFT_FACE].vertices[RIGHT_BTM].AO / 3.0f) * light[LEFT_FACE][2]);
-        v4 = (u8) (((float) aob.faces[LEFT_FACE].vertices[RIGHT_TOP].AO / 3.0f) * light[LEFT_FACE][3]);
+        v1 = (u8) aob.faces[LEFT_FACE].vertices[LEFT_TOP].AO;
+        v2 = (u8) aob.faces[LEFT_FACE].vertices[LEFT_BTM].AO;
+        v3 = (u8) aob.faces[LEFT_FACE].vertices[RIGHT_BTM].AO;
+        v4 = (u8) aob.faces[LEFT_FACE].vertices[RIGHT_TOP].AO;
         if(aob.faces[LEFT_FACE].vertices[LEFT_BTM].AO + aob.faces[LEFT_FACE].vertices[RIGHT_TOP].AO > aob.faces[LEFT_FACE].vertices[LEFT_TOP].AO + aob.faces[LEFT_FACE].vertices[RIGHT_BTM].AO)
         {
             vertices.insert(vertices.end(), {
                     // Left face
-                    {byte4(x, y + 1, z + 1, 2), ubyte4(v4, v4, v4, 3)},
-                    {byte4(x, y + 1, z, 2),     ubyte4(v1, v1, v1, 1)},
-                    {byte4(x, y, z, 2),         ubyte4(v2, v2, v2, 0)},
-                    {byte4(x, y, z, 2),         ubyte4(v2, v2, v2, 0)},
-                    {byte4(x, y, z + 1, 2),     ubyte4(v3, v3, v3, 2)},
-                    {byte4(x, y + 1, z + 1, 2), ubyte4(v4, v4, v4, 3)}
+                    {byte4(x, y + 1, z + 1, 2), ubyte4(blockLight.sunLight[LEFT_FACE].v4, blockLight.torchLight[LEFT_FACE].v4, v4, 3)},
+                    {byte4(x, y + 1, z, 2),     ubyte4(blockLight.sunLight[LEFT_FACE].v1, blockLight.torchLight[LEFT_FACE].v1, v1, 1)},
+                    {byte4(x, y, z, 2),         ubyte4(blockLight.sunLight[LEFT_FACE].v2, blockLight.torchLight[LEFT_FACE].v2, v2, 0)},
+                    {byte4(x, y, z, 2),         ubyte4(blockLight.sunLight[LEFT_FACE].v2, blockLight.torchLight[LEFT_FACE].v2, v2, 0)},
+                    {byte4(x, y, z + 1, 2),     ubyte4(blockLight.sunLight[LEFT_FACE].v3, blockLight.torchLight[LEFT_FACE].v3, v3, 2)},
+                    {byte4(x, y + 1, z + 1, 2), ubyte4(blockLight.sunLight[LEFT_FACE].v4, blockLight.torchLight[LEFT_FACE].v4, v4, 3)}
             });
         }
         else
         {
             vertices.insert(vertices.end(), {
                     // Left face
-                    {byte4(x, y + 1, z, 2),     ubyte4(v1, v1, v1, 1)}, // V1
-                    {byte4(x, y, z + 1, 2),     ubyte4(v3, v3, v3, 2)}, // V3
-                    {byte4(x, y + 1, z + 1, 2), ubyte4(v4, v4, v4, 3)}, // V4
-                    {byte4(x, y, z + 1, 2),     ubyte4(v3, v3, v3, 2)}, // V3
-                    {byte4(x, y + 1, z, 2),     ubyte4(v1, v1, v1, 1)}, // V1
-                    {byte4(x, y, z, 2),         ubyte4(v2, v2, v2, 0)}  // V2
+                    {byte4(x, y + 1, z, 2),     ubyte4(blockLight.sunLight[LEFT_FACE].v1, blockLight.torchLight[LEFT_FACE].v1, v1, 1)}, // V1
+                    {byte4(x, y, z + 1, 2),     ubyte4(blockLight.sunLight[LEFT_FACE].v3, blockLight.torchLight[LEFT_FACE].v3, v3, 2)}, // V3
+                    {byte4(x, y + 1, z + 1, 2), ubyte4(blockLight.sunLight[LEFT_FACE].v4, blockLight.torchLight[LEFT_FACE].v4, v4, 3)}, // V4
+                    {byte4(x, y, z + 1, 2),     ubyte4(blockLight.sunLight[LEFT_FACE].v3, blockLight.torchLight[LEFT_FACE].v3, v3, 2)}, // V3
+                    {byte4(x, y + 1, z, 2),     ubyte4(blockLight.sunLight[LEFT_FACE].v1, blockLight.torchLight[LEFT_FACE].v1, v1, 1)}, // V1
+                    {byte4(x, y, z, 2),         ubyte4(blockLight.sunLight[LEFT_FACE].v2, blockLight.torchLight[LEFT_FACE].v2, v2, 0)}  // V2
             });
         }
     }
     if(faces.right) {
-        v1 = (u8) (((float) aob.faces[RIGHT_FACE].vertices[LEFT_TOP].AO / 3.0f) * light[RIGHT_FACE][0]);
-        v2 = (u8) (((float) aob.faces[RIGHT_FACE].vertices[LEFT_BTM].AO / 3.0f) * light[RIGHT_FACE][1]);
-        v3 = (u8) (((float) aob.faces[RIGHT_FACE].vertices[RIGHT_BTM].AO / 3.0f) * light[RIGHT_FACE][2]);
-        v4 = (u8) (((float) aob.faces[RIGHT_FACE].vertices[RIGHT_TOP].AO / 3.0f) * light[RIGHT_FACE][3]);
+        v1 = (u8) aob.faces[RIGHT_FACE].vertices[LEFT_TOP].AO;
+        v2 = (u8) aob.faces[RIGHT_FACE].vertices[LEFT_BTM].AO;
+        v3 = (u8) aob.faces[RIGHT_FACE].vertices[RIGHT_BTM].AO;
+        v4 = (u8) aob.faces[RIGHT_FACE].vertices[RIGHT_TOP].AO;
         if(aob.faces[RIGHT_FACE].vertices[LEFT_BTM].AO + aob.faces[RIGHT_FACE].vertices[RIGHT_TOP].AO < aob.faces[RIGHT_FACE].vertices[LEFT_TOP].AO + aob.faces[RIGHT_FACE].vertices[RIGHT_BTM].AO) {
             vertices.insert(vertices.end(), {
                     // Right face
-                    {byte4(x + 1, y + 1, z + 1, 3), ubyte4(v1, v1, v1, 1)},
-                    {byte4(x + 1, y, z, 3),         ubyte4(v3, v3, v3, 2)},
-                    {byte4(x + 1, y + 1, z, 3),     ubyte4(v4, v4, v4, 3)},
-                    {byte4(x + 1, y, z, 3),         ubyte4(v3, v3, v3, 2)},
-                    {byte4(x + 1, y + 1, z + 1, 3), ubyte4(v1, v1, v1, 1)},
-                    {byte4(x + 1, y, z + 1, 3),     ubyte4(v2, v2, v2, 0)}
+                    {byte4(x + 1, y + 1, z + 1, 3), ubyte4(blockLight.sunLight[RIGHT_FACE].v1, blockLight.torchLight[RIGHT_FACE].v1, v1, 1)},
+                    {byte4(x + 1, y, z, 3),         ubyte4(blockLight.sunLight[RIGHT_FACE].v3, blockLight.torchLight[RIGHT_FACE].v3, v3, 2)},
+                    {byte4(x + 1, y + 1, z, 3),     ubyte4(blockLight.sunLight[RIGHT_FACE].v4, blockLight.torchLight[RIGHT_FACE].v4, v4, 3)},
+                    {byte4(x + 1, y, z, 3),         ubyte4(blockLight.sunLight[RIGHT_FACE].v3, blockLight.torchLight[RIGHT_FACE].v3, v3, 2)},
+                    {byte4(x + 1, y + 1, z + 1, 3), ubyte4(blockLight.sunLight[RIGHT_FACE].v1, blockLight.torchLight[RIGHT_FACE].v1, v1, 1)},
+                    {byte4(x + 1, y, z + 1, 3),     ubyte4(blockLight.sunLight[RIGHT_FACE].v2, blockLight.torchLight[RIGHT_FACE].v2, v2, 0)}
             });
         }
         else
         {
             vertices.insert(vertices.end(), {
                     // Right face
-                    {byte4(x + 1, y + 1, z, 3),     ubyte4(v4, v4, v4, 3)},
-                    {byte4(x + 1, y + 1, z + 1, 3), ubyte4(v1, v1, v1, 1)},
-                    {byte4(x + 1, y, z + 1, 3),     ubyte4(v2, v2, v2, 0)},
-                    {byte4(x + 1, y, z + 1, 3),     ubyte4(v2, v2, v2, 0)},
-                    {byte4(x + 1, y, z, 3),         ubyte4(v3, v3, v3, 2)},
-                    {byte4(x + 1, y + 1, z, 3),     ubyte4(v4, v4, v4, 3)}
+                    {byte4(x + 1, y + 1, z, 3),     ubyte4(blockLight.sunLight[RIGHT_FACE].v4, blockLight.torchLight[RIGHT_FACE].v4, v4, 3)},
+                    {byte4(x + 1, y + 1, z + 1, 3), ubyte4(blockLight.sunLight[RIGHT_FACE].v1, blockLight.torchLight[RIGHT_FACE].v1, v1, 1)},
+                    {byte4(x + 1, y, z + 1, 3),     ubyte4(blockLight.sunLight[RIGHT_FACE].v2, blockLight.torchLight[RIGHT_FACE].v2, v2, 0)},
+                    {byte4(x + 1, y, z + 1, 3),     ubyte4(blockLight.sunLight[RIGHT_FACE].v2, blockLight.torchLight[RIGHT_FACE].v2, v2, 0)},
+                    {byte4(x + 1, y, z, 3),         ubyte4(blockLight.sunLight[RIGHT_FACE].v3, blockLight.torchLight[RIGHT_FACE].v3, v3, 2)},
+                    {byte4(x + 1, y + 1, z, 3),     ubyte4(blockLight.sunLight[RIGHT_FACE].v4, blockLight.torchLight[RIGHT_FACE].v4, v4, 3)}
             });
         }
     }
     if(faces.bottom) {
-        v1 = (u8) (((float) aob.faces[BOTTOM_FACE].vertices[LEFT_TOP].AO / 3.0f) * light[BOTTOM_FACE][0]);
-        v2 = (u8) (((float) aob.faces[BOTTOM_FACE].vertices[LEFT_BTM].AO / 3.0f) * light[BOTTOM_FACE][1]);
-        v3 = (u8) (((float) aob.faces[BOTTOM_FACE].vertices[RIGHT_BTM].AO / 3.0f) * light[BOTTOM_FACE][2]);
-        v4 = (u8) (((float) aob.faces[BOTTOM_FACE].vertices[RIGHT_TOP].AO / 3.0f) * light[BOTTOM_FACE][3]);
+        v1 = (u8) aob.faces[BOTTOM_FACE].vertices[LEFT_TOP].AO;
+        v2 = (u8) aob.faces[BOTTOM_FACE].vertices[LEFT_BTM].AO;
+        v3 = (u8) aob.faces[BOTTOM_FACE].vertices[RIGHT_BTM].AO;
+        v4 = (u8) aob.faces[BOTTOM_FACE].vertices[RIGHT_TOP].AO;
 
         if(aob.faces[BOTTOM_FACE].vertices[LEFT_BTM].AO + aob.faces[BOTTOM_FACE].vertices[RIGHT_TOP].AO > aob.faces[BOTTOM_FACE].vertices[LEFT_TOP].AO + aob.faces[BOTTOM_FACE].vertices[RIGHT_BTM].AO) {
             vertices.insert(vertices.end(), {
                     // Bottom face
-                    {byte4(x, y, z, 4),         ubyte4(v2, v2, v2, 3)},
-                    {byte4(x + 1, y, z, 4),     ubyte4(v3, v3, v3, 1)},
-                    {byte4(x + 1, y, z + 1, 4), ubyte4(v4, v4, v4, 0)},
-                    {byte4(x + 1, y, z + 1, 4), ubyte4(v4, v4, v4, 0)},
-                    {byte4(x, y, z + 1, 4),     ubyte4(v1, v1, v1, 2)},
-                    {byte4(x, y, z, 4),         ubyte4(v2, v2, v2, 3)}
+                    {byte4(x, y, z, 4),         ubyte4(blockLight.sunLight[BOTTOM_FACE].v2, blockLight.torchLight[BOTTOM_FACE].v2, v2, 3)},
+                    {byte4(x + 1, y, z, 4),     ubyte4(blockLight.sunLight[BOTTOM_FACE].v3, blockLight.torchLight[BOTTOM_FACE].v3, v3, 1)},
+                    {byte4(x + 1, y, z + 1, 4), ubyte4(blockLight.sunLight[BOTTOM_FACE].v4, blockLight.torchLight[BOTTOM_FACE].v4, v4, 0)},
+                    {byte4(x + 1, y, z + 1, 4), ubyte4(blockLight.sunLight[BOTTOM_FACE].v4, blockLight.torchLight[BOTTOM_FACE].v4, v4, 0)},
+                    {byte4(x, y, z + 1, 4),     ubyte4(blockLight.sunLight[BOTTOM_FACE].v1, blockLight.torchLight[BOTTOM_FACE].v1, v1, 2)},
+                    {byte4(x, y, z, 4),         ubyte4(blockLight.sunLight[BOTTOM_FACE].v2, blockLight.torchLight[BOTTOM_FACE].v2, v2, 3)}
             });
         }
         else
         {
             vertices.insert(vertices.end(), {
                     // Bottom face
-                    {byte4(x, y, z + 1, 4),     ubyte4(v1, v1, v1, 2)}, // V1
-                    {byte4(x + 1, y, z, 4),     ubyte4(v3, v3, v3, 1)}, // V3
-                    {byte4(x + 1, y, z + 1, 4), ubyte4(v4, v4, v4, 0)}, // V4
-                    {byte4(x + 1, y, z, 4),     ubyte4(v3, v3, v3, 1)}, // V3
-                    {byte4(x, y, z + 1, 4),     ubyte4(v1, v1, v1, 2)}, // V1
-                    {byte4(x, y, z, 4),         ubyte4(v2, v2, v2, 3)}  // V2
+                    {byte4(x, y, z + 1, 4),     ubyte4(blockLight.sunLight[BOTTOM_FACE].v1, blockLight.torchLight[BOTTOM_FACE].v1, v1, 2)}, // V1
+                    {byte4(x + 1, y, z, 4),     ubyte4(blockLight.sunLight[BOTTOM_FACE].v3, blockLight.torchLight[BOTTOM_FACE].v3, v3, 1)}, // V3
+                    {byte4(x + 1, y, z + 1, 4), ubyte4(blockLight.sunLight[BOTTOM_FACE].v4, blockLight.torchLight[BOTTOM_FACE].v4, v4, 0)}, // V4
+                    {byte4(x + 1, y, z, 4),     ubyte4(blockLight.sunLight[BOTTOM_FACE].v3, blockLight.torchLight[BOTTOM_FACE].v3, v3, 1)}, // V3
+                    {byte4(x, y, z + 1, 4),     ubyte4(blockLight.sunLight[BOTTOM_FACE].v1, blockLight.torchLight[BOTTOM_FACE].v1, v1, 2)}, // V1
+                    {byte4(x, y, z, 4),         ubyte4(blockLight.sunLight[BOTTOM_FACE].v2, blockLight.torchLight[BOTTOM_FACE].v2, v2, 3)}  // V2
             });
         }
     }
     if(faces.top) {
-        v1 = (u8) (((float) aob.faces[TOP_FACE].vertices[LEFT_TOP].AO / 3.0f) * light[TOP_FACE][0]);
-        v2 = (u8) (((float) aob.faces[TOP_FACE].vertices[LEFT_BTM].AO / 3.0f) * light[TOP_FACE][1]);
-        v3 = (u8) (((float) aob.faces[TOP_FACE].vertices[RIGHT_BTM].AO / 3.0f) * light[TOP_FACE][2]);
-        v4 = (u8) (((float) aob.faces[TOP_FACE].vertices[RIGHT_TOP].AO / 3.0f) * light[TOP_FACE][3]);
+        v1 = (u8) aob.faces[TOP_FACE].vertices[LEFT_TOP].AO;
+        v2 = (u8) aob.faces[TOP_FACE].vertices[LEFT_BTM].AO;
+        v3 = (u8) aob.faces[TOP_FACE].vertices[RIGHT_BTM].AO;
+        v4 = (u8) aob.faces[TOP_FACE].vertices[RIGHT_TOP].AO;
 
         if(aob.faces[TOP_FACE].vertices[LEFT_BTM].AO + aob.faces[TOP_FACE].vertices[RIGHT_TOP].AO < aob.faces[TOP_FACE].vertices[LEFT_TOP].AO + aob.faces[TOP_FACE].vertices[RIGHT_BTM].AO) {
             vertices.insert(vertices.end(), {
                     // Top face
-                    {byte4(x, y + 1, z, 5),         ubyte4(v1, v1, v1, 1)},
-                    {byte4(x + 1, y + 1, z + 1, 5), ubyte4(v3, v3, v3, 2)},
-                    {byte4(x + 1, y + 1, z, 5),     ubyte4(v4, v4, v4, 3)},
-                    {byte4(x + 1, y + 1, z + 1, 5), ubyte4(v3, v3, v3, 2)},
-                    {byte4(x, y + 1, z, 5),         ubyte4(v1, v1, v1, 1)},
-                    {byte4(x, y + 1, z + 1, 5),     ubyte4(v2, v2, v2, 0)}
+                    {byte4(x, y + 1, z, 5),         ubyte4(blockLight.sunLight[TOP_FACE].v1, blockLight.torchLight[TOP_FACE].v1, v1, 1)},
+                    {byte4(x + 1, y + 1, z + 1, 5), ubyte4(blockLight.sunLight[TOP_FACE].v3, blockLight.torchLight[TOP_FACE].v3, v3, 2)},
+                    {byte4(x + 1, y + 1, z, 5),     ubyte4(blockLight.sunLight[TOP_FACE].v4, blockLight.torchLight[TOP_FACE].v4, v4, 3)},
+                    {byte4(x + 1, y + 1, z + 1, 5), ubyte4(blockLight.sunLight[TOP_FACE].v3, blockLight.torchLight[TOP_FACE].v3, v3, 2)},
+                    {byte4(x, y + 1, z, 5),         ubyte4(blockLight.sunLight[TOP_FACE].v1, blockLight.torchLight[TOP_FACE].v1, v1, 1)},
+                    {byte4(x, y + 1, z + 1, 5),     ubyte4(blockLight.sunLight[TOP_FACE].v2, blockLight.torchLight[TOP_FACE].v2, v2, 0)}
             });
         }
         else
         {
             vertices.insert(vertices.end(), {
-                    {byte4(x, y + 1, z + 1, 5),     ubyte4(v2, v2, v2, 0)}, // v2
-                    {byte4(x + 1, y + 1, z + 1, 5), ubyte4(v3, v3, v3, 2)}, // v3
-                    {byte4(x + 1, y + 1, z, 5),     ubyte4(v4, v4, v4, 3)}, // v4
-                    {byte4(x + 1, y + 1, z, 5),     ubyte4(v4, v4, v4, 3)}, // v4
-                    {byte4(x, y + 1, z, 5),         ubyte4(v1, v1, v1, 1)}, // v1
-                    {byte4(x, y + 1, z + 1, 5),     ubyte4(v2, v2, v2, 0)}  // v2
-
+                    {byte4(x, y + 1, z + 1, 5),     ubyte4(blockLight.sunLight[TOP_FACE].v2, blockLight.torchLight[TOP_FACE].v2, v2, 0)}, // v2
+                    {byte4(x + 1, y + 1, z + 1, 5), ubyte4(blockLight.sunLight[TOP_FACE].v3, blockLight.torchLight[TOP_FACE].v3, v3, 2)}, // v3
+                    {byte4(x + 1, y + 1, z, 5),     ubyte4(blockLight.sunLight[TOP_FACE].v4, blockLight.torchLight[TOP_FACE].v4, v4, 3)}, // v4
+                    {byte4(x + 1, y + 1, z, 5),     ubyte4(blockLight.sunLight[TOP_FACE].v4, blockLight.torchLight[TOP_FACE].v4, v4, 3)}, // v4
+                    {byte4(x, y + 1, z, 5),         ubyte4(blockLight.sunLight[TOP_FACE].v1, blockLight.torchLight[TOP_FACE].v1, v1, 1)}, // v1
+                    {byte4(x, y + 1, z + 1, 5),     ubyte4(blockLight.sunLight[TOP_FACE].v2, blockLight.torchLight[TOP_FACE].v2, v2, 0)}  // v2
             });
         }
     }

@@ -1,0 +1,69 @@
+Chunker stats
+=============
+
+20180124 - debug build no optimizations
+
+Initial run generating full run:
+
+INFO: -=* ChunkMetrics *=----------------------------
+INFO: SetupTime    : 0.29513 sec (295.13 ms)
+INFO: LightingTime : 0.08726 sec (87.26 ms)
+INFO: BuildTime    : 2.58472 sec (2584.72 ms)
+INFO: OptimizeTime : 2.31091 sec (2310.91 ms)
+INFO: UpdateTime   : 0 sec (0 ms)
+INFO: -----------------------------------------------
+
+Moving ahead one chunk:
+
+INFO: -=* ChunkMetrics *=----------------------------
+INFO: SetupTime    : 0.02392 sec (23.92 ms)
+INFO: LightingTime : 0.03359 sec (33.59 ms)
+INFO: BuildTime    : 0.19511 sec (195.11 ms)
+INFO: OptimizeTime : 0.34649 sec (346.49 ms)
+INFO: UpdateTime   : 0 sec (0 ms)
+INFO: -----------------------------------------------
+
+
+optimized build: -O3 -mwindows -funroll-loops -fomit-frame-pointer -ftree-loop-distribution -ftree-vectorize
+
+Full run:
+
+INFO: -=* ChunkMetrics *=----------------------------
+INFO: SetupTime    : 0.07240 sec (72.40 ms)
+INFO: LightingTime : 0.03105 sec (31.05 ms)
+INFO: BuildTime    : 0.21079 sec (210.79 ms)
+INFO: OptimizeTime : 0.20730 sec (207.30 ms)
+INFO: UpdateTime   : 0 sec (0 ms)
+INFO: -----------------------------------------------
+
+Moving ahead one chunk:
+
+INFO: -=* ChunkMetrics *=----------------------------
+INFO: SetupTime    : 0.00568 sec (5.68 ms)
+INFO: LightingTime : 0.01782 sec (17.82 ms)
+INFO: BuildTime    : 0.01673 sec (16.73 ms)
+INFO: OptimizeTime : 0.03037 sec (30.37 ms)
+INFO: UpdateTime   : 0 sec (0 ms)
+INFO: -----------------------------------------------
+
+20180125 - optimized build
+
+Full run:
+
+INFO: -=* ChunkMetrics *=----------------------------
+INFO: SetupTime    : 0.07527 sec (75.27 ms)
+INFO: LightingTime : 0.02651 sec (26.51 ms)
+INFO: BuildTime    : 0.20693 sec (206.93 ms)
+INFO: OptimizeTime : 0.18695 sec (186.95 ms)
+INFO: UpdateTime   : 0 sec (0 ms)
+INFO: -----------------------------------------------
+
+Partial run:
+
+INFO: -=* ChunkMetrics *=----------------------------
+INFO: SetupTime    : 0.00542 sec (5.42 ms)
+INFO: LightingTime : 0.01859 sec (18.59 ms)
+INFO: BuildTime    : 0.01633 sec (16.33 ms)
+INFO: OptimizeTime : 0.02783 sec (27.83 ms)
+INFO: UpdateTime   : 0 sec (0 ms)
+INFO: -----------------------------------------------

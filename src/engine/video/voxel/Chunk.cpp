@@ -63,13 +63,13 @@ void Chunk::setupDebugChunk()
 
                 // punch a few holes
 
-                /*
+
                 if(y == 106 && x == 4 && z == 4)
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, false);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, true);
                 }
-                */
+
 
                 // wall
                 if(x >= 6 && x <= 12 && z == 8 && y >= 100 && y <= 105)
@@ -293,7 +293,8 @@ void Chunk::rebuild(const ChunkPos& position) {
             //SDL_Log("Meshing cube at %d,%d,%d", mb.x, mb.y, mb.z);
             if(mb.faces.anyFacesEnabled()) {
                 calculateAO(ao_block, mb);
-                calculateBlockLight(block_light, mb);
+                calculateBlockTorchLight(block_light, mb);
+                calculateBlockSunLight(block_light, mb);
 
                 mesh->generateTexturedCubeAt(mb.x, mb.y, mb.z, mb.faces, block_light, ao_block);
             }
@@ -306,7 +307,7 @@ void Chunk::rebuild(const ChunkPos& position) {
         mesh->upload();
 }
 
-void Chunk::calculateBlockLight(BlockLight& block_light, MaterialBlock& mb)
+void Chunk::calculateBlockTorchLight(BlockLight& block_light, MaterialBlock& mb)
 {
     i32 count;
     if(mb.faces.back)
@@ -314,189 +315,384 @@ void Chunk::calculateBlockLight(BlockLight& block_light, MaterialBlock& mb)
         //block_light.faces[BACK_FACE].v1 = block_light.faces[BACK_FACE].v2 = block_light.faces[BACK_FACE].v3 = block_light.faces[BACK_FACE].v4 = getTorchLightAt(mb.x, mb.y, mb.z - 1);
 
         count = 0;
-        block_light.faces[BACK_FACE].v1 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y, mb.z - 1, count)
+        block_light.torchLight[BACK_FACE].v1 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y, mb.z - 1, count)
                                                  + getTorchLightAndIncreaseCount(mb.x + 1, mb.y, mb.z - 1, count)
                                                  + getTorchLightAndIncreaseCount(mb.x, mb.y + 1, mb.z - 1, count)
                                                  + getTorchLightAndIncreaseCount(mb.x + 1, mb.y + 1, mb.z - 1, count));
-        if(count > 0) block_light.faces[BACK_FACE].v1 /= count;
+        if(count > 0) block_light.torchLight[BACK_FACE].v1 /= count;
         count = 0;
-        block_light.faces[BACK_FACE].v2 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y, mb.z - 1, count)
+        block_light.torchLight[BACK_FACE].v2 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y, mb.z - 1, count)
                                                  + getTorchLightAndIncreaseCount(mb.x + 1, mb.y, mb.z - 1, count)
                                                  + getTorchLightAndIncreaseCount(mb.x, mb.y - 1, mb.z - 1, count)
                                                  + getTorchLightAndIncreaseCount(mb.x + 1, mb.y - 1, mb.z - 1, count));
-        if(count > 0) block_light.faces[BACK_FACE].v2 /= count;
+        if(count > 0) block_light.torchLight[BACK_FACE].v2 /= count;
         count = 0;
-        block_light.faces[BACK_FACE].v3 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y, mb.z - 1, count)
+        block_light.torchLight[BACK_FACE].v3 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y, mb.z - 1, count)
                                                  + getTorchLightAndIncreaseCount(mb.x - 1, mb.y, mb.z - 1, count)
                                                  + getTorchLightAndIncreaseCount(mb.x, mb.y - 1, mb.z - 1, count)
                                                  + getTorchLightAndIncreaseCount(mb.x - 1, mb.y - 1, mb.z - 1, count));
-        if(count > 0) block_light.faces[BACK_FACE].v3 /= count;
+        if(count > 0) block_light.torchLight[BACK_FACE].v3 /= count;
         count = 0;
-        block_light.faces[BACK_FACE].v4 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y, mb.z - 1, count)
+        block_light.torchLight[BACK_FACE].v4 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y, mb.z - 1, count)
                                                  + getTorchLightAndIncreaseCount(mb.x - 1, mb.y, mb.z - 1, count)
                                                  + getTorchLightAndIncreaseCount(mb.x, mb.y + 1, mb.z - 1, count)
                                                  + getTorchLightAndIncreaseCount(mb.x - 1, mb.y + 1, mb.z - 1, count));
-        if(count > 0) block_light.faces[BACK_FACE].v4 /= count;
+        if(count > 0) block_light.torchLight[BACK_FACE].v4 /= count;
     }
     if(mb.faces.front)
     {
         count = 0;
-        block_light.faces[FRONT_FACE].v1 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y, mb.z + 1, count)
+        block_light.torchLight[FRONT_FACE].v1 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y, mb.z + 1, count)
                                            + getTorchLightAndIncreaseCount(mb.x - 1, mb.y, mb.z + 1, count)
                                              + getTorchLightAndIncreaseCount(mb.x, mb.y + 1, mb.z + 1, count)
                                                + getTorchLightAndIncreaseCount(mb.x - 1, mb.y + 1, mb.z + 1, count));
-        if(count > 0) block_light.faces[FRONT_FACE].v1 /= count;
+        if(count > 0) block_light.torchLight[FRONT_FACE].v1 /= count;
         count = 0;
-        block_light.faces[FRONT_FACE].v2 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y, mb.z + 1, count)
+        block_light.torchLight[FRONT_FACE].v2 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y, mb.z + 1, count)
                                                   + getTorchLightAndIncreaseCount(mb.x - 1, mb.y, mb.z + 1, count)
                                                   + getTorchLightAndIncreaseCount(mb.x, mb.y - 1, mb.z + 1, count)
                                                   + getTorchLightAndIncreaseCount(mb.x - 1, mb.y - 1, mb.z + 1, count));
-        if(count > 0) block_light.faces[FRONT_FACE].v2 /= count;
+        if(count > 0) block_light.torchLight[FRONT_FACE].v2 /= count;
         count = 0;
-        block_light.faces[FRONT_FACE].v3 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y, mb.z + 1, count)
+        block_light.torchLight[FRONT_FACE].v3 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y, mb.z + 1, count)
                                                   + getTorchLightAndIncreaseCount(mb.x + 1, mb.y, mb.z + 1, count)
                                                   + getTorchLightAndIncreaseCount(mb.x, mb.y - 1, mb.z + 1, count)
                                                   + getTorchLightAndIncreaseCount(mb.x + 1, mb.y - 1, mb.z + 1, count));
-        if(count > 0) block_light.faces[FRONT_FACE].v3 /= count;
+        if(count > 0) block_light.torchLight[FRONT_FACE].v3 /= count;
         count = 0;
-        block_light.faces[FRONT_FACE].v4 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y, mb.z + 1, count)
+        block_light.torchLight[FRONT_FACE].v4 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y, mb.z + 1, count)
                                                   + getTorchLightAndIncreaseCount(mb.x + 1, mb.y, mb.z + 1, count)
                                                   + getTorchLightAndIncreaseCount(mb.x, mb.y + 1, mb.z + 1, count)
                                                   + getTorchLightAndIncreaseCount(mb.x + 1, mb.y + 1, mb.z + 1, count));
-        if(count > 0) block_light.faces[FRONT_FACE].v4 /= count;
+        if(count > 0) block_light.torchLight[FRONT_FACE].v4 /= count;
     }
     if(mb.faces.left)
     {
-        //block_light.faces[LEFT_FACE].v1 = block_light.faces[LEFT_FACE].v2 = block_light.faces[LEFT_FACE].v3 = block_light.faces[LEFT_FACE].v4 = getTorchLightAt(mb.x - 1, mb.y, mb.z);
+        //block_light.torchLight[LEFT_FACE].v1 = block_light.torchLight[LEFT_FACE].v2 = block_light.torchLight[LEFT_FACE].v3 = block_light.torchLight[LEFT_FACE].v4 = getTorchLightAt(mb.x - 1, mb.y, mb.z);
         count = 0;
-        block_light.faces[LEFT_FACE].v1 = (u8) (getTorchLightAndIncreaseCount(mb.x - 1, mb.y, mb.z, count)
+        block_light.torchLight[LEFT_FACE].v1 = (u8) (getTorchLightAndIncreaseCount(mb.x - 1, mb.y, mb.z, count)
                                                  + getTorchLightAndIncreaseCount(mb.x - 1, mb.y, mb.z - 1, count)
                                                  + getTorchLightAndIncreaseCount(mb.x - 1, mb.y + 1, mb.z, count)
                                                  + getTorchLightAndIncreaseCount(mb.x - 1, mb.y + 1, mb.z - 1, count));
-        if(count > 0) block_light.faces[LEFT_FACE].v1 /= count;
+        if(count > 0) block_light.torchLight[LEFT_FACE].v1 /= count;
         count = 0;
-        block_light.faces[LEFT_FACE].v2 = (u8) (getTorchLightAndIncreaseCount(mb.x - 1, mb.y, mb.z, count)
+        block_light.torchLight[LEFT_FACE].v2 = (u8) (getTorchLightAndIncreaseCount(mb.x - 1, mb.y, mb.z, count)
                                                  + getTorchLightAndIncreaseCount(mb.x - 1, mb.y, mb.z - 1, count)
                                                  + getTorchLightAndIncreaseCount(mb.x - 1, mb.y - 1, mb.z, count)
                                                  + getTorchLightAndIncreaseCount(mb.x - 1, mb.y - 1, mb.z - 1, count));
-        if(count > 0) block_light.faces[LEFT_FACE].v2 /= count;
+        if(count > 0) block_light.torchLight[LEFT_FACE].v2 /= count;
         count = 0;
-        block_light.faces[LEFT_FACE].v3 = (u8) (getTorchLightAndIncreaseCount(mb.x - 1, mb.y, mb.z, count)
+        block_light.torchLight[LEFT_FACE].v3 = (u8) (getTorchLightAndIncreaseCount(mb.x - 1, mb.y, mb.z, count)
                                                  + getTorchLightAndIncreaseCount(mb.x - 1, mb.y, mb.z + 1, count)
                                                  + getTorchLightAndIncreaseCount(mb.x - 1, mb.y - 1, mb.z, count)
                                                  + getTorchLightAndIncreaseCount(mb.x - 1, mb.y - 1, mb.z + 1, count));
-        if(count > 0) block_light.faces[LEFT_FACE].v3 /= count;
+        if(count > 0) block_light.torchLight[LEFT_FACE].v3 /= count;
         count = 0;
-        block_light.faces[LEFT_FACE].v4 = (u8) (getTorchLightAndIncreaseCount(mb.x - 1, mb.y, mb.z, count)
+        block_light.torchLight[LEFT_FACE].v4 = (u8) (getTorchLightAndIncreaseCount(mb.x - 1, mb.y, mb.z, count)
                                                  + getTorchLightAndIncreaseCount(mb.x - 1, mb.y, mb.z + 1, count)
                                                  + getTorchLightAndIncreaseCount(mb.x - 1, mb.y + 1, mb.z, count)
                                                  + getTorchLightAndIncreaseCount(mb.x - 1, mb.y + 1, mb.z + 1, count));
-        if(count > 0) block_light.faces[LEFT_FACE].v4 /= count;
+        if(count > 0) block_light.torchLight[LEFT_FACE].v4 /= count;
     }
     if(mb.faces.right)
     {
-        //block_light.faces[RIGHT_FACE].v1 = block_light.faces[RIGHT_FACE].v2 = block_light.faces[RIGHT_FACE].v3 = block_light.faces[RIGHT_FACE].v4 = getTorchLightAt(mb.x + 1, mb.y, mb.z);
+        //block_light.torchLight[RIGHT_FACE].v1 = block_light.torchLight[RIGHT_FACE].v2 = block_light.torchLight[RIGHT_FACE].v3 = block_light.torchLight[RIGHT_FACE].v4 = getTorchLightAt(mb.x + 1, mb.y, mb.z);
         count = 0;
-        block_light.faces[RIGHT_FACE].v1 = (u8) (getTorchLightAndIncreaseCount(mb.x + 1, mb.y, mb.z, count)
+        block_light.torchLight[RIGHT_FACE].v1 = (u8) (getTorchLightAndIncreaseCount(mb.x + 1, mb.y, mb.z, count)
                                                 + getTorchLightAndIncreaseCount(mb.x + 1, mb.y, mb.z + 1, count)
                                                 + getTorchLightAndIncreaseCount(mb.x + 1, mb.y + 1, mb.z, count)
                                                 + getTorchLightAndIncreaseCount(mb.x + 1, mb.y + 1, mb.z + 1, count));
-        if(count > 0) block_light.faces[RIGHT_FACE].v1 /= count;
+        if(count > 0) block_light.torchLight[RIGHT_FACE].v1 /= count;
         count = 0;
-        block_light.faces[RIGHT_FACE].v2 = (u8) (getTorchLightAndIncreaseCount(mb.x + 1, mb.y, mb.z, count)
+        block_light.torchLight[RIGHT_FACE].v2 = (u8) (getTorchLightAndIncreaseCount(mb.x + 1, mb.y, mb.z, count)
                                                 + getTorchLightAndIncreaseCount(mb.x + 1, mb.y, mb.z + 1, count)
                                                 + getTorchLightAndIncreaseCount(mb.x + 1, mb.y - 1, mb.z, count)
                                                 + getTorchLightAndIncreaseCount(mb.x + 1, mb.y - 1, mb.z + 1, count));
-        if(count > 0) block_light.faces[RIGHT_FACE].v2 /= count;
+        if(count > 0) block_light.torchLight[RIGHT_FACE].v2 /= count;
         count = 0;
-        block_light.faces[RIGHT_FACE].v3 = (u8) (getTorchLightAndIncreaseCount(mb.x + 1, mb.y, mb.z, count)
+        block_light.torchLight[RIGHT_FACE].v3 = (u8) (getTorchLightAndIncreaseCount(mb.x + 1, mb.y, mb.z, count)
                                                 + getTorchLightAndIncreaseCount(mb.x + 1, mb.y, mb.z - 1, count)
                                                 + getTorchLightAndIncreaseCount(mb.x + 1, mb.y - 1, mb.z, count)
                                                 + getTorchLightAndIncreaseCount(mb.x + 1, mb.y - 1, mb.z - 1, count));
-        if(count > 0) block_light.faces[RIGHT_FACE].v3 /= count;
+        if(count > 0) block_light.torchLight[RIGHT_FACE].v3 /= count;
         count = 0;
-        block_light.faces[RIGHT_FACE].v4 = (u8) (getTorchLightAndIncreaseCount(mb.x + 1, mb.y, mb.z, count)
+        block_light.torchLight[RIGHT_FACE].v4 = (u8) (getTorchLightAndIncreaseCount(mb.x + 1, mb.y, mb.z, count)
                                                 + getTorchLightAndIncreaseCount(mb.x + 1, mb.y, mb.z - 1, count)
                                                 + getTorchLightAndIncreaseCount(mb.x + 1, mb.y + 1, mb.z, count)
                                                 + getTorchLightAndIncreaseCount(mb.x + 1, mb.y + 1, mb.z - 1, count));
-        if(count > 0) block_light.faces[RIGHT_FACE].v4 /= count;
+        if(count > 0) block_light.torchLight[RIGHT_FACE].v4 /= count;
     }
     if(mb.faces.bottom)
     {
-        //block_light.faces[BOTTOM_FACE].v1 = block_light.faces[BOTTOM_FACE].v2 = block_light.faces[BOTTOM_FACE].v3 = block_light.faces[BOTTOM_FACE].v4 = getTorchLightAt(mb.x, mb.y - 1, mb.z);
+        //block_light.torchLight[BOTTOM_FACE].v1 = block_light.torchLight[BOTTOM_FACE].v2 = block_light.torchLight[BOTTOM_FACE].v3 = block_light.torchLight[BOTTOM_FACE].v4 = getTorchLightAt(mb.x, mb.y - 1, mb.z);
         count = 0;
-        block_light.faces[BOTTOM_FACE].v1 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y - 1, mb.z, count)
+        block_light.torchLight[BOTTOM_FACE].v1 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y - 1, mb.z, count)
                                                + getTorchLightAndIncreaseCount(mb.x, mb.y - 1, mb.z + 1, count)
                                                + getTorchLightAndIncreaseCount(mb.x - 1, mb.y - 1, mb.z, count)
                                                + getTorchLightAndIncreaseCount(mb.x - 1, mb.y - 1, mb.z + 1, count));
-        if(count > 0) block_light.faces[BOTTOM_FACE].v1 /= count;
+        if(count > 0) block_light.torchLight[BOTTOM_FACE].v1 /= count;
         count = 0;
-        block_light.faces[BOTTOM_FACE].v2 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y - 1, mb.z, count)
+        block_light.torchLight[BOTTOM_FACE].v2 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y - 1, mb.z, count)
                                                + getTorchLightAndIncreaseCount(mb.x, mb.y - 1, mb.z - 1, count)
                                                + getTorchLightAndIncreaseCount(mb.x - 1, mb.y - 1, mb.z, count)
                                                + getTorchLightAndIncreaseCount(mb.x - 1, mb.y - 1, mb.z - 1, count));
-        if(count > 0) block_light.faces[BOTTOM_FACE].v2 /= count;
+        if(count > 0) block_light.torchLight[BOTTOM_FACE].v2 /= count;
         count = 0;
-        block_light.faces[BOTTOM_FACE].v3 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y - 1, mb.z, count)
+        block_light.torchLight[BOTTOM_FACE].v3 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y - 1, mb.z, count)
                                                + getTorchLightAndIncreaseCount(mb.x, mb.y - 1, mb.z - 1, count)
                                                + getTorchLightAndIncreaseCount(mb.x + 1, mb.y - 1, mb.z, count)
                                                + getTorchLightAndIncreaseCount(mb.x + 1, mb.y - 1, mb.z - 1, count));
-        if(count > 0) block_light.faces[BOTTOM_FACE].v3 /= count;
+        if(count > 0) block_light.torchLight[BOTTOM_FACE].v3 /= count;
         count = 0;
-        block_light.faces[BOTTOM_FACE].v4 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y - 1, mb.z, count)
+        block_light.torchLight[BOTTOM_FACE].v4 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y - 1, mb.z, count)
                                                + getTorchLightAndIncreaseCount(mb.x, mb.y - 1, mb.z + 1, count)
                                                + getTorchLightAndIncreaseCount(mb.x + 1, mb.y - 1, mb.z, count)
                                                + getTorchLightAndIncreaseCount(mb.x + 1, mb.y - 1, mb.z + 1, count));
-        if(count > 0) block_light.faces[BOTTOM_FACE].v4 /= count;
+        if(count > 0) block_light.torchLight[BOTTOM_FACE].v4 /= count;
     }
     if(mb.faces.top)
     {
-        //block_light.faces[TOP_FACE].v1 = block_light.faces[TOP_FACE].v2 = block_light.faces[TOP_FACE].v3 = block_light.faces[TOP_FACE].v4 = getTorchLightAt(mb.x, mb.y + 1, mb.z);
+        //block_light.torchLight[TOP_FACE].v1 = block_light.torchLight[TOP_FACE].v2 = block_light.torchLight[TOP_FACE].v3 = block_light.torchLight[TOP_FACE].v4 = getTorchLightAt(mb.x, mb.y + 1, mb.z);
         count = 0;
-        block_light.faces[TOP_FACE].v1 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y + 1, mb.z, count)
+        block_light.torchLight[TOP_FACE].v1 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y + 1, mb.z, count)
                                                  + getTorchLightAndIncreaseCount(mb.x, mb.y + 1, mb.z - 1, count)
                                                  + getTorchLightAndIncreaseCount(mb.x - 1, mb.y + 1, mb.z, count)
                                                  + getTorchLightAndIncreaseCount(mb.x - 1, mb.y + 1, mb.z - 1, count));
-        if(count > 0) block_light.faces[TOP_FACE].v1 /= count;
+        if(count > 0) block_light.torchLight[TOP_FACE].v1 /= count;
         count = 0;
-        block_light.faces[TOP_FACE].v2 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y + 1, mb.z, count)
+        block_light.torchLight[TOP_FACE].v2 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y + 1, mb.z, count)
                                                  + getTorchLightAndIncreaseCount(mb.x, mb.y + 1, mb.z + 1, count)
                                                  + getTorchLightAndIncreaseCount(mb.x - 1, mb.y + 1, mb.z, count)
                                                  + getTorchLightAndIncreaseCount(mb.x - 1, mb.y + 1, mb.z + 1, count));
-        if(count > 0) block_light.faces[TOP_FACE].v2 /= count;
+        if(count > 0) block_light.torchLight[TOP_FACE].v2 /= count;
         count = 0;
-        block_light.faces[TOP_FACE].v3 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y + 1, mb.z, count)
+        block_light.torchLight[TOP_FACE].v3 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y + 1, mb.z, count)
                                                  + getTorchLightAndIncreaseCount(mb.x, mb.y + 1, mb.z + 1, count)
                                                  + getTorchLightAndIncreaseCount(mb.x + 1, mb.y + 1, mb.z, count)
                                                  + getTorchLightAndIncreaseCount(mb.x + 1, mb.y + 1, mb.z + 1, count));
-        if(count > 0) block_light.faces[TOP_FACE].v3 /= count;
+        if(count > 0) block_light.torchLight[TOP_FACE].v3 /= count;
         count = 0;
-        block_light.faces[TOP_FACE].v4 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y + 1, mb.z, count)
+        block_light.torchLight[TOP_FACE].v4 = (u8) (getTorchLightAndIncreaseCount(mb.x, mb.y + 1, mb.z, count)
                                                  + getTorchLightAndIncreaseCount(mb.x, mb.y + 1, mb.z - 1, count)
                                                  + getTorchLightAndIncreaseCount(mb.x + 1, mb.y + 1, mb.z, count)
                                                  + getTorchLightAndIncreaseCount(mb.x + 1, mb.y + 1, mb.z - 1, count));
-        if(count > 0) block_light.faces[TOP_FACE].v4 /= count;
+        if(count > 0) block_light.torchLight[TOP_FACE].v4 /= count;
     }
 }
 
-void Chunk::calculateBlockyLight(BlockLight& block_light, MaterialBlock& mb) {
+void Chunk::calculateBlockyTorchLight(BlockLight& block_light, MaterialBlock& mb) {
     if (mb.faces.back) {
-        block_light.faces[BACK_FACE].v1 = block_light.faces[BACK_FACE].v2 = block_light.faces[BACK_FACE].v3 = block_light.faces[BACK_FACE].v4 = getSunLightAt(mb.x, mb.y, mb.z - 1);
+        block_light.torchLight[BACK_FACE].v1 = block_light.torchLight[BACK_FACE].v2 = block_light.torchLight[BACK_FACE].v3 = block_light.torchLight[BACK_FACE].v4 = getSunLightAt(mb.x, mb.y, mb.z - 1);
     }
     if (mb.faces.front) {
-        block_light.faces[FRONT_FACE].v1 = block_light.faces[FRONT_FACE].v2 = block_light.faces[FRONT_FACE].v3 = block_light.faces[FRONT_FACE].v4 = getSunLightAt(mb.x, mb.y, mb.z + 1);
+        block_light.torchLight[FRONT_FACE].v1 = block_light.torchLight[FRONT_FACE].v2 = block_light.torchLight[FRONT_FACE].v3 = block_light.torchLight[FRONT_FACE].v4 = getSunLightAt(mb.x, mb.y, mb.z + 1);
     }
     if (mb.faces.left) {
-        block_light.faces[LEFT_FACE].v1 = block_light.faces[LEFT_FACE].v2 = block_light.faces[LEFT_FACE].v3 = block_light.faces[LEFT_FACE].v4 = getSunLightAt(mb.x - 1, mb.y, mb.z);
+        block_light.torchLight[LEFT_FACE].v1 = block_light.torchLight[LEFT_FACE].v2 = block_light.torchLight[LEFT_FACE].v3 = block_light.torchLight[LEFT_FACE].v4 = getSunLightAt(mb.x - 1, mb.y, mb.z);
     }
     if (mb.faces.right) {
-        block_light.faces[RIGHT_FACE].v1 = block_light.faces[RIGHT_FACE].v2 = block_light.faces[RIGHT_FACE].v3 = block_light.faces[RIGHT_FACE].v4 = getSunLightAt(mb.x + 1, mb.y, mb.z);
+        block_light.torchLight[RIGHT_FACE].v1 = block_light.torchLight[RIGHT_FACE].v2 = block_light.torchLight[RIGHT_FACE].v3 = block_light.torchLight[RIGHT_FACE].v4 = getSunLightAt(mb.x + 1, mb.y, mb.z);
     }
     if (mb.faces.bottom) {
-        block_light.faces[BOTTOM_FACE].v1 = block_light.faces[BOTTOM_FACE].v2 = block_light.faces[BOTTOM_FACE].v3 = block_light.faces[BOTTOM_FACE].v4 = getSunLightAt(mb.x, mb.y - 1, mb.z);
+        block_light.torchLight[BOTTOM_FACE].v1 = block_light.torchLight[BOTTOM_FACE].v2 = block_light.torchLight[BOTTOM_FACE].v3 = block_light.torchLight[BOTTOM_FACE].v4 = getSunLightAt(mb.x, mb.y - 1, mb.z);
     }
     if (mb.faces.top) {
-        block_light.faces[TOP_FACE].v1 = block_light.faces[TOP_FACE].v2 = block_light.faces[TOP_FACE].v3 = block_light.faces[TOP_FACE].v4 = getSunLightAt(mb.x, mb.y + 1, mb.z);
+        block_light.torchLight[TOP_FACE].v1 = block_light.torchLight[TOP_FACE].v2 = block_light.torchLight[TOP_FACE].v3 = block_light.torchLight[TOP_FACE].v4 = getSunLightAt(mb.x, mb.y + 1, mb.z);
+    }
+}
+
+
+void Chunk::calculateBlockSunLight(BlockLight& block_light, MaterialBlock& mb)
+{
+    i32 count;
+    if(mb.faces.back)
+    {
+        //block_light.faces[BACK_FACE].v1 = block_light.faces[BACK_FACE].v2 = block_light.faces[BACK_FACE].v3 = block_light.faces[BACK_FACE].v4 = getTorchLightAt(mb.x, mb.y, mb.z - 1);
+
+        count = 0;
+        block_light.sunLight[BACK_FACE].v1 = (u8) (getSunLightAndIncreaseCount(mb.x, mb.y, mb.z - 1, count)
+                                                     + getSunLightAndIncreaseCount(mb.x + 1, mb.y, mb.z - 1, count)
+                                                     + getSunLightAndIncreaseCount(mb.x, mb.y + 1, mb.z - 1, count)
+                                                     + getSunLightAndIncreaseCount(mb.x + 1, mb.y + 1, mb.z - 1, count));
+        if(count > 0) block_light.sunLight[BACK_FACE].v1 /= count;
+        count = 0;
+        block_light.sunLight[BACK_FACE].v2 = (u8) (getSunLightAndIncreaseCount(mb.x, mb.y, mb.z - 1, count)
+                                                     + getSunLightAndIncreaseCount(mb.x + 1, mb.y, mb.z - 1, count)
+                                                     + getSunLightAndIncreaseCount(mb.x, mb.y - 1, mb.z - 1, count)
+                                                     + getSunLightAndIncreaseCount(mb.x + 1, mb.y - 1, mb.z - 1, count));
+        if(count > 0) block_light.sunLight[BACK_FACE].v2 /= count;
+        count = 0;
+        block_light.sunLight[BACK_FACE].v3 = (u8) (getSunLightAndIncreaseCount(mb.x, mb.y, mb.z - 1, count)
+                                                     + getSunLightAndIncreaseCount(mb.x - 1, mb.y, mb.z - 1, count)
+                                                     + getSunLightAndIncreaseCount(mb.x, mb.y - 1, mb.z - 1, count)
+                                                     + getSunLightAndIncreaseCount(mb.x - 1, mb.y - 1, mb.z - 1, count));
+        if(count > 0) block_light.sunLight[BACK_FACE].v3 /= count;
+        count = 0;
+        block_light.sunLight[BACK_FACE].v4 = (u8) (getSunLightAndIncreaseCount(mb.x, mb.y, mb.z - 1, count)
+                                                     + getSunLightAndIncreaseCount(mb.x - 1, mb.y, mb.z - 1, count)
+                                                     + getSunLightAndIncreaseCount(mb.x, mb.y + 1, mb.z - 1, count)
+                                                     + getSunLightAndIncreaseCount(mb.x - 1, mb.y + 1, mb.z - 1, count));
+        if(count > 0) block_light.sunLight[BACK_FACE].v4 /= count;
+    }
+    if(mb.faces.front)
+    {
+        count = 0;
+        block_light.sunLight[FRONT_FACE].v1 = (u8) (getSunLightAndIncreaseCount(mb.x, mb.y, mb.z + 1, count)
+                                                      + getSunLightAndIncreaseCount(mb.x - 1, mb.y, mb.z + 1, count)
+                                                      + getSunLightAndIncreaseCount(mb.x, mb.y + 1, mb.z + 1, count)
+                                                      + getSunLightAndIncreaseCount(mb.x - 1, mb.y + 1, mb.z + 1, count));
+        if(count > 0) block_light.sunLight[FRONT_FACE].v1 /= count;
+        count = 0;
+        block_light.sunLight[FRONT_FACE].v2 = (u8) (getSunLightAndIncreaseCount(mb.x, mb.y, mb.z + 1, count)
+                                                      + getSunLightAndIncreaseCount(mb.x - 1, mb.y, mb.z + 1, count)
+                                                      + getSunLightAndIncreaseCount(mb.x, mb.y - 1, mb.z + 1, count)
+                                                      + getSunLightAndIncreaseCount(mb.x - 1, mb.y - 1, mb.z + 1, count));
+        if(count > 0) block_light.sunLight[FRONT_FACE].v2 /= count;
+        count = 0;
+        block_light.sunLight[FRONT_FACE].v3 = (u8) (getSunLightAndIncreaseCount(mb.x, mb.y, mb.z + 1, count)
+                                                      + getSunLightAndIncreaseCount(mb.x + 1, mb.y, mb.z + 1, count)
+                                                      + getSunLightAndIncreaseCount(mb.x, mb.y - 1, mb.z + 1, count)
+                                                      + getSunLightAndIncreaseCount(mb.x + 1, mb.y - 1, mb.z + 1, count));
+        if(count > 0) block_light.sunLight[FRONT_FACE].v3 /= count;
+        count = 0;
+        block_light.sunLight[FRONT_FACE].v4 = (u8) (getSunLightAndIncreaseCount(mb.x, mb.y, mb.z + 1, count)
+                                                      + getSunLightAndIncreaseCount(mb.x + 1, mb.y, mb.z + 1, count)
+                                                      + getSunLightAndIncreaseCount(mb.x, mb.y + 1, mb.z + 1, count)
+                                                      + getSunLightAndIncreaseCount(mb.x + 1, mb.y + 1, mb.z + 1, count));
+        if(count > 0) block_light.sunLight[FRONT_FACE].v4 /= count;
+    }
+    if(mb.faces.left)
+    {
+        //block_light.sunLight[LEFT_FACE].v1 = block_light.sunLight[LEFT_FACE].v2 = block_light.sunLight[LEFT_FACE].v3 = block_light.sunLight[LEFT_FACE].v4 = getTorchLightAt(mb.x - 1, mb.y, mb.z);
+        count = 0;
+        block_light.sunLight[LEFT_FACE].v1 = (u8) (getSunLightAndIncreaseCount(mb.x - 1, mb.y, mb.z, count)
+                                                     + getSunLightAndIncreaseCount(mb.x - 1, mb.y, mb.z - 1, count)
+                                                     + getSunLightAndIncreaseCount(mb.x - 1, mb.y + 1, mb.z, count)
+                                                     + getSunLightAndIncreaseCount(mb.x - 1, mb.y + 1, mb.z - 1, count));
+        if(count > 0) block_light.sunLight[LEFT_FACE].v1 /= count;
+        count = 0;
+        block_light.sunLight[LEFT_FACE].v2 = (u8) (getSunLightAndIncreaseCount(mb.x - 1, mb.y, mb.z, count)
+                                                     + getSunLightAndIncreaseCount(mb.x - 1, mb.y, mb.z - 1, count)
+                                                     + getSunLightAndIncreaseCount(mb.x - 1, mb.y - 1, mb.z, count)
+                                                     + getSunLightAndIncreaseCount(mb.x - 1, mb.y - 1, mb.z - 1, count));
+        if(count > 0) block_light.sunLight[LEFT_FACE].v2 /= count;
+        count = 0;
+        block_light.sunLight[LEFT_FACE].v3 = (u8) (getSunLightAndIncreaseCount(mb.x - 1, mb.y, mb.z, count)
+                                                     + getSunLightAndIncreaseCount(mb.x - 1, mb.y, mb.z + 1, count)
+                                                     + getSunLightAndIncreaseCount(mb.x - 1, mb.y - 1, mb.z, count)
+                                                     + getSunLightAndIncreaseCount(mb.x - 1, mb.y - 1, mb.z + 1, count));
+        if(count > 0) block_light.sunLight[LEFT_FACE].v3 /= count;
+        count = 0;
+        block_light.sunLight[LEFT_FACE].v4 = (u8) (getSunLightAndIncreaseCount(mb.x - 1, mb.y, mb.z, count)
+                                                     + getSunLightAndIncreaseCount(mb.x - 1, mb.y, mb.z + 1, count)
+                                                     + getSunLightAndIncreaseCount(mb.x - 1, mb.y + 1, mb.z, count)
+                                                     + getSunLightAndIncreaseCount(mb.x - 1, mb.y + 1, mb.z + 1, count));
+        if(count > 0) block_light.sunLight[LEFT_FACE].v4 /= count;
+    }
+    if(mb.faces.right)
+    {
+        //block_light.sunLight[RIGHT_FACE].v1 = block_light.sunLight[RIGHT_FACE].v2 = block_light.sunLight[RIGHT_FACE].v3 = block_light.sunLight[RIGHT_FACE].v4 = getTorchLightAt(mb.x + 1, mb.y, mb.z);
+        count = 0;
+        block_light.sunLight[RIGHT_FACE].v1 = (u8) (getSunLightAndIncreaseCount(mb.x + 1, mb.y, mb.z, count)
+                                                      + getSunLightAndIncreaseCount(mb.x + 1, mb.y, mb.z + 1, count)
+                                                      + getSunLightAndIncreaseCount(mb.x + 1, mb.y + 1, mb.z, count)
+                                                      + getSunLightAndIncreaseCount(mb.x + 1, mb.y + 1, mb.z + 1, count));
+        if(count > 0) block_light.sunLight[RIGHT_FACE].v1 /= count;
+        count = 0;
+        block_light.sunLight[RIGHT_FACE].v2 = (u8) (getSunLightAndIncreaseCount(mb.x + 1, mb.y, mb.z, count)
+                                                      + getSunLightAndIncreaseCount(mb.x + 1, mb.y, mb.z + 1, count)
+                                                      + getSunLightAndIncreaseCount(mb.x + 1, mb.y - 1, mb.z, count)
+                                                      + getSunLightAndIncreaseCount(mb.x + 1, mb.y - 1, mb.z + 1, count));
+        if(count > 0) block_light.sunLight[RIGHT_FACE].v2 /= count;
+        count = 0;
+        block_light.sunLight[RIGHT_FACE].v3 = (u8) (getSunLightAndIncreaseCount(mb.x + 1, mb.y, mb.z, count)
+                                                      + getSunLightAndIncreaseCount(mb.x + 1, mb.y, mb.z - 1, count)
+                                                      + getSunLightAndIncreaseCount(mb.x + 1, mb.y - 1, mb.z, count)
+                                                      + getSunLightAndIncreaseCount(mb.x + 1, mb.y - 1, mb.z - 1, count));
+        if(count > 0) block_light.sunLight[RIGHT_FACE].v3 /= count;
+        count = 0;
+        block_light.sunLight[RIGHT_FACE].v4 = (u8) (getSunLightAndIncreaseCount(mb.x + 1, mb.y, mb.z, count)
+                                                      + getSunLightAndIncreaseCount(mb.x + 1, mb.y, mb.z - 1, count)
+                                                      + getSunLightAndIncreaseCount(mb.x + 1, mb.y + 1, mb.z, count)
+                                                      + getSunLightAndIncreaseCount(mb.x + 1, mb.y + 1, mb.z - 1, count));
+        if(count > 0) block_light.sunLight[RIGHT_FACE].v4 /= count;
+    }
+    if(mb.faces.bottom)
+    {
+        //block_light.sunLight[BOTTOM_FACE].v1 = block_light.sunLight[BOTTOM_FACE].v2 = block_light.sunLight[BOTTOM_FACE].v3 = block_light.sunLight[BOTTOM_FACE].v4 = getTorchLightAt(mb.x, mb.y - 1, mb.z);
+        count = 0;
+        block_light.sunLight[BOTTOM_FACE].v1 = (u8) (getSunLightAndIncreaseCount(mb.x, mb.y - 1, mb.z, count)
+                                                       + getSunLightAndIncreaseCount(mb.x, mb.y - 1, mb.z + 1, count)
+                                                       + getSunLightAndIncreaseCount(mb.x - 1, mb.y - 1, mb.z, count)
+                                                       + getSunLightAndIncreaseCount(mb.x - 1, mb.y - 1, mb.z + 1, count));
+        if(count > 0) block_light.sunLight[BOTTOM_FACE].v1 /= count;
+        count = 0;
+        block_light.sunLight[BOTTOM_FACE].v2 = (u8) (getSunLightAndIncreaseCount(mb.x, mb.y - 1, mb.z, count)
+                                                       + getSunLightAndIncreaseCount(mb.x, mb.y - 1, mb.z - 1, count)
+                                                       + getSunLightAndIncreaseCount(mb.x - 1, mb.y - 1, mb.z, count)
+                                                       + getSunLightAndIncreaseCount(mb.x - 1, mb.y - 1, mb.z - 1, count));
+        if(count > 0) block_light.sunLight[BOTTOM_FACE].v2 /= count;
+        count = 0;
+        block_light.sunLight[BOTTOM_FACE].v3 = (u8) (getSunLightAndIncreaseCount(mb.x, mb.y - 1, mb.z, count)
+                                                       + getSunLightAndIncreaseCount(mb.x, mb.y - 1, mb.z - 1, count)
+                                                       + getSunLightAndIncreaseCount(mb.x + 1, mb.y - 1, mb.z, count)
+                                                       + getSunLightAndIncreaseCount(mb.x + 1, mb.y - 1, mb.z - 1, count));
+        if(count > 0) block_light.sunLight[BOTTOM_FACE].v3 /= count;
+        count = 0;
+        block_light.sunLight[BOTTOM_FACE].v4 = (u8) (getSunLightAndIncreaseCount(mb.x, mb.y - 1, mb.z, count)
+                                                       + getSunLightAndIncreaseCount(mb.x, mb.y - 1, mb.z + 1, count)
+                                                       + getSunLightAndIncreaseCount(mb.x + 1, mb.y - 1, mb.z, count)
+                                                       + getSunLightAndIncreaseCount(mb.x + 1, mb.y - 1, mb.z + 1, count));
+        if(count > 0) block_light.sunLight[BOTTOM_FACE].v4 /= count;
+    }
+    if(mb.faces.top)
+    {
+        //block_light.sunLight[TOP_FACE].v1 = block_light.sunLight[TOP_FACE].v2 = block_light.sunLight[TOP_FACE].v3 = block_light.sunLight[TOP_FACE].v4 = getTorchLightAt(mb.x, mb.y + 1, mb.z);
+        count = 0;
+        block_light.sunLight[TOP_FACE].v1 = (u8) (getSunLightAndIncreaseCount(mb.x, mb.y + 1, mb.z, count)
+                                                    + getSunLightAndIncreaseCount(mb.x, mb.y + 1, mb.z - 1, count)
+                                                    + getSunLightAndIncreaseCount(mb.x - 1, mb.y + 1, mb.z, count)
+                                                    + getSunLightAndIncreaseCount(mb.x - 1, mb.y + 1, mb.z - 1, count));
+        if(count > 0) block_light.sunLight[TOP_FACE].v1 /= count;
+        count = 0;
+        block_light.sunLight[TOP_FACE].v2 = (u8) (getSunLightAndIncreaseCount(mb.x, mb.y + 1, mb.z, count)
+                                                    + getSunLightAndIncreaseCount(mb.x, mb.y + 1, mb.z + 1, count)
+                                                    + getSunLightAndIncreaseCount(mb.x - 1, mb.y + 1, mb.z, count)
+                                                    + getSunLightAndIncreaseCount(mb.x - 1, mb.y + 1, mb.z + 1, count));
+        if(count > 0) block_light.sunLight[TOP_FACE].v2 /= count;
+        count = 0;
+        block_light.sunLight[TOP_FACE].v3 = (u8) (getSunLightAndIncreaseCount(mb.x, mb.y + 1, mb.z, count)
+                                                    + getSunLightAndIncreaseCount(mb.x, mb.y + 1, mb.z + 1, count)
+                                                    + getSunLightAndIncreaseCount(mb.x + 1, mb.y + 1, mb.z, count)
+                                                    + getSunLightAndIncreaseCount(mb.x + 1, mb.y + 1, mb.z + 1, count));
+        if(count > 0) block_light.sunLight[TOP_FACE].v3 /= count;
+        count = 0;
+        block_light.sunLight[TOP_FACE].v4 = (u8) (getSunLightAndIncreaseCount(mb.x, mb.y + 1, mb.z, count)
+                                                    + getSunLightAndIncreaseCount(mb.x, mb.y + 1, mb.z - 1, count)
+                                                    + getSunLightAndIncreaseCount(mb.x + 1, mb.y + 1, mb.z, count)
+                                                    + getSunLightAndIncreaseCount(mb.x + 1, mb.y + 1, mb.z - 1, count));
+        if(count > 0) block_light.sunLight[TOP_FACE].v4 /= count;
+    }
+}
+
+void Chunk::calculateBlockySunLight(BlockLight& block_light, MaterialBlock& mb) {
+    if (mb.faces.back) {
+        block_light.sunLight[BACK_FACE].v1 = block_light.sunLight[BACK_FACE].v2 = block_light.sunLight[BACK_FACE].v3 = block_light.sunLight[BACK_FACE].v4 = getSunLightAt(mb.x, mb.y, mb.z - 1);
+    }
+    if (mb.faces.front) {
+        block_light.sunLight[FRONT_FACE].v1 = block_light.sunLight[FRONT_FACE].v2 = block_light.sunLight[FRONT_FACE].v3 = block_light.sunLight[FRONT_FACE].v4 = getSunLightAt(mb.x, mb.y, mb.z + 1);
+    }
+    if (mb.faces.left) {
+        block_light.sunLight[LEFT_FACE].v1 = block_light.sunLight[LEFT_FACE].v2 = block_light.sunLight[LEFT_FACE].v3 = block_light.sunLight[LEFT_FACE].v4 = getSunLightAt(mb.x - 1, mb.y, mb.z);
+    }
+    if (mb.faces.right) {
+        block_light.sunLight[RIGHT_FACE].v1 = block_light.sunLight[RIGHT_FACE].v2 = block_light.sunLight[RIGHT_FACE].v3 = block_light.sunLight[RIGHT_FACE].v4 = getSunLightAt(mb.x + 1, mb.y, mb.z);
+    }
+    if (mb.faces.bottom) {
+        block_light.sunLight[BOTTOM_FACE].v1 = block_light.sunLight[BOTTOM_FACE].v2 = block_light.sunLight[BOTTOM_FACE].v3 = block_light.sunLight[BOTTOM_FACE].v4 = getSunLightAt(mb.x, mb.y - 1, mb.z);
+    }
+    if (mb.faces.top) {
+        block_light.sunLight[TOP_FACE].v1 = block_light.sunLight[TOP_FACE].v2 = block_light.sunLight[TOP_FACE].v3 = block_light.sunLight[TOP_FACE].v4 = getSunLightAt(mb.x, mb.y + 1, mb.z);
     }
 }
 
