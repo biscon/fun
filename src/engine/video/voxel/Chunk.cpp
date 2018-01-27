@@ -95,14 +95,14 @@ void Chunk::setupDebugChunk()
                     blocks[POS_TO_INDEX(y,z,x)].type = temple_block;
                 }
 
-                if(x == 14 && z == 1 && y >= 100 && y <= 110
-                   || x == 14 && z == 14 && y >= 100 && y <= 110
-                   || x == 1 && z == 14 && y >= 100 && y <= 110
-                   || x == 1 && z == 1 && y >= 100 && y <= 110)
+                if(x == 14 && z == 1 && y >= 101 && y <= 110
+                   || x == 14 && z == 14 && y >= 101 && y <= 110
+                   || x == 1 && z == 14 && y >= 101 && y <= 110
+                   || x == 1 && z == 1 && y >= 101 && y <= 110)
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
-                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
-                    blocks[POS_TO_INDEX(y,z,x)].type = temple_block;
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, true);
+                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_WATER;
                 }
 
                 // hole
@@ -175,7 +175,7 @@ void Chunk::setupFromTerrain(const ChunkPos& position, const std::shared_ptr<Ter
                     }
 
                 }
-                if(y > height && y <= 2)
+                if(y > height && y <= 5)
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, true);
@@ -215,12 +215,13 @@ void Chunk::rebuild(const ChunkPos& position) {
                 if(block.isFlagSet(BLOCK_FLAG_ACTIVE)) {
                     auto pos = z_m * origin;
                     auto should_mesh = false;
-                    if (!isBlockActiveAt(x, y, z - 1)) should_mesh = true; // back
-                    if (!isBlockActiveAt(x, y, z + 1)) should_mesh = true; // front
-                    if (!isBlockActiveAt(x - 1, y, z)) should_mesh = true; // left
-                    if (!isBlockActiveAt(x + 1, y, z)) should_mesh = true; // right
-                    if (!isBlockActiveAt(x, y - 1, z)) should_mesh = true; // bottom
-                    if (!isBlockActiveAt(x, y + 1, z)) should_mesh = true; // top
+
+                    if (!isBlockActiveAt(x, y, z - 1) || isBlockTransparentAt(x, y, z - 1)) should_mesh = true; // back
+                    if (!isBlockActiveAt(x, y, z + 1) || isBlockTransparentAt(x, y, z + 1)) should_mesh = true; // front
+                    if (!isBlockActiveAt(x - 1, y, z) || isBlockTransparentAt(x - 1, y, z)) should_mesh = true; // left
+                    if (!isBlockActiveAt(x + 1, y, z) || isBlockTransparentAt(x + 1, y, z)) should_mesh = true; // right
+                    if (!isBlockActiveAt(x, y - 1, z) || isBlockTransparentAt(x, y - 1, z)) should_mesh = true; // bottom
+                    if (!isBlockActiveAt(x, y + 1, z) || isBlockTransparentAt(x, y + 1, z)) should_mesh = true; // top
 
                     if (should_mesh) {
                         block.setFlag(BLOCK_FLAG_SHOULD_MESH, true);
@@ -247,6 +248,7 @@ void Chunk::rebuild(const ChunkPos& position) {
 
     BlockLight block_light;
     AmbientOcclusion ao_block;
+    bool trans = false;
 
     for(auto const& kv : materialBatchMap)
     {
@@ -256,37 +258,70 @@ void Chunk::rebuild(const ChunkPos& position) {
             Block &block = blocks[POS_TO_INDEX(mb.y,mb.z,mb.x)];
             if(block.isFlagSet(BLOCK_FLAG_SHOULD_MESH) && block.isFlagSet(BLOCK_FLAG_ACTIVE))
             {
+                trans = block.isFlagSet(BLOCK_FLAG_TRANSPARENT);
+
                 mb.faces.disableAll();
                 // back
-                if (!shouldBlockMeshAt(mb.x, mb.y, mb.z - 1)) {
+                if (!shouldBlockMeshAt(mb.x, mb.y, mb.z - 1) || isBlockTransparentAt(mb.x, mb.y, mb.z - 1)) {
                     mb.faces.back = true; // back
-                    //face_light.back = getTorchLightAt(mb.x, mb.y, mb.z - 1);
+                    auto *b = getBlockAt(mb.x, mb.y, mb.z - 1);
+                    if(b != nullptr)
+                    {
+                        if(b->type == kv.second->blockType && trans)
+                            mb.faces.back = false;
+                    }
                 }
                 // front
-                if (!shouldBlockMeshAt(mb.x, mb.y, mb.z + 1)) {
+                if (!shouldBlockMeshAt(mb.x, mb.y, mb.z + 1) || isBlockTransparentAt(mb.x, mb.y, mb.z + 1)) {
                     mb.faces.front = true;
-                    //face_light.front = getTorchLightAt(mb.x, mb.y, mb.z + 1);
+                    auto *b = getBlockAt(mb.x, mb.y, mb.z + 1);
+                    if(b != nullptr)
+                    {
+                        if(b->type == kv.second->blockType && trans)
+                            mb.faces.front = false;
+                    }
                 }
                 // left
-                if (!shouldBlockMeshAt(mb.x - 1, mb.y, mb.z)) {
+                if (!shouldBlockMeshAt(mb.x - 1, mb.y, mb.z) || isBlockTransparentAt(mb.x - 1, mb.y, mb.z)) {
                     mb.faces.left = true;
-                    //face_light.left = getTorchLightAt(mb.x - 1, mb.y, mb.z);
+                    auto *b = getBlockAt(mb.x - 1, mb.y, mb.z);
+                    if(b != nullptr)
+                    {
+                        if(b->type == kv.second->blockType && trans)
+                            mb.faces.left = false;
+                    }
                 }
                 // right
-                if (!shouldBlockMeshAt(mb.x + 1, mb.y, mb.z)) {
+                if (!shouldBlockMeshAt(mb.x + 1, mb.y, mb.z) || isBlockTransparentAt(mb.x + 1, mb.y, mb.z)) {
                     mb.faces.right = true;
-                    //face_light.right = getTorchLightAt(mb.x + 1, mb.y, mb.z);
+                    auto *b = getBlockAt(mb.x + 1, mb.y, mb.z);
+                    if(b != nullptr)
+                    {
+                        if(b->type == kv.second->blockType && trans) {
+                            mb.faces.right = false;
+                        }
+                    }
                 }
                 // bottom
-                if (!shouldBlockMeshAt(mb.x, mb.y - 1, mb.z)) {
+                if (!shouldBlockMeshAt(mb.x, mb.y - 1, mb.z) || isBlockTransparentAt(mb.x, mb.y - 1, mb.z)) {
                     mb.faces.bottom = true;
-                    //face_light.bottom = getTorchLightAt(mb.x, mb.y - 1, mb.z);
+                    auto *b = getBlockAt(mb.x, mb.y - 1, mb.z);
+                    if(b != nullptr)
+                    {
+                        if(b->type == kv.second->blockType && trans)
+                            mb.faces.bottom = false;
+                    }
                 }
                 // top
-                if (!shouldBlockMeshAt(mb.x, mb.y + 1, mb.z)) {
+                if (!shouldBlockMeshAt(mb.x, mb.y + 1, mb.z) || isBlockTransparentAt(mb.x, mb.y + 1, mb.z)) {
                     mb.faces.top = true;
-                    //face_light.top = getTorchLightAt(mb.x, mb.y + 1, mb.z);
 
+                    auto *b = getBlockAt(mb.x, mb.y + 1, mb.z);
+                    if(b != nullptr)
+                    {
+                        if(b->type == kv.second->blockType && trans)
+                            mb.faces.top = false;
+                    }
                 }
             }
 

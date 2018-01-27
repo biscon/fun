@@ -216,8 +216,32 @@ private:
         return cbpos.chunk->blocks[POS_TO_INDEX(cbpos.y, cbpos.z, cbpos.x)].isFlagSet(BLOCK_FLAG_ACTIVE);
     }
 
+    inline Block* getBlockAt(i32 x, i32 y, i32 z)
+    {
+        // early out since our chunk grid is 2d
+        if(y < 0)
+            return nullptr;
+        if(y >= CHUNK_HEIGHT)
+            return nullptr;
+
+        // within this chunk
+        if(x >= 0 && x < CHUNK_SIZE
+           && y >= 0 && y < CHUNK_HEIGHT
+           && z >= 0 && z < CHUNK_SIZE) {
+            return &blocks[POS_TO_INDEX(y, z, x)];
+        }
+
+        ChunkBlockPos cbpos;
+        // TODO optimize the fuck out of this way to expensive lookup. since we know we always only need the corners of the 8 nearest neighbours
+        // we should be able to look them up at once instead of each goddamn time they're accessed
+        chunkManager->relativePosToChunkBlockPos(this, x, y, z, cbpos);
+        if(cbpos.chunk == nullptr)
+            return nullptr;
+        return &cbpos.chunk->blocks[POS_TO_INDEX(cbpos.y, cbpos.z, cbpos.x)];
+    }
+
     inline u8 getTorchLightAndIncreaseCount(i32 x, i32 y, i32 z, i32 &count) {
-        if(!isBlockActiveAt(x, y, z))
+        if(isBlockTransparentAt(x, y, z))
         {
             count++;
             return getTorchLightAt(x, y, z);
@@ -226,7 +250,7 @@ private:
     }
 
     inline u8 getSunLightAndIncreaseCount(i32 x, i32 y, i32 z, i32 &count) {
-        if(!isBlockActiveAt(x, y, z))
+        if(isBlockTransparentAt(x, y, z))
         {
             count++;
             return getSunLightAt(x, y, z);

@@ -38,7 +38,7 @@ struct JobRequest {
 
 class AChunkManager : public IChunkManager {
 public:
-    const int VISIBLE_RADIUS = 48;
+    const int VISIBLE_RADIUS = 32;
 
     AChunkManager(IGame &game, BlockTypeDictionary &blockTypeDict, const std::shared_ptr<Terrain> &terrain);
     virtual ~AChunkManager();
