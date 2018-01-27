@@ -42,7 +42,7 @@ bool Renderer::init(u32 screenWidth, u32 screenHeight) {
     context = SDL_GL_CreateContext(window);
 
     // turn off vsync
-    SDL_GL_SetSwapInterval(0);
+    //SDL_GL_SetSwapInterval(0);
 
     glewExperimental = GL_TRUE;
     glewInit();

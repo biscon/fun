@@ -15,7 +15,6 @@ Chunk::Chunk(BlockTypeDictionary &blockTypeDict, IChunkManager *chunkManager) : 
     blocks = (Block*) malloc(CHUNK_HEIGHT*CHUNK_SIZE*CHUNK_SIZE*sizeof(Block));
     lightMapSize = CHUNK_HEIGHT*CHUNK_SIZE*CHUNK_SIZE*sizeof(u8);
     lightMap = (u8*) malloc(lightMapSize);
-    //memset(blocks, 0, sizeof(blocks));
 }
 
 Chunk::~Chunk() {
@@ -191,6 +190,7 @@ void Chunk::setupFromTerrain(const ChunkPos& position, const std::shared_ptr<Ter
 void Chunk::rebuild(const ChunkPos& position) {
     bool first_build = false;
     if(mesh == nullptr) {
+        isPrepared = false;
         first_build = true;
         mesh = std::unique_ptr<BlockMesh>(new BlockMesh());
     }
@@ -301,10 +301,7 @@ void Chunk::rebuild(const ChunkPos& position) {
         }
         kv.second->count = static_cast<u32>(mesh->vertices.size() - kv.second->start);
     }
-    if(first_build)
-        mesh->prepare();
-    else
-        mesh->upload();
+    needUpload = true;
 }
 
 void Chunk::calculateBlockTorchLight(BlockLight& block_light, MaterialBlock& mb)
@@ -727,18 +724,32 @@ void Chunk::calculateAO(AmbientOcclusion &aob, MaterialBlock& mb)
 void Chunk::draw(const Shader &shader) {
     //SDL_Log("Rendering %d batches", materialBatchMap.size());
     //mesh->drawRange(shader, 0, mesh->vertices.size(), &blockTypeDict.getBlockTypeAt(0).material);
+
     for(auto const& kv : materialBatchMap)
     {
         //sum += kv.second->count;
         //SDL_Log("Rendering batch: blocks = %d, start = %d, count = %d, blockType = %d", kv.second->blocks.size(), kv.second->start, kv.second->count, kv.first);
         mesh->drawRange(shader, kv.second->start, kv.second->count, &blockTypeDict.getBlockTypeAt(kv.first).material);
+        //mesh->drawRange(shader, kv.second->start, kv.second->count, &blockTypeDict.getBlockTypeAt(0).material);
     }
+
     //SDL_Log("Sum of batch counts = %d, size of mesh = %d", sum, mesh->vertices.size());
 }
 
 void Chunk::clearLightMap() {
     // clear lightmap
     memset(lightMap, 0, lightMapSize);
+}
+
+void Chunk::upload() {
+    if(!isPrepared) {
+        //SDL_Log("Preparing chunk at %d,%d", chunkPosition.x, chunkPosition.z);
+        mesh->prepare();
+    }
+    else
+        mesh->upload();
+    needUpload = false;
+    isPrepared = true;
 }
 
 

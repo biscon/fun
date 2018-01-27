@@ -67,3 +67,51 @@ INFO: BuildTime    : 0.01633 sec (16.33 ms)
 INFO: OptimizeTime : 0.02783 sec (27.83 ms)
 INFO: UpdateTime   : 0 sec (0 ms)
 INFO: -----------------------------------------------
+
+========================================================================================================================
+20180127 - Threaded mesher debug build - benchmarks have decreased noticeably for meshing and optimize time because of
+the added synchronization overhead
+
+Full run:
+
+INFO: -=* ChunkMetrics *=----------------------------
+INFO: SetupTime    : 0.23110 sec (231.10 ms)
+INFO: LightingTime : 0.04990 sec (49.90 ms)
+INFO: MeshingTime  : 2.77055 sec (2770.55 ms)
+INFO: OptimizeTime : 2.55955 sec (2559.55 ms)
+INFO: UpdateTime   : 0.00000 sec (0.00 ms)
+INFO: -----------------------------------------------
+
+Partial run:
+
+ -=* ChunkMetrics *=----------------------------
+INFO: SetupTime    : 0.02116 sec (21.16 ms)
+INFO: LightingTime : 0.00367 sec (3.67 ms)
+INFO: MeshingTime  : 0.23171 sec (231.71 ms)
+INFO: OptimizeTime : 0.38986 sec (389.86 ms)
+INFO: UpdateTime   : 0.08582 sec (85.82 ms)
+INFO: -----------------------------------------------
+
+Optimized build
+===============
+
+Full run:
+
+INFO: -=* ChunkMetrics *=----------------------------
+INFO: SetupTime    : 0.05292 sec (52.92 ms)
+INFO: LightingTime : 0.01700 sec (17.00 ms)
+INFO: MeshingTime  : 0.18909 sec (189.09 ms)
+INFO: OptimizeTime : 0.18261 sec (182.61 ms)
+INFO: UpdateTime   : 0.00000 sec (0.00 ms)
+INFO: -----------------------------------------------
+
+Partial run:
+
+INFO: -=* ChunkMetrics *=----------------------------
+INFO: SetupTime    : 0.00378 sec (3.78 ms)
+INFO: LightingTime : 0.00078 sec (0.78 ms)
+INFO: MeshingTime  : 0.01302 sec (13.02 ms)
+INFO: OptimizeTime : 0.02857 sec (28.57 ms)
+INFO: UpdateTime   : 0.00000 sec (0.00 ms)
+INFO: -----------------------------------------------
+

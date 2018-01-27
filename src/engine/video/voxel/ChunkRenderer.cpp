@@ -15,7 +15,6 @@
 
 ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain) : game(game), camera(camera) {
     viewFrustrum = std::unique_ptr<ViewFrustum>(new ViewFrustum());
-    chunkManager = std::unique_ptr<ChunkManager>(new ChunkManager(terrain, game));
 
     auto& system = *game.getSystem();
     auto lighting_vs = system.readTextFile("shaders/voxel_shader3_vs.glsl");
@@ -66,6 +65,8 @@ ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera,
     //fog = std::unique_ptr<Fog>(new Fog(color, 0.0075f, true));
     fog = std::unique_ptr<Fog>(new Fog(color, 0.0025f, true));
     directionalLight = std::unique_ptr<DirectionalLight>(new DirectionalLight());
+
+    chunkManager = std::unique_ptr<AChunkManager>(new AChunkManager(game, *blockTypeDict, terrain));
 }
 
 // TODO
@@ -82,9 +83,9 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double delta) 
     glFrontFace(GL_CCW);
 
     // view/projection transformations
-    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), screenWidth / screenHeight, 0.1f, 600.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), screenWidth / screenHeight, 0.1f, 1000.0f);
     glm::mat4 view = camera->GetViewMatrix();
-    viewFrustrum->setCamInternals(camera->Zoom, screenWidth / screenHeight, 0.1f, 600.0f);
+    viewFrustrum->setCamInternals(camera->Zoom, screenWidth / screenHeight, 0.1f, 1000.0f);
 
     // update directional light
     updateDirectionalLight((float) delta);
@@ -107,7 +108,7 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double delta) 
     //directionalLight->applyShader(*shader);
 
     // pass sunlight intensity to shader
-    shader->setFloat("sunlightIntensity", chunkManager->sunlightIntensity);
+    shader->setFloat("sunlightIntensity", directionalLight->intensity);
 
 
     Vec3 cam_pos(camera->Position.x, camera->Position.y, camera->Position.z);
@@ -140,12 +141,15 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double delta) 
         }
     }
 
+    std::unique_lock<std::mutex> lock(chunkManager->activeLock);
     renderedChunks = renderList.size();
     for(auto chunk : renderList)
     {
         glm::mat4 model_m;
         model_m = glm::translate(model_m, chunk->position);
         shader->setMat4("model", model_m);
+        if(!chunk->isPrepared || chunk->needUpload)
+            chunk->upload();
         chunk->draw(*shader);
     }
 
@@ -173,11 +177,11 @@ static int distance(int x1, int y1, int x2, int y2)
 
 
 void ChunkRenderer::update() {
-  chunkManager->update(camera->Position, *blockTypeDict);
+  chunkManager->update(camera->Position);
 }
 
 i32 ChunkRenderer::getActiveChunks() {
-    return static_cast<i32>(chunkManager->activeChunks.size());
+    return chunkManager->getActiveChunkCount();
 }
 
 i32 ChunkRenderer::getRenderedChunks() {

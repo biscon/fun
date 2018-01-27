@@ -129,7 +129,7 @@ public:
         ChunkBlockPos cbpos;
         chunkManager->relativePosToChunkBlockPos(this, x, y, z, cbpos);
         if(cbpos.chunk == nullptr) {
-            SDL_Log("Could not find chunk at %d,%d,%d", x, y, z);
+            //SDL_Log("Could not find chunk at %d,%d,%d", x, y, z);
             return 0;
         }
         return cbpos.chunk->getSunlight(cbpos.x, cbpos.y, cbpos.z);
@@ -156,6 +156,11 @@ public:
             return false;
         return cbpos.chunk->blocks[POS_TO_INDEX(cbpos.y, cbpos.z, cbpos.x)].isFlagSet(BLOCK_FLAG_TRANSPARENT);
     }
+
+    void upload();
+
+    bool isPrepared = false;
+    bool needUpload = true;
 
 private:
     IChunkManager *chunkManager;

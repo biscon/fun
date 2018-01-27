@@ -24,6 +24,7 @@
 #include "Terrain.h"
 #include "ChunkPos.h"
 #include "ChunkManager.h"
+#include "AChunkManager.h"
 
 // Do not copy shared_ptr's in inner loops (they incur reference and synchronization overhead)
 // unique_ptr's on the other hand should optimize to bare pointers (just avoid syphilis_ptr completely)
@@ -38,7 +39,7 @@ public:
     i32 getActiveChunks();
     i32 getRenderedChunks();
     //ChunkPos camChunkPos;
-    std::unique_ptr<ChunkManager> chunkManager;
+    std::unique_ptr<AChunkManager> chunkManager;
 
 private:
     IGame& game;

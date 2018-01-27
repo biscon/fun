@@ -132,7 +132,8 @@ void IntroGameMode::render(double delta) {
     fontRenderer->startFrame();
     fontRenderer->renderText(font2, 50, 50, "Use WASD and mouse look to fly around");
     fontRenderer->renderText(font2, 50, 80, "Mousewheel adjusts FOV, F12 toggles fullscreen");
-    fontRenderer->renderText(font2, 50, game->getRenderer()->getRealHeight() - 50, stringFormat("pos = %.2f,%.2f,%.2f chunkPosXZ = %d,%d activeChunks: %d visChunks: %d voxMeshSize: %d MB visRad: %d buildStage: %s",
+
+    fontRenderer->renderText(font2, 50, game->getRenderer()->getRealHeight() - 50, stringFormat("pos = %.2f,%.2f,%.2f chunkPosXZ = %d,%d activeChunks: %d visChunks: %d voxMeshSize: %d MB visRad: %d mesher: %s",
                                                            camera->Position.x, camera->Position.y, camera->Position.z,
                                                            chunkRenderer->chunkManager->camChunkPos.x, chunkRenderer->chunkManager->camChunkPos.z,chunkRenderer->getActiveChunks(), chunkRenderer->getRenderedChunks(), (chunkRenderer->chunkManager->totalMeshSizeBytes / 1024) / 1024, chunkRenderer->chunkManager->VISIBLE_RADIUS, chunkRenderer->chunkManager->getBuildStageAsString().c_str()));
     std::string chk_info = "INV";
@@ -145,6 +146,7 @@ void IntroGameMode::render(double delta) {
                                                                                                 chunkRenderer->chunkManager->camBlockWorldPos.x, chunkRenderer->chunkManager->camBlockWorldPos.y, chunkRenderer->chunkManager->camBlockWorldPos.z,
                                                                                                 chunkRenderer->chunkManager->camBlockLocalPos.x, chunkRenderer->chunkManager->camBlockLocalPos.y, chunkRenderer->chunkManager->camBlockLocalPos.z,
                                                                                                 chk_info.c_str(), chunkRenderer->chunkManager->sunlightIntensity));
+
     fontRenderer->render(game->getRenderer()->getRealWidth(), game->getRenderer()->getRealHeight());
 }
 

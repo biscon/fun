@@ -100,31 +100,7 @@ static float decelerate(float input)
  * actual shading must take place in the shader (yeah I know)
  */
 void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, BlockLight &blockLight, AmbientOcclusion& aob) {
-    /*
-    u8 min_level = 1;
-    for(i32 i = 0; i < 6; i++)
-    {
-        if(blockLight.faces[i].v1 < min_level) blockLight.faces[i].v1 = min_level;
-        if(blockLight.faces[i].v2 < min_level) blockLight.faces[i].v2 = min_level;
-        if(blockLight.faces[i].v3 < min_level) blockLight.faces[i].v3 = min_level;
-        if(blockLight.faces[i].v4 < min_level) blockLight.faces[i].v4 = min_level;
-    }
-
-    u8 light[6][4];
-    for(i32 i = 0; i < 6; i++) {
-        light[i][0] = (u8)( decelerate((float)blockLight.sunLight[i].v1 / 15.0f) * 255.0f);
-        light[i][1] = (u8)( decelerate((float)blockLight.sunLight[i].v2 / 15.0f) * 255.0f);
-        light[i][2] = (u8)( decelerate((float)blockLight.sunLight[i].v3 / 15.0f) * 255.0f);
-        light[i][3] = (u8)( decelerate((float)blockLight.sunLight[i].v4 / 15.0f) * 255.0f);
-    }
-    */
     u8 v1,v2,v3,v4;
-    /*
-    if(level == 1)
-    {
-        SDL_Log("Converted lightlevel %d to rgb intensity %d", level, l);
-    }
-    */
     if(faces.back) {
         v1 = (u8) aob.faces[BACK_FACE].vertices[LEFT_TOP].AO;
         v2 = (u8) aob.faces[BACK_FACE].vertices[LEFT_BTM].AO;
