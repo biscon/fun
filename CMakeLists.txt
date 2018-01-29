@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.8)
 project(game)
 
 set(CMAKE_CXX_STANDARD 11)
-#set(CMAKE_CXX_FLAGS_DEBUG "-gdwarf-2")
+set(CMAKE_CXX_FLAGS_DEBUG "-gdwarf-2")
 set(CMAKE_CXX_FLAGS_DEBUG "-O3 -mwindows -funroll-loops -fomit-frame-pointer -ftree-loop-distribution -ftree-vectorize")
 # uncomment this to compile as gui app (doesnt open the console)
 set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
@@ -141,7 +141,7 @@ set(SOURCE_FILES
         src/engine/video/voxel/IChunkManager.h
         src/engine/util/interpolation.h
         src/engine/video/voxel/LightMapper.cpp
-        src/engine/video/voxel/LightMapper.h src/engine/video/voxel/ChunkMetrics.h src/engine/util/BlockingQueue.h src/engine/video/voxel/AChunkManager.cpp src/engine/video/voxel/AChunkManager.h)
+        src/engine/video/voxel/LightMapper.h src/engine/video/voxel/ChunkMetrics.h src/engine/util/BlockingQueue.h src/engine/video/voxel/AChunkManager.cpp src/engine/video/voxel/AChunkManager.h src/engine/video/texture/OGLArrayTexture.cpp src/engine/video/texture/OGLArrayTexture.h)
 add_executable(game ${SOURCE_FILES})
 
 target_link_libraries(game ${GLEW_LIBRARY} ${OPENGL_LIBRARIES} ${SDL2_LIBRARY})

@@ -68,13 +68,11 @@ void BlockMesh::upload()
     }
 }
 
-void BlockMesh::drawRange(const Shader& shader, i32 start, i32 count, Material* material)
+void BlockMesh::drawRange(const Shader& shader, i32 start, i32 count, BlockType *blocktype)
 {
-    if(material != nullptr) {
-        material->applyShader(shader);
-        glActiveTexture(GL_TEXTURE0);
-    }
+    blocktype->applyShader(shader);
 
+    glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(VAO);
     // draw mesh
     glDrawArrays(GL_TRIANGLES, start, count);

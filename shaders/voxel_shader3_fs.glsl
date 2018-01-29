@@ -1,13 +1,12 @@
 #version 330 core
 out vec4 FragColor;
 
-struct Material
+struct FaceMaterial
 {
-    vec4 ambient;
-    vec4 diffuse;
-    vec4 specular;
+    vec4 color;
+    int layer;
+    sampler2DArray texture;
     int hasTexture;
-    float shininess;
 };
 
 struct Fog
@@ -23,10 +22,7 @@ in vec3 VertexColor;
 in vec2 TexCoord;
 
 uniform vec3 camPos;
-uniform vec3 ambientLight;
-uniform Material material;
-uniform sampler2D texture_diffuse;
-uniform sampler2D texture_specular;
+uniform FaceMaterial material[6];
 uniform Fog fog;
 uniform float sunlightIntensity;
 
@@ -57,20 +53,20 @@ void main()
     vec3 torchlight = torch * torch_color;
 
     float ao = VertexColor.z / 3.0;
-    float ao_factor = 0.75 + ao * (1.0 - 0.75) / 1.0;
+    float ao_factor = 0.65 + ao * (1.0 - 0.65) / 1.0;
 
     vec3 light = clamp(sunlight + torchlight, 0.05, 1.0);
 
     vec3 final_color = mix(vec3(0,0,0), light, ao_factor);
 
-    if(material.hasTexture == 1)
+    if(material[0].hasTexture == 1)
     {
-        //result = vec4(VertexColor / 256.0, 1.0) * texture(texture_diffuse, TexCoord);
-        result = vec4(final_color, 1.0) * texture(texture_diffuse, TexCoord);
+        vec3 array_tex_coord = vec3(TexCoord, material[0].layer);
+        result = vec4(final_color, 1.0) * texture(material[0].texture, array_tex_coord);
     }
     else
     {
-        result = vec4(final_color, 1.0) * material.diffuse;
+        result = vec4(final_color, 1.0) * material[0].color;
     }
 
     FragColor = result;

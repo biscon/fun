@@ -26,39 +26,19 @@ ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera,
     skybox = std::unique_ptr<Skybox>(new Skybox(system, camera));
 
     blockTypeDict = std::unique_ptr<BlockTypeDictionary>(new BlockTypeDictionary());
-    blockTypeDict->createBlockType("stone", "assets/stone_diffuse.png", "assets/stone_specular.png", 32);
-    blockTypeDict->createBlockType("grass", "assets/grass_diffuse.png", "assets/grass_specular.png", 8);
-    blockTypeDict->createBlockType("water", "assets/water_diffuse.png", "assets/water_specular.png", 64);
+    blockTypeDict->createBlockType("stone", "assets/stone_diffuse.png");
+    blockTypeDict->createBlockType("grass", "assets/grass_diffuse.png");
+    blockTypeDict->createBlockType("water", "assets/water_diffuse.png");
 
-    blockTypeDict->createBlockType("emerald",
-                                 glm::vec4(0.0215f, 0.1745f, 0.0215f, 1.0f),
-                                 glm::vec4(0.07568f, 0.61424f, 0.07568f, 1.0f),
-                                 glm::vec4(0.633f, 0.727811f, 0.633f, 1.0f),
-                                 0.6f*128.0f);
+    blockTypeDict->createBlockType("emerald", glm::vec4(0.07568f, 0.61424f, 0.07568f, 1.0f));
 
-    blockTypeDict->createBlockType("gold",
-                                 glm::vec4(0.24725f, 0.1995f, 0.0745f, 1.0f),
-                                 glm::vec4(0.75164f, 0.60648f, 0.22648f, 1.0f),
-                                 glm::vec4(0.628281f, 0.555802f, 0.366065f, 1.0f),
-                                 0.4f*128.0f);
+    blockTypeDict->createBlockType("gold", glm::vec4(0.75164f, 0.60648f, 0.22648f, 1.0f));
 
-    blockTypeDict->createBlockType("silver",
-                                 glm::vec4(0.19225f, 0.19225f, 0.19225f, 1.0f),
-                                 glm::vec4(0.50754f, 0.50754f, 0.50754f, 1.0f),
-                                 glm::vec4(0.508273f, 0.508273f, 0.508273f, 1.0f),
-                                 0.4f*128.0f);
+    blockTypeDict->createBlockType("silver", glm::vec4(0.50754f, 0.50754f, 0.50754f, 1.0f));
 
-    blockTypeDict->createBlockType("bronze",
-                                 glm::vec4(0.2125f, 0.1275f, 0.054f, 1.0f),
-                                 glm::vec4(0.714f, 0.4284f, 0.18144f, 1.0f),
-                                 glm::vec4(0.393548f, 0.271906f, 0.166721f, 1.0f),
-                                 0.2f*128.0f);
+    blockTypeDict->createBlockType("bronze", glm::vec4(0.714f, 0.4284f, 0.18144f, 1.0f));
 
-    blockTypeDict->createBlockType("debug",
-                                   glm::vec4(0.2125f, 0.1275f, 0.054f, 1.0f),
-                                   glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-                                   glm::vec4(0.393548f, 0.271906f, 0.166721f, 1.0f),
-                                   0.2f*128.0f);
+    blockTypeDict->createBlockType("debug", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
     //glm::vec3 color = glm::vec3(135.0f/255.0f, 206.0f/255.0f, 250.0f/255.0f);
     glm::vec3 color = glm::vec3(0.3294f, 0.92157f, 1.0f);
@@ -143,6 +123,7 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double delta) 
 
     std::unique_lock<std::mutex> lock(chunkManager->activeLock);
     renderedChunks = renderList.size();
+    blockTypeDict->arrayTexture->bind();
     for(auto chunk : renderList)
     {
         glm::mat4 model_m;

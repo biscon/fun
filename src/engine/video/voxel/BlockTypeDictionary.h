@@ -11,14 +11,14 @@
 #include <vector>
 #include <engine/video/texture/TextureAtlas.h>
 #include <engine/asset/ILoadTask.h>
-#include <engine/video/shader/Material.h>
+#include <engine/video/shader/FaceMaterial.h>
 
 struct BlockType
 {
     std::string name;
-    Material material;
-    std::shared_ptr<PixelBuffer> diffusePb;
-    std::shared_ptr<PixelBuffer> specularPb;
+    FaceMaterial* material[6];
+    OGLArrayTexture* texture = nullptr;
+    void applyShader(const Shader& shader);
 };
 
 class BlockTypeDictionary : public ILoadTask {
@@ -26,12 +26,20 @@ public:
     BlockTypeDictionary();
     bool load(IGame &game) override;
     bool prepare(IGame &game) override;
-    void createBlockType(std::string name, std::string diffuseMapFilename, std::string specularMapFilename, float shininess);
-    void createBlockType(std::string name, glm::vec4 ambient, glm::vec4 diffuse, glm::vec4 specular, float shininess);
+    void createBlockType(std::string name, std::string diffuseMapFilename);
+    void createBlockType(std::string name, glm::vec4 diffuse);
     BlockType& getBlockTypeAt(int index);
+    std::unique_ptr<OGLArrayTexture> arrayTexture;
 
 private:
+    const i32 faceTextureSize = 128;
+    i32 curLayer = 0;
+    std::vector<std::unique_ptr<FaceMaterial>> materials;
     std::vector<std::unique_ptr<BlockType>> blockTypes;
+
+
+    FaceMaterial* addTexturedMaterialIfNotPresent(std::string filename);
+    FaceMaterial* addColoredMaterialIfNotPresent(glm::vec4 color);
 };
 
 
