@@ -2,57 +2,80 @@
 // Created by bison on 26-12-2017.
 //
 
+#include <algorithm>
+#include <engine/util/string_util.h>
 #include "BlockTypeDictionary.h"
 
-BlockTypeDictionary::BlockTypeDictionary() {
+i32 BlockType::layersUniformLocation = 0;
+i32 BlockType::colorsUniformLocation = 0;
 
+
+BlockTypeDictionary::BlockTypeDictionary() {
+    arrayTexture = std::unique_ptr<OGLArrayTexture>(new OGLArrayTexture());
 }
 
 bool BlockTypeDictionary::load(IGame &game) {
-    for(auto const& bt : blockTypes)
+    for(auto it : textureLayerMap)
     {
-        if(!bt->material.diffuseMap.empty())
-            bt->diffusePb = std::make_shared<PixelBuffer>(bt->material.diffuseMap);
-        if(!bt->material.specularMap.empty())
-            bt->specularPb = std::make_shared<PixelBuffer>(bt->material.specularMap);
-        //SDL_Log("Loading textures for block = %s, diffuse = %s, spec = %s", bt->name.c_str(), bt->material.diffuseMap.c_str(), bt->material.specularMap.c_str());
+        layerBufferMap[it.second] = std::make_shared<PixelBuffer>(it.first);
     }
     return true;
 }
 
 bool BlockTypeDictionary::prepare(IGame &game) {
-    for(auto const& bt : blockTypes)
+    arrayTexture->init(faceTextureSize, faceTextureSize, (i32) layerBufferMap.size());
+    for(auto it : layerBufferMap)
     {
-        if(bt->diffusePb != nullptr)
-            bt->material.diffuseTexture = std::make_shared<OGLTexture>(bt->diffusePb.get(), "texture_diffuse", true);
-        if(bt->specularPb != nullptr)
-            bt->material.specularTexture = std::make_shared<OGLTexture>(bt->specularPb.get(), "texture_specular", true);
-        //SDL_Log("Uploading Block = %s, diffusemap = %s (id %d), specmap = %s (id %d)", bt->name.c_str(), bt->material.diffuseMap.c_str(), bt->material.diffuseTexture->tex, bt->material.specularMap.c_str(), bt->material.specularTexture->tex);
+        arrayTexture->uploadLayer(it.second.get(), it.first);
     }
+    arrayTexture->finalizeUpload();
+    textureLayerMap.clear();
+    layerBufferMap.clear();
     return true;
 }
 
-void BlockTypeDictionary::createBlockType(std::string name, std::string diffuseMapFilename,
-                                          std::string specularMapFilename, float shininess) {
+i32 BlockTypeDictionary::addLayerIfNotPresent(std::string filename)
+{
+    auto it = textureLayerMap.find(filename);
+    if(it == textureLayerMap.end())
+    {
+        textureLayerMap[filename] = curLayer;
+    }
+    else
+    {
+        return it->second;
+    }
+    SDL_Log("Added textured material %s as layer %d", filename.c_str(), curLayer);
+    return curLayer++;
+}
+
+void BlockTypeDictionary::createBlockType(std::string name, std::string diffuseMapFilename) {
     blockTypes.push_back(std::unique_ptr<BlockType>(new BlockType()));
     auto& bt = blockTypes.back();
     bt->name = name;
-    bt->material.shininess = shininess;
-    bt->material.diffuseMap = diffuseMapFilename;
-    bt->material.specularMap = specularMapFilename;
+    bt->texture = arrayTexture.get();
+    // use the same texture for all faces
+    for(i32 i = 0; i < 6; i++)
+    {
+        bt->material.layers[i] = addLayerIfNotPresent(diffuseMapFilename);
+        bt->material.colors[i] = glm::vec4(0,0,0,0);
+        //bt->material[i] = addTexturedMaterialIfNotPresent(diffuseMapFilename);
+    }
 }
 
 BlockType &BlockTypeDictionary::getBlockTypeAt(int index) {
     return *blockTypes[index];
 }
 
-void BlockTypeDictionary::createBlockType(std::string name, glm::vec4 ambient, glm::vec4 diffuse, glm::vec4 specular,
-                                          float shininess) {
+void BlockTypeDictionary::createBlockType(std::string name, glm::vec4 diffuse) {
     blockTypes.push_back(std::unique_ptr<BlockType>(new BlockType()));
     auto& bt = blockTypes.back();
     bt->name = name;
-    bt->material.ambient = ambient;
-    bt->material.diffuse = diffuse;
-    bt->material.specular = specular;
-    bt->material.shininess = shininess;
+    bt->texture = nullptr;
+    // use the same color for all faces
+    for(i32 i = 0; i < 6; i++)
+    {
+        bt->material.colors[i] = diffuse;
+        bt->material.layers[i] = -1;
+    }
 }

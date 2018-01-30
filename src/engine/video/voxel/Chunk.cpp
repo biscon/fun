@@ -764,8 +764,7 @@ void Chunk::draw(const Shader &shader) {
     {
         //sum += kv.second->count;
         //SDL_Log("Rendering batch: blocks = %d, start = %d, count = %d, blockType = %d", kv.second->blocks.size(), kv.second->start, kv.second->count, kv.first);
-        mesh->drawRange(shader, kv.second->start, kv.second->count, &blockTypeDict.getBlockTypeAt(kv.first).material);
-        //mesh->drawRange(shader, kv.second->start, kv.second->count, &blockTypeDict.getBlockTypeAt(0).material);
+        mesh->drawRange(shader, kv.second->start, kv.second->count, &blockTypeDict.getBlockTypeAt(kv.first));
     }
 
     //SDL_Log("Sum of batch counts = %d, size of mesh = %d", sum, mesh->vertices.size());

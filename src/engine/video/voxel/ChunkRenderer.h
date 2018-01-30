@@ -66,6 +66,8 @@ private:
     void sendNormalsArrayUniform();
 
     void sendTexcoordArrayUniform();
+
+    void printShaderUniformLocations();
 };
 
 

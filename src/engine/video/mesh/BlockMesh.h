@@ -13,6 +13,7 @@
 #include <string>
 #include <engine/video/voxel/AmbientOcclusion.h>
 #include <engine/video/voxel/Block.h>
+#include <engine/video/voxel/BlockTypeDictionary.h>
 #include "MeshUpdateType.h"
 #include "engine/video/shader/Shader.h"
 #include "engine/video/texture/OGLTexture.h"
@@ -51,7 +52,6 @@ public:
     BlockMesh();
     virtual ~BlockMesh();
 
-    void drawRange(const Shader& shader, i32 start, i32 count, Material* material);
     void prepare();
     void upload();
     //void generateCubeAt(float x, float y, float z);
@@ -72,6 +72,20 @@ public:
     {
         return vertices.size() * sizeof(BlockMeshVertex);
     }
+
+    void drawRange(const Shader& shader, i32 start, i32 count, BlockType *blocktype);
+    /*
+    inline void drawRange(const Shader& shader, i32 start, i32 count, BlockType *blocktype)
+    {
+        //blocktype->applyShader(shader);
+
+        //glActiveTexture(GL_TEXTURE0);
+        glBindVertexArray(VAO);
+        // draw mesh
+        glDrawArrays(GL_TRIANGLES, start, count);
+        //glBindVertexArray(0);
+    }
+     */
 
 private:
     void init();
