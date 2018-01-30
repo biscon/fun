@@ -52,7 +52,6 @@ public:
     BlockMesh();
     virtual ~BlockMesh();
 
-    void drawRange(const Shader& shader, i32 start, i32 count, BlockType *blocktype);
     void prepare();
     void upload();
     //void generateCubeAt(float x, float y, float z);
@@ -73,6 +72,20 @@ public:
     {
         return vertices.size() * sizeof(BlockMeshVertex);
     }
+
+    void drawRange(const Shader& shader, i32 start, i32 count, BlockType *blocktype);
+    /*
+    inline void drawRange(const Shader& shader, i32 start, i32 count, BlockType *blocktype)
+    {
+        //blocktype->applyShader(shader);
+
+        //glActiveTexture(GL_TEXTURE0);
+        glBindVertexArray(VAO);
+        // draw mesh
+        glDrawArrays(GL_TRIANGLES, start, count);
+        //glBindVertexArray(0);
+    }
+     */
 
 private:
     void init();

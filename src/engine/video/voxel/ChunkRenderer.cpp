@@ -12,6 +12,7 @@
 #include <SDL_log.h>
 #include <cmath>
 #include <engine/video/shader/shaders.h>
+#include <engine/util/string_util.h>
 
 ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain) : game(game), camera(camera) {
     viewFrustrum = std::unique_ptr<ViewFrustum>(new ViewFrustum());
@@ -22,6 +23,7 @@ ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera,
 
     //auto lighting_fs = system.readTextFile("shaders/lamp_shader_fs.glsl");
     shader = std::unique_ptr<Shader>(new Shader(lighting_vs.c_str(), lighting_fs.c_str(), nullptr));
+    printShaderUniformLocations();
 
     skybox = std::unique_ptr<Skybox>(new Skybox(system, camera));
 
@@ -47,6 +49,18 @@ ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera,
     directionalLight = std::unique_ptr<DirectionalLight>(new DirectionalLight());
 
     chunkManager = std::unique_ptr<AChunkManager>(new AChunkManager(game, *blockTypeDict, terrain));
+}
+
+void ChunkRenderer::printShaderUniformLocations()
+{
+
+    i32 layers = shader->getUniformLocation("layers");
+    i32 colors = shader->getUniformLocation("colors");
+
+    SDL_Log("layers off = %d", layers);
+    SDL_Log("colors off = %d", colors);
+    BlockType::layersUniformLocation = layers;
+    BlockType::colorsUniformLocation = colors;
 }
 
 // TODO
@@ -124,6 +138,7 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double delta) 
     std::unique_lock<std::mutex> lock(chunkManager->activeLock);
     renderedChunks = renderList.size();
     blockTypeDict->arrayTexture->bind();
+    shader->setInt("array_texture", 0);
     for(auto chunk : renderList)
     {
         glm::mat4 model_m;

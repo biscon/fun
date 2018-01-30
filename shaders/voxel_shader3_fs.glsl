@@ -1,13 +1,9 @@
 #version 330 core
 out vec4 FragColor;
 
-struct FaceMaterial
-{
-    vec4 color;
-    int layer;
-    sampler2DArray texture;
-    int hasTexture;
-};
+uniform int layers[6];
+uniform vec4 colors[6];
+uniform sampler2DArray array_texture;
 
 struct Fog
 {
@@ -22,7 +18,6 @@ in vec3 VertexColor;
 in vec2 TexCoord;
 
 uniform vec3 camPos;
-uniform FaceMaterial material[6];
 uniform Fog fog;
 uniform float sunlightIntensity;
 
@@ -59,14 +54,14 @@ void main()
 
     vec3 final_color = mix(vec3(0,0,0), light, ao_factor);
 
-    if(material[0].hasTexture == 1)
+    if(layers[0] != -1)
     {
-        vec3 array_tex_coord = vec3(TexCoord, material[0].layer);
-        result = vec4(final_color, 1.0) * texture(material[0].texture, array_tex_coord);
+        vec3 array_tex_coord = vec3(TexCoord, layers[0]);
+        result = vec4(final_color, 1.0) * texture(array_texture, array_tex_coord);
     }
     else
     {
-        result = vec4(final_color, 1.0) * material[0].color;
+        result = vec4(final_color, 1.0) * colors[0];
     }
 
     FragColor = result;

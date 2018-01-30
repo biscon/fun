@@ -72,7 +72,7 @@ void BlockMesh::drawRange(const Shader& shader, i32 start, i32 count, BlockType 
 {
     blocktype->applyShader(shader);
 
-    glActiveTexture(GL_TEXTURE0);
+    //glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(VAO);
     // draw mesh
     glDrawArrays(GL_TRIANGLES, start, count);

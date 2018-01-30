@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.8)
 project(game)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS_DEBUG "-gdwarf-2")
+#set(CMAKE_CXX_FLAGS_DEBUG "-gdwarf-2")
 set(CMAKE_CXX_FLAGS_DEBUG "-O3 -mwindows -funroll-loops -fomit-frame-pointer -ftree-loop-distribution -ftree-vectorize")
 # uncomment this to compile as gui app (doesnt open the console)
 set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")

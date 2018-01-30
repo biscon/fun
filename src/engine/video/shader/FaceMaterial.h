@@ -5,16 +5,10 @@
 #ifndef GAME_FACEMATERIAL_H
 #define GAME_FACEMATERIAL_H
 #include <glm.hpp>
-#include <memory>
-#include <engine/video/texture/OGLArrayTexture.h>
-#include "Shader.h"
 
 struct FaceMaterial {
-    glm::vec4 color = {0.8f, 0.8f, 0.8f, 1.0f};
-    //OGLArrayTexture* texture = nullptr;
-    std::string textureMap;
-    i32 layer;
-    std::shared_ptr<PixelBuffer> buffer;
+    glm::vec4 colors[6];
+    i32 layers[6];
 };
 
 
