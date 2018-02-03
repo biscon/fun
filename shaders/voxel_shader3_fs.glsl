@@ -16,6 +16,8 @@ in vec3 VertexPos;
 in vec3 VertexNormal;
 in vec3 VertexColor;
 in vec2 TexCoord;
+in float AoFactor;
+flat in uint FaceIndex;
 
 uniform vec3 camPos;
 uniform Fog fog;
@@ -46,22 +48,18 @@ void main()
 
     vec3 sunlight = vec3(sun, sun, sun);
     vec3 torchlight = torch * torch_color;
-
-    float ao = VertexColor.z / 3.0;
-    float ao_factor = 0.65 + ao * (1.0 - 0.65) / 1.0;
-
     vec3 light = clamp(sunlight + torchlight, 0.05, 1.0);
 
-    vec3 final_color = mix(vec3(0,0,0), light, ao_factor);
+    vec3 final_color = mix(vec3(0,0,0), light, AoFactor);
 
-    if(layers[0] != -1)
+    if(layers[FaceIndex] != -1)
     {
-        vec3 array_tex_coord = vec3(TexCoord, layers[0]);
+        vec3 array_tex_coord = vec3(TexCoord, layers[FaceIndex]);
         result = vec4(final_color, 1.0) * texture(array_texture, array_tex_coord);
     }
     else
     {
-        result = vec4(final_color, 1.0) * colors[0];
+        result = vec4(final_color, 1.0) * colors[FaceIndex];
     }
 
     FragColor = result;

@@ -248,10 +248,12 @@ void Chunk::rebuild(const ChunkPos& position) {
 
     BlockLight block_light;
     AmbientOcclusion ao_block;
+    BlockType *blocktype = nullptr;
     bool trans = false;
 
     for(auto const& kv : materialBatchMap)
     {
+        blocktype = &blockTypeDict.getBlockTypeAt(kv.first);
         kv.second->start = static_cast<u32>(mesh->vertices.size());
         for(auto& mb : kv.second->blocks)
         {
@@ -330,8 +332,7 @@ void Chunk::rebuild(const ChunkPos& position) {
                 calculateAO(ao_block, mb);
                 calculateBlockTorchLight(block_light, mb);
                 calculateBlockSunLight(block_light, mb);
-
-                mesh->generateTexturedCubeAt(mb.x, mb.y, mb.z, mb.faces, block_light, ao_block);
+                mesh->generateTexturedCubeAt(mb.x, mb.y, mb.z, mb.faces, block_light, ao_block, blocktype);
             }
         }
         kv.second->count = static_cast<u32>(mesh->vertices.size() - kv.second->start);
@@ -751,7 +752,6 @@ void Chunk::calculateAO(AmbientOcclusion &aob, MaterialBlock& mb)
             vertex.AO = vertexAO((isBlockActiveAt(vertex.positions[SIDE1].x, vertex.positions[SIDE1].y, vertex.positions[SIDE1].z) ? 1 : 0),
                                  (isBlockActiveAt(vertex.positions[SIDE2].x, vertex.positions[SIDE2].y, vertex.positions[SIDE2].z) ? 1 : 0),
                                  (isBlockActiveAt(vertex.positions[CORNER].x, vertex.positions[CORNER].y, vertex.positions[CORNER].z) ? 1 : 0));
-
         }
     }
 }

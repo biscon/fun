@@ -206,3 +206,12 @@ INFO: MeshingTime  : 2.45252 sec (2452.52 ms)
 INFO: OptimizeTime : 3.03370 sec (3033.70 ms)
 INFO: UpdateTime   : 0 sec (0 ms)
 INFO: -----------------------------------------------
+
+// no locking between threads (unstable)
+INFO: -=* ChunkMetrics *=----------------------------
+INFO: SetupTime    : 0.67493 sec (674.93 ms)
+INFO: LightingTime : 0.30603 sec (306.03 ms)
+INFO: MeshingTime  : 2.58459 sec (2584.59 ms)
+INFO: OptimizeTime : 2.29496 sec (2294.96 ms)
+INFO: UpdateTime   : 0.00000 sec (0.00 ms)
+INFO: -----------------------------------------------

@@ -437,12 +437,13 @@ void AChunkManager::runThread() {
 }
 
 void AChunkManager::logChunkMetrics() {
+    auto total_time = chunkMetrics.chunkSetupTime + chunkMetrics.chunkLightingTime + chunkMetrics.chunkMeshingTime + chunkMetrics.chunkOptimizeTime;
     SDL_Log("-=* ChunkMetrics *=----------------------------");
     SDL_Log("SetupTime    : %0.5f sec (%.2f ms)", chunkMetrics.chunkSetupTime, chunkMetrics.chunkSetupTime * 1000);
     SDL_Log("LightingTime : %0.5f sec (%.2f ms)", chunkMetrics.chunkLightingTime, chunkMetrics.chunkLightingTime * 1000);
     SDL_Log("MeshingTime  : %0.5f sec (%.2f ms)", chunkMetrics.chunkMeshingTime, chunkMetrics.chunkMeshingTime * 1000);
     SDL_Log("OptimizeTime : %0.5f sec (%.2f ms)", chunkMetrics.chunkOptimizeTime, chunkMetrics.chunkOptimizeTime * 1000);
-    SDL_Log("UpdateTime   : %0.5f sec (%.2f ms)", chunkMetrics.chunkUpdateTime, chunkMetrics.chunkUpdateTime * 1000);
+    SDL_Log("TotalTime    : %0.5f sec (%.2f ms)", total_time, total_time * 1000);
     SDL_Log("-----------------------------------------------");
 }
 

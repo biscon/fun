@@ -97,13 +97,15 @@ static float decelerate(float input)
  * 4 color bytes used as: sunlight, torchlight, ao, texcoord index
  * actual shading must take place in the shader (yeah I know)
  */
-void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, BlockLight &blockLight, AmbientOcclusion& aob) {
+void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, BlockLight &blockLight, AmbientOcclusion& aob, BlockType *blocktype) {
     u8 v1,v2,v3,v4;
+
     if(faces.back) {
-        v1 = (u8) aob.faces[BACK_FACE].vertices[LEFT_TOP].AO;
-        v2 = (u8) aob.faces[BACK_FACE].vertices[LEFT_BTM].AO;
-        v3 = (u8) aob.faces[BACK_FACE].vertices[RIGHT_BTM].AO;
-        v4 = (u8) aob.faces[BACK_FACE].vertices[RIGHT_TOP].AO;
+        // (face_no << 3) | (ao << 1) | is_tex;
+        v1 = (u8) ((BACK_FACE << 3) | aob.faces[BACK_FACE].vertices[LEFT_TOP].AO);
+        v2 = (u8) ((BACK_FACE << 3) | aob.faces[BACK_FACE].vertices[LEFT_BTM].AO);
+        v3 = (u8) ((BACK_FACE << 3) | aob.faces[BACK_FACE].vertices[RIGHT_BTM].AO);
+        v4 = (u8) ((BACK_FACE << 3) | aob.faces[BACK_FACE].vertices[RIGHT_TOP].AO);
         if(aob.faces[BACK_FACE].vertices[LEFT_BTM].AO + aob.faces[BACK_FACE].vertices[RIGHT_TOP].AO < aob.faces[BACK_FACE].vertices[LEFT_TOP].AO + aob.faces[BACK_FACE].vertices[RIGHT_BTM].AO)
         {
             vertices.insert(vertices.end(), {
@@ -129,10 +131,10 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Bloc
     }
     if(faces.front)
     {
-        v1 = (u8) aob.faces[FRONT_FACE].vertices[LEFT_TOP].AO;
-        v2 = (u8) aob.faces[FRONT_FACE].vertices[LEFT_BTM].AO;
-        v3 = (u8) aob.faces[FRONT_FACE].vertices[RIGHT_BTM].AO;
-        v4 = (u8) aob.faces[FRONT_FACE].vertices[RIGHT_TOP].AO;
+        v1 = (u8) ((FRONT_FACE << 3) | aob.faces[FRONT_FACE].vertices[LEFT_TOP].AO);
+        v2 = (u8) ((FRONT_FACE << 3) | aob.faces[FRONT_FACE].vertices[LEFT_BTM].AO);
+        v3 = (u8) ((FRONT_FACE << 3) | aob.faces[FRONT_FACE].vertices[RIGHT_BTM].AO);
+        v4 = (u8) ((FRONT_FACE << 3) | aob.faces[FRONT_FACE].vertices[RIGHT_TOP].AO);
 
         if(aob.faces[FRONT_FACE].vertices[LEFT_BTM].AO + aob.faces[FRONT_FACE].vertices[RIGHT_TOP].AO > aob.faces[FRONT_FACE].vertices[LEFT_TOP].AO + aob.faces[FRONT_FACE].vertices[RIGHT_BTM].AO)
         {
@@ -160,10 +162,10 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Bloc
         }
     }
     if(faces.left) {
-        v1 = (u8) aob.faces[LEFT_FACE].vertices[LEFT_TOP].AO;
-        v2 = (u8) aob.faces[LEFT_FACE].vertices[LEFT_BTM].AO;
-        v3 = (u8) aob.faces[LEFT_FACE].vertices[RIGHT_BTM].AO;
-        v4 = (u8) aob.faces[LEFT_FACE].vertices[RIGHT_TOP].AO;
+        v1 = (u8) ((LEFT_FACE << 3) | aob.faces[LEFT_FACE].vertices[LEFT_TOP].AO);
+        v2 = (u8) ((LEFT_FACE << 3) | aob.faces[LEFT_FACE].vertices[LEFT_BTM].AO);
+        v3 = (u8) ((LEFT_FACE << 3) | aob.faces[LEFT_FACE].vertices[RIGHT_BTM].AO);
+        v4 = (u8) ((LEFT_FACE << 3) | aob.faces[LEFT_FACE].vertices[RIGHT_TOP].AO);
         if(aob.faces[LEFT_FACE].vertices[LEFT_BTM].AO + aob.faces[LEFT_FACE].vertices[RIGHT_TOP].AO > aob.faces[LEFT_FACE].vertices[LEFT_TOP].AO + aob.faces[LEFT_FACE].vertices[RIGHT_BTM].AO)
         {
             vertices.insert(vertices.end(), {
@@ -190,10 +192,10 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Bloc
         }
     }
     if(faces.right) {
-        v1 = (u8) aob.faces[RIGHT_FACE].vertices[LEFT_TOP].AO;
-        v2 = (u8) aob.faces[RIGHT_FACE].vertices[LEFT_BTM].AO;
-        v3 = (u8) aob.faces[RIGHT_FACE].vertices[RIGHT_BTM].AO;
-        v4 = (u8) aob.faces[RIGHT_FACE].vertices[RIGHT_TOP].AO;
+        v1 = (u8) ((RIGHT_FACE << 3) | aob.faces[RIGHT_FACE].vertices[LEFT_TOP].AO);
+        v2 = (u8) ((RIGHT_FACE << 3) | aob.faces[RIGHT_FACE].vertices[LEFT_BTM].AO);
+        v3 = (u8) ((RIGHT_FACE << 3) | aob.faces[RIGHT_FACE].vertices[RIGHT_BTM].AO);
+        v4 = (u8) ((RIGHT_FACE << 3) | aob.faces[RIGHT_FACE].vertices[RIGHT_TOP].AO);
         if(aob.faces[RIGHT_FACE].vertices[LEFT_BTM].AO + aob.faces[RIGHT_FACE].vertices[RIGHT_TOP].AO < aob.faces[RIGHT_FACE].vertices[LEFT_TOP].AO + aob.faces[RIGHT_FACE].vertices[RIGHT_BTM].AO) {
             vertices.insert(vertices.end(), {
                     // Right face
@@ -219,10 +221,10 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Bloc
         }
     }
     if(faces.bottom) {
-        v1 = (u8) aob.faces[BOTTOM_FACE].vertices[LEFT_TOP].AO;
-        v2 = (u8) aob.faces[BOTTOM_FACE].vertices[LEFT_BTM].AO;
-        v3 = (u8) aob.faces[BOTTOM_FACE].vertices[RIGHT_BTM].AO;
-        v4 = (u8) aob.faces[BOTTOM_FACE].vertices[RIGHT_TOP].AO;
+        v1 = (u8) ((BOTTOM_FACE << 3) | aob.faces[BOTTOM_FACE].vertices[LEFT_TOP].AO);
+        v2 = (u8) ((BOTTOM_FACE << 3) | aob.faces[BOTTOM_FACE].vertices[LEFT_BTM].AO);
+        v3 = (u8) ((BOTTOM_FACE << 3) | aob.faces[BOTTOM_FACE].vertices[RIGHT_BTM].AO);
+        v4 = (u8) ((BOTTOM_FACE << 3) | aob.faces[BOTTOM_FACE].vertices[RIGHT_TOP].AO);
 
         if(aob.faces[BOTTOM_FACE].vertices[LEFT_BTM].AO + aob.faces[BOTTOM_FACE].vertices[RIGHT_TOP].AO > aob.faces[BOTTOM_FACE].vertices[LEFT_TOP].AO + aob.faces[BOTTOM_FACE].vertices[RIGHT_BTM].AO) {
             vertices.insert(vertices.end(), {
@@ -249,10 +251,10 @@ void BlockMesh::generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, Bloc
         }
     }
     if(faces.top) {
-        v1 = (u8) aob.faces[TOP_FACE].vertices[LEFT_TOP].AO;
-        v2 = (u8) aob.faces[TOP_FACE].vertices[LEFT_BTM].AO;
-        v3 = (u8) aob.faces[TOP_FACE].vertices[RIGHT_BTM].AO;
-        v4 = (u8) aob.faces[TOP_FACE].vertices[RIGHT_TOP].AO;
+        v1 = (u8) ((TOP_FACE << 3) | aob.faces[TOP_FACE].vertices[LEFT_TOP].AO);
+        v2 = (u8) ((TOP_FACE << 3) | aob.faces[TOP_FACE].vertices[LEFT_BTM].AO);
+        v3 = (u8) ((TOP_FACE << 3) | aob.faces[TOP_FACE].vertices[RIGHT_BTM].AO);
+        v4 = (u8) ((TOP_FACE << 3) | aob.faces[TOP_FACE].vertices[RIGHT_TOP].AO);
 
         if(aob.faces[TOP_FACE].vertices[LEFT_BTM].AO + aob.faces[TOP_FACE].vertices[RIGHT_TOP].AO < aob.faces[TOP_FACE].vertices[LEFT_TOP].AO + aob.faces[TOP_FACE].vertices[RIGHT_BTM].AO) {
             vertices.insert(vertices.end(), {

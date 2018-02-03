@@ -55,7 +55,7 @@ public:
     void prepare();
     void upload();
     //void generateCubeAt(float x, float y, float z);
-    void generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, BlockLight& blockLight, AmbientOcclusion& aob);
+    void generateTexturedCubeAt(i8 x, i8 y, i8 z, BlockFaces& faces, BlockLight& blockLight, AmbientOcclusion& aob, BlockType *blocktype);
     void clear();
 
     /*  Mesh Data  */

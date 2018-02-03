@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <engine/util/string_util.h>
 #include "BlockTypeDictionary.h"
+#include "AmbientOcclusion.h"
 
 i32 BlockType::layersUniformLocation = 0;
 i32 BlockType::colorsUniformLocation = 0;
@@ -59,8 +60,26 @@ void BlockTypeDictionary::createBlockType(std::string name, std::string diffuseM
     {
         bt->material.layers[i] = addLayerIfNotPresent(diffuseMapFilename);
         bt->material.colors[i] = glm::vec4(0,0,0,0);
-        //bt->material[i] = addTexturedMaterialIfNotPresent(diffuseMapFilename);
     }
+    /*
+    bt->material.layers[BACK_FACE] = -1;
+    bt->material.colors[BACK_FACE] = glm::vec4(1,0,0,1);
+
+    bt->material.layers[FRONT_FACE] = -1;
+    bt->material.colors[FRONT_FACE] = glm::vec4(0,1,0,1);
+
+    bt->material.layers[LEFT_FACE] = -1;
+    bt->material.colors[LEFT_FACE] = glm::vec4(0,0,1,1);
+
+    bt->material.layers[RIGHT_FACE] = -1;
+    bt->material.colors[RIGHT_FACE] = glm::vec4(1,0,1,1);
+
+    bt->material.layers[BOTTOM_FACE] = -1;
+    bt->material.colors[BOTTOM_FACE] = glm::vec4(0,0,0,1);
+
+    bt->material.layers[TOP_FACE] = -1;
+    bt->material.colors[TOP_FACE] = glm::vec4(1,1,1,1);
+     */
 }
 
 BlockType &BlockTypeDictionary::getBlockTypeAt(int index) {

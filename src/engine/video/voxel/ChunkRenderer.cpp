@@ -29,6 +29,7 @@ ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera,
 
     blockTypeDict = std::unique_ptr<BlockTypeDictionary>(new BlockTypeDictionary());
     blockTypeDict->createBlockType("stone", "assets/stone_diffuse.png");
+
     blockTypeDict->createBlockType("grass", "assets/grass_diffuse.png");
     blockTypeDict->createBlockType("water", "assets/water_diffuse.png");
 

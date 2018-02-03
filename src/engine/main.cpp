@@ -15,6 +15,22 @@
 #endif /* main */
 
 int main(int argc, char *argv[]) {
+
+    u8 ao = 2;
+    u8 is_tex = 0;
+    u8 face_no = 5;
+
+    SDL_Log("before ao = %d is_tex = %d face_no = %d", ao, is_tex, face_no);
+
+    u8 packed = (face_no << 3) | (ao << 1) | is_tex;
+    SDL_Log("Packed value: %d", packed);
+
+    is_tex = packed & 0x1;
+    ao = (packed & 0x6) >> 1;
+    face_no = (packed & 0x38) >> 3;
+    SDL_Log("after ao = %d is_tex = %d face_no = %d", ao, is_tex, face_no);
+    //exit(0);
+
     SDL_Log("Initializing...\n");
 
     // GDB crashes the program immediately when using named threads on windows
