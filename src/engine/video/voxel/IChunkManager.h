@@ -9,6 +9,8 @@
 #include "Chunk.h"
 #include "ChunkBlockPos.h"
 
+
+
 class IChunkManager {
 public:
     virtual void relativePosToChunkBlockPos(Chunk *chunk, i32 x, i32 y, i32 z, ChunkBlockPos& chunkBlockPos)=0;

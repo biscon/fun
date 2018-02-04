@@ -14,7 +14,10 @@
 #include <engine/video/shader/shaders.h>
 #include <engine/util/string_util.h>
 
-ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain) : game(game), camera(camera) {
+ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain, const std::shared_ptr<AChunkManager> &chunkManager,
+                             const std::shared_ptr<BlockTypeDictionary> &blockTypeDict, const std::shared_ptr<SceneryManager> &sceneryManager)
+        : game(game), camera(camera), chunkManager(chunkManager), blockTypeDict(blockTypeDict), sceneryManager(sceneryManager)
+{
     viewFrustrum = std::unique_ptr<ViewFrustum>(new ViewFrustum());
 
     auto& system = *game.getSystem();
@@ -27,33 +30,7 @@ ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera,
 
     skybox = std::unique_ptr<Skybox>(new Skybox(system, camera));
 
-    blockTypeDict = std::unique_ptr<BlockTypeDictionary>(new BlockTypeDictionary());
-    blockTypeDict->createBlockType("stone", "assets/stone.png");
 
-    blockTypeDict->createBlockType("grass", "assets/grass_side.png");
-    auto* grass = blockTypeDict->getBlockTypeByName("grass");
-    //blockTypeDict->setFaceColor(grass, TOP_FACE, glm::vec4(0.07568f, 0.61424f, 0.07568f, 1.0f));
-    blockTypeDict->setFaceTexture(grass, TOP_FACE, "assets/grass_top.png");
-    blockTypeDict->setFaceTexture(grass, BOTTOM_FACE, "assets/grass_top.png");
-
-    blockTypeDict->createBlockType("water", "assets/water_diffuse.png");
-
-    blockTypeDict->createBlockType("emerald", glm::vec4(0.07568f, 0.61424f, 0.07568f, 1.0f));
-
-    blockTypeDict->createBlockType("gold", glm::vec4(0.75164f, 0.60648f, 0.22648f, 1.0f));
-
-    blockTypeDict->createBlockType("silver", glm::vec4(0.50754f, 0.50754f, 0.50754f, 1.0f));
-
-    blockTypeDict->createBlockType("bronze", glm::vec4(0.714f, 0.4284f, 0.18144f, 1.0f));
-
-    blockTypeDict->createBlockType("debug", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-
-    blockTypeDict->createBlockType("planks", "assets/planks_acacia.png");
-    blockTypeDict->createBlockType("glass", "assets/glass.png");
-    blockTypeDict->createBlockType("brick", "assets/brick.png");
-
-    blockTypeDict->createBlockType("sand", "assets/sand.png");
-    blockTypeDict->createBlockType("red_sand", "assets/red_sand.png");
 
     //glm::vec3 color = glm::vec3(135.0f/255.0f, 206.0f/255.0f, 250.0f/255.0f);
     glm::vec3 color = glm::vec3(0.3294f, 0.92157f, 1.0f);
@@ -61,7 +38,6 @@ ChunkRenderer::ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera,
     fog = std::unique_ptr<Fog>(new Fog(color, 0.0025f, true));
     directionalLight = std::unique_ptr<DirectionalLight>(new DirectionalLight());
 
-    chunkManager = std::unique_ptr<AChunkManager>(new AChunkManager(game, *blockTypeDict, terrain));
 }
 
 void ChunkRenderer::printShaderUniformLocations()
@@ -168,11 +144,13 @@ void ChunkRenderer::render(float screenWidth, float screenHeight, double delta) 
 
 bool ChunkRenderer::load(IGame &game) {
     blockTypeDict->load(game);
+    sceneryManager->load();
     return true;
 }
 
 bool ChunkRenderer::prepare(IGame &game) {
     blockTypeDict->prepare(game);
+    sceneryManager->prepare();
     skybox->prepare();
     return true;
 }

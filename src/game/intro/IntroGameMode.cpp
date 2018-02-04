@@ -45,18 +45,14 @@ bool IntroGameMode::init() {
 
     camera = std::make_shared<Camera>(glm::vec3(0.0f, 130.0f, 0.0f));
     terrain = std::make_shared<Terrain>();
-    //lightSceneRenderer = std::unique_ptr<LightSceneRenderer>(new LightSceneRenderer(*game->getSystem(), camera));
 
-    //model = std::make_shared<Model>("nanosuit/nanosuit.obj", "nanosuit/");
-    //lightSceneRenderer->testModel = model;
-    //game->getAssetLoader()->addLoadTask(model.get());
+    setupBlockTypes();
 
-    //model2 = std::make_shared<Model>("assets/grass_tile.obj", "assets/");
-    //game->getAssetLoader()->addLoadTask(model2.get());
+    sceneryManager = std::make_shared<SceneryManager>();
 
-    //modelRenderer = std::unique_ptr<ModelRenderer>(new ModelRenderer(*game->getSystem(), model2, camera));
+    chunkManager = std::make_shared<AChunkManager>(*game, *blockTypeDict, terrain, sceneryManager);
 
-    chunkRenderer = std::unique_ptr<ChunkRenderer>(new ChunkRenderer(*game, camera, terrain));
+    chunkRenderer = std::unique_ptr<ChunkRenderer>(new ChunkRenderer(*game, camera, terrain, chunkManager, blockTypeDict, sceneryManager));
     game->getAssetLoader()->addLoadTask(chunkRenderer.get());
 
     game->getAssetLoader()->addLoadTask(this);
@@ -246,6 +242,36 @@ void IntroGameMode::onMouseMotion(const SDL_MouseMotionEvent *event) {
 
 void IntroGameMode::onMouseWheel(int32_t yoffset) {
     camera->ProcessMouseScroll(yoffset);
+}
+
+void IntroGameMode::setupBlockTypes() {
+    blockTypeDict = std::make_shared<BlockTypeDictionary>();
+    blockTypeDict->createBlockType("stone", "assets/stone.png");
+
+    blockTypeDict->createBlockType("grass", "assets/grass_side.png");
+    auto* grass = blockTypeDict->getBlockTypeByName("grass");
+    //blockTypeDict->setFaceColor(grass, TOP_FACE, glm::vec4(0.07568f, 0.61424f, 0.07568f, 1.0f));
+    blockTypeDict->setFaceTexture(grass, TOP_FACE, "assets/grass_top.png");
+    blockTypeDict->setFaceTexture(grass, BOTTOM_FACE, "assets/grass_top.png");
+
+    blockTypeDict->createBlockType("water", "assets/water_diffuse.png");
+
+    blockTypeDict->createBlockType("emerald", glm::vec4(0.07568f, 0.61424f, 0.07568f, 1.0f));
+
+    blockTypeDict->createBlockType("gold", glm::vec4(0.75164f, 0.60648f, 0.22648f, 1.0f));
+
+    blockTypeDict->createBlockType("silver", glm::vec4(0.50754f, 0.50754f, 0.50754f, 1.0f));
+
+    blockTypeDict->createBlockType("bronze", glm::vec4(0.714f, 0.4284f, 0.18144f, 1.0f));
+
+    blockTypeDict->createBlockType("debug", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+    blockTypeDict->createBlockType("planks", "assets/planks_acacia.png");
+    blockTypeDict->createBlockType("glass", "assets/glass.png");
+    blockTypeDict->createBlockType("brick", "assets/brick.png");
+
+    blockTypeDict->createBlockType("sand", "assets/sand.png");
+    blockTypeDict->createBlockType("red_sand", "assets/red_sand.png");
 }
 
 

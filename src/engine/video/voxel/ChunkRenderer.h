@@ -25,12 +25,14 @@
 #include "ChunkPos.h"
 #include "ChunkManager.h"
 #include "AChunkManager.h"
+#include "SceneryManager.h"
 
 // Do not copy shared_ptr's in inner loops (they incur reference and synchronization overhead)
 // unique_ptr's on the other hand should optimize to bare pointers (just avoid syphilis_ptr completely)
 class ChunkRenderer : public ILoadTask {
 public:
-    ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain);
+    ChunkRenderer(IGame &game, const std::shared_ptr<Camera> &camera, const std::shared_ptr<Terrain> &terrain, const std::shared_ptr<AChunkManager> &chunkManager,
+                  const std::shared_ptr<BlockTypeDictionary> &blockTypeDict, const std::shared_ptr<SceneryManager> &sceneryManager);
     void render(float screenWidth, float screenHeight, double delta);
 
     bool load(IGame &game) override;
@@ -39,14 +41,15 @@ public:
     i32 getActiveChunks();
     i32 getRenderedChunks();
     //ChunkPos camChunkPos;
-    std::unique_ptr<AChunkManager> chunkManager;
+    std::shared_ptr<AChunkManager> chunkManager;
 
 private:
     IGame& game;
     float halfChunkSize = (float) CHUNK_SIZE/2;
     std::shared_ptr<Camera> camera = nullptr;
     std::unique_ptr<Shader> shader = nullptr;
-    std::unique_ptr<BlockTypeDictionary> blockTypeDict;
+    std::shared_ptr<BlockTypeDictionary> blockTypeDict;
+    std::shared_ptr<SceneryManager> sceneryManager;
     std::vector<Chunk*> renderList;
     glm::vec3 lightPos = {0.0f, 2.0f, -6.0f};
     std::unique_ptr<ViewFrustum> viewFrustrum;

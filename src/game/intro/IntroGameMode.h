@@ -46,6 +46,8 @@ public:
     bool prepare(IGame &game) override;
 
 private:
+    void setupBlockTypes();
+
     bool initialized = false;
     std::string name = "IntroGameMode";
     int32_t font1;
@@ -63,6 +65,9 @@ private:
 
     std::unique_ptr<LightSceneRenderer> lightSceneRenderer;
     //std::unique_ptr<ModelRenderer> modelRenderer;
+    std::shared_ptr<SceneryManager> sceneryManager;
+    std::shared_ptr<BlockTypeDictionary> blockTypeDict;
+    std::shared_ptr<AChunkManager> chunkManager;
     std::unique_ptr<ChunkRenderer> chunkRenderer;
     std::shared_ptr<Camera> camera;
     std::shared_ptr<Terrain> terrain;

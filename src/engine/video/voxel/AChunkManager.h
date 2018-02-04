@@ -14,6 +14,7 @@
 #include "IChunkManager.h"
 #include "LightMapper.h"
 #include "ChunkMetrics.h"
+#include "SceneryManager.h"
 #include <engine/util/BlockingQueue.h>
 #include <thread>
 #include <atomic>
@@ -38,9 +39,9 @@ struct JobRequest {
 
 class AChunkManager : public IChunkManager {
 public:
-    const int VISIBLE_RADIUS = 32;
+    const int VISIBLE_RADIUS = 24;
 
-    AChunkManager(IGame &game, BlockTypeDictionary &blockTypeDict, const std::shared_ptr<Terrain> &terrain);
+    AChunkManager(IGame &game, BlockTypeDictionary &blockTypeDict, const std::shared_ptr<Terrain> &terrain, const std::shared_ptr<SceneryManager> &sceneryManager);
     virtual ~AChunkManager();
     void runThread();
     void update(glm::vec3& campos);
@@ -239,6 +240,8 @@ private:
     ChunkPos lastCamChunkPos;
     bool firstRun = true;
     bool firstUpdate = true;
+
+    std::shared_ptr<SceneryManager> sceneryManager;
 
 
     void calculateCircleOffsets();

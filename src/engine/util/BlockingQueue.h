@@ -12,10 +12,8 @@
 
 // needed because GCC on windows sucks
 #ifdef __WIN32__
-
 #include "../mingw.thread.h"
 #include "../mingw.condition_variable.h"
-
 #endif
 
 template<typename T>

@@ -6,8 +6,8 @@
 #include "AChunkManager.h"
 #include "ChunkManager.h"
 
-AChunkManager::AChunkManager(IGame &game, BlockTypeDictionary &blockTypeDict, const std::shared_ptr<Terrain> &terrain)
-        : game(game), blockTypeDict(blockTypeDict), terrain(terrain)
+AChunkManager::AChunkManager(IGame &game, BlockTypeDictionary &blockTypeDict, const std::shared_ptr<Terrain> &terrain, const std::shared_ptr<SceneryManager> &sceneryManager)
+        : game(game), blockTypeDict(blockTypeDict), terrain(terrain), sceneryManager(sceneryManager)
 {
     lightMapper = std::unique_ptr<LightMapper>(new LightMapper(this, updateList));
     calculateCircleOffsets();
