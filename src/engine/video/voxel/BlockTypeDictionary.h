@@ -45,6 +45,9 @@ public:
     void createBlockType(std::string name, std::string diffuseMapFilename);
     void createBlockType(std::string name, glm::vec4 diffuse);
     BlockType& getBlockTypeAt(int index);
+    BlockType* getBlockTypeByName(std::string name);
+    void setFaceTexture(BlockType *bt, i32 face, std::string diffuseMapFilename);
+    void setFaceColor(BlockType *bt, i32 face, glm::vec4 diffuse);
     std::unique_ptr<OGLArrayTexture> arrayTexture;
 
 private:

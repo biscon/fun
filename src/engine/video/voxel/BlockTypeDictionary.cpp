@@ -90,11 +90,29 @@ void BlockTypeDictionary::createBlockType(std::string name, glm::vec4 diffuse) {
     blockTypes.push_back(std::unique_ptr<BlockType>(new BlockType()));
     auto& bt = blockTypes.back();
     bt->name = name;
-    bt->texture = nullptr;
+    bt->texture = arrayTexture.get();
     // use the same color for all faces
     for(i32 i = 0; i < 6; i++)
     {
         bt->material.colors[i] = diffuse;
         bt->material.layers[i] = -1;
     }
+}
+
+BlockType *BlockTypeDictionary::getBlockTypeByName(std::string name) {
+    for(const auto& bt : blockTypes)
+    {
+        if(bt->name == name)
+            return bt.get();
+    }
+    return nullptr;
+}
+
+void BlockTypeDictionary::setFaceTexture(BlockType *bt, i32 face, std::string diffuseMapFilename) {
+    bt->material.layers[face] = addLayerIfNotPresent(diffuseMapFilename);
+}
+
+void BlockTypeDictionary::setFaceColor(BlockType *bt, i32 face, glm::vec4 diffuse) {
+    bt->material.layers[face] = -1;
+    bt->material.colors[face] = diffuse;
 }

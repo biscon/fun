@@ -15,6 +15,12 @@
 #define BLOCK_BRONZE 6
 #define BLOCK_DEBUG 7
 
+#define BLOCK_PLANKS 8
+#define BLOCK_GLASS 9
+#define BLOCK_BRICK 10
+#define BLOCK_SAND 11
+#define BLOCK_RED_SAND 12
+
 // block flags
 #define BLOCK_FLAG_ACTIVE 0x01
 #define BLOCK_FLAG_SHOULD_MESH 0x02

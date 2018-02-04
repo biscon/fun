@@ -43,7 +43,7 @@ void Chunk::setupDebugChunk()
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
-                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_GRASS;
+                    blocks[POS_TO_INDEX(y,z,x)].type = temple_block;
                 }
 
                 if(y == 100)
@@ -101,8 +101,8 @@ void Chunk::setupDebugChunk()
                    || x == 1 && z == 1 && y >= 101 && y <= 110)
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
-                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, true);
-                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_WATER;
+                    blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
+                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_PLANKS;
                 }
 
                 // hole
@@ -110,7 +110,7 @@ void Chunk::setupDebugChunk()
                 {
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_ACTIVE, true);
                     blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, true);
-                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_WATER;
+                    blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_GLASS;
                 }
                 /*
                 if(x == 8 && z == 11 && y == 103)
@@ -168,10 +168,13 @@ void Chunk::setupFromTerrain(const ChunkPos& position, const std::shared_ptr<Ter
                         blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
                         blocks[POS_TO_INDEX(y,z,x)].type = BLOCK_STONE;
                     }
-                    if(y >= 6 && y <= 10) {
-                        auto off = rand() % 4;
+                    if(y >= 6 && y <= 7) {
                         blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
-                        blocks[POS_TO_INDEX(y, z, x)].type = BLOCK_EMERALD + off;
+                        blocks[POS_TO_INDEX(y, z, x)].type = BLOCK_SAND;
+                    }
+                    if(y >= 8 && y <= 10) {
+                        blocks[POS_TO_INDEX(y,z,x)].setFlag(BLOCK_FLAG_TRANSPARENT, false);
+                        blocks[POS_TO_INDEX(y, z, x)].type = BLOCK_RED_SAND;
                     }
 
                 }
